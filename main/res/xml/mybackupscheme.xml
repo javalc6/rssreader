@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--Android 6.0, vedi anche manifest (fullBackupContent & fullBackupOnly) -->
-<full-backup-content>
-    <exclude domain="sharedpref" path="config_date"/>
-    <exclude domain="sharedpref" path="client_version"/>
-</full-backup-content>
