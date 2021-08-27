@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#000000</color>
+    <color name="gray75">#444444</color>
+    <color name="gray50">#888888</color>
+    <color name="white">#ffffff</color>
+    <color name="primary">#3f51b5</color>
+    <color name="primarydark">#303f9f</color>
+    <color name="accent">#651fff</color>
+
+    <color name="green_primary">#4CAF50</color>
+    <color name="green_primarydark">#388E3C</color>
+
+    <color name="orange_primary">#FF5722</color>
+    <color name="orange_primary_dark">#E64A19</color>
+
+    <color name="teal_primary">#009688</color>
+    <color name="teal_primary_dark">#00796B</color>
+
+    <color name="purple_primary">#673AB7</color>
+    <color name="purple_primary_dark">#512DA8</color>
+
+    <color name="orange_accent">#FF5722</color>
+    <color name="green_accent">#4CAF50</color>
+    <color name="teal_accent">#009688</color>
+    <color name="purple_accent">#7C4DFF</color>
+
+    <color name="ic_launcher_background">#FC6A00</color>
+</resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+	
+	<TextView
+	    android:id="@+id/theme"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBottom="@+id/themes"
+	    android:layout_alignParentStart="true"
+	    android:layout_alignParentTop="true"
+	    android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_marginStart="6dp"
+		android:gravity="center_vertical"
+	    android:text="@string/prefs_theme" />
+
+    <Button
+        android:id="@+id/themes"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@id/theme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Space
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_below="@+id/themes"/>
+
+	<ListView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+	    android:layout_below="@id/separator"
+        android:layout_alignParentStart="true"
+		android:id="@+id/itemlist"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reset_default"
+        android:layout_below="@id/itemlist"
+        android:id="@+id/reset_colors"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>

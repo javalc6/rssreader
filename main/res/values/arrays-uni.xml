@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="entryvalues_list_preference"  translatable="false">
+        <item>de</item>
+        <item>en</item>
+        <item>es</item>
+        <item>fr</item>
+        <item>it</item>
+        <item>pt</item>
+        <item>ru</item>
+    </string-array>
+
+    <string-array name="refreshTimerValueArray"  translatable="false">
+        <item>900</item>
+        <item>1800</item>
+        <item>3600</item>
+        <item>10800</item>
+        <item>86400</item>   
+    </string-array>
+
+    <string-array name="titles_size"  translatable="false">
+        <item>10</item>
+        <item>20</item>
+        <item>40</item>
+        <item>100</item>
+    </string-array>
+
+    <string-array name="connectivityValueArray" translatable="false">
+        <item>any</item>
+        <item>wifi</item>
+    </string-array>
+
+</resources>

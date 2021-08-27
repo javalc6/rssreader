@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:gravity="fill_vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+    <include layout="@layout/toolbar"
+             android:id="@+id/my_toolbar"/>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swiperefresh"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/my_toolbar"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/cardList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/mainfab"
+        android:src="@drawable/ic_rss_feed_white_24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
+        app:backgroundTint="@color/accent"
+        app:elevation="4dp"/>
+</RelativeLayout>
