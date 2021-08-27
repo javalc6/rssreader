@@ -60,8 +60,8 @@ This application re-uses following third party classes adapted for the purposes 
 Repository
 ==========
 source code: https://github.com/javalc6/rssreader \
-user guide: http://thesaurus.altervista.org/newsreader-help
-
+user guide: https://thesaurus.altervista.org/newsreader-help \
+apk file: https://thesaurus.altervista.org/apk/pRSSReader.apk
 
 _______________________ \
 Release 1.0, 27-08-2021 \
