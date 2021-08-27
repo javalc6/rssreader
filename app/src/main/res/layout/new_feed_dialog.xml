@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/new_rssfeed_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/dlg_title_hint"
+        android:inputType="text">
+<!--        android:text="@string/dlg_title_example" -->
+        <requestFocus />
+    </EditText>
+    <EditText
+        android:id="@+id/new_rssfeed_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/dlg_rss_hint"
+        android:inputType="textUri">
+<!--       android:text="@string/dlg_rss_example"-->
+    </EditText>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        style="?attr/buttonBarStyle">
+        <Button
+            android:id="@+id/cancel_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@android:string/cancel"
+            style="?attr/buttonBarButtonStyle"/>
+        <Button
+            android:id="@+id/ok_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@android:string/ok"
+            style="?attr/buttonBarButtonStyle"/>
+    </LinearLayout>
+</LinearLayout>

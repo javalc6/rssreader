@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">News Reader</string>
+    <string name="widget_name">News Reader</string>
+
+    <string name="small_arrow">&#8594;</string>
+
+    <string name="widget_loading">Recupero notizie...</string>
+    <string name="widget_error">Nessuna notizia\ndisponibile</string>
+    
+    <string name="tts_play_label">Leggi ad alta voce</string>
+    <string name="tts_settings_label">Impostazioni di sintesi vocale</string>
+    <string name="menu_share_label">Condividi</string>
+    <string name="copy_label">Copia</string>	
+    <string name="go_prev_label">Articolo precedente</string>
+    <string name="go_next_label">Articolo successivo</string>
+
+    <string name="menu_preferences">Impostazioni</string>
+    <string name="menu_about">Informazioni</string>    
+    <string name="menu_help">Aiuto</string>
+    <string name="show_help_label">Aiuto</string>
+    <string name="menu_rss_refresh">Aggiorna</string>
+    <string name="menu_publisher">Publisher information</string>
+    <string name="msg_publisher">Publisher of current feed: &lt;a href="%2$s"&gt;%1$s&lt;/a&gt;</string>
+
+    <string name="app_descrip">Lettore di notizie web semplice e veloce</string>
+
+    <string name="set_preferences">Impostazioni</string>
+
+    <string name="msg_error">Errore</string>
+    <string name="msg_connection_problem">Errore di rete. Verifica la tua connessione ad internet.</string>
+    <string name="msg_feedback_sent">Feedback sent...</string>
+
+    <string name="sel_cat_label">Scegli la categoria</string>
+    <string name="sel_feed_label">Scegli il canale</string>
+    
+    <string name="send_fb_label">Send feedback</string>
+
+    <string name="show_label">Descrizione</string>
+
+    <string name="dlg_title_hint">Titolo del canale</string>
+    <string name="dlg_rss_hint">Indirizzo web del canale</string>
+    <string name="dlg_add_feed">Inserisci nuovo canale</string>
+    <string name="dlg_edit_feed">Modifica canale</string>
+
+    <string name="dlg_cat_title_hint">Titolo della categoria</string>
+    <string name="dlg_cat_description_hint">Breve descrizione della categoria</string>
+    <string name="dlg_add_category">Inserisci nuova categoria</string>
+    <string name="dlg_edit_category">Modifica categoria</string>
+
+    <string name="news_settings">News Feeds</string>
+    <string name="news_feed">News Feed</string>
+    <string name="delete">Cancella</string>
+    <string name="news_feed_desc">Seleziona il canale delle notizie</string>
+    <string name="refresh_timer">Periodo di aggiornamento</string>
+    <string name="max_titles">Max number of headlines</string>
+    <string name="num_items">Number of items</string>
+    <string name="missing_url">Please enter a valid rss feed address</string>
+    <string name="missing_title">Please enter a title</string>
+    
+   
+    <string name="yes">Sì</string>
+    <string name="no">No</string>
+    <string name="other">Altro</string>
+
+    <string name="display">Display</string>
+    <string name="use_external_browser">Usa browser esterno</string>
+
+    <string name="prefs_theme">Tema</string>
+    <string name="prefs_theme_sub">Modifica i colori</string>
+    <string name="prefs_theme_chooser">Sfondo</string>	
+    <string name="prefs_fontsize">Dimensione carattere</string>
+    <string name="download_images">Scarica immagini</string>
+
+    <string name="feeds_language">Lingua delle notizie</string>
+    <string name="dialog_title_list_preference">Lingua delle notizie</string>
+    <string name="default_feed_language_code">it</string>
+
+    <string name="msg_rss_error">Il feed delle notizie è errato o il server delle notizie non è disponibile.</string>
+    <string name="msg_http_error">Error returned by the feed server: </string>
+    <string name="msg_bad_answer">Invalid content received from the feed server, error code: </string>
+    <string name="msg_bad_mimetype">Incorrect type of content received from the feed server.</string>
+    <string name="msg_generic_problem">Error inaspettato.</string>
+    <string name="msg_corrupt_file">Il database offline è danneggiato. &lt;br&gt;Soluzione consigliata:&lt;br&gt;1) Disinstalla questa applicazione&lt;br&gt;2) Installa nuovamente l\'applicazione da Google Play</string>
+    
+	<string name="msg_done">Fatto!</string>    
+	<string name="msg_nothing_to_delete">Nulla da cancellare</string>
+
+    <string name="backup_hint">Ci sono dati non salvati, vuoi eseguire il backup?</string>
+    <string name="backup">Backup</string>
+    <string name="restore">Ripristino</string>    
+    <string name="export_label">Export</string>    
+    <string name="import_label">Import</string>    
+    <string name="local_storage">Archivio locale</string>
+    <string name="ext_storage">Archivio esterno</string>
+    <string name="msg_missing_file_manager">Si prega di installare un file manager</string>
+	
+    <string name="exit">Esci</string>    
+    <string name="msg_external_storage_notwritable">Impossibile scrivere sulla scheda SD</string>
+    <string name="msg_external_storage_notreadble">Impossibile leggere la scheda SD</string>
+    <string name="msg_cannot_write_backup">Impossibile scrivere il backup</string>
+    <string name="msg_cannot_read_backup">Impossibile leggere il backup</string>
+    <string name="msg_permission_denied">Operazione non riuscita a causa di permesso negato</string>
+    <string name="msg_missing_backup">Il file di backup non esiste</string>
+	<string name="msg_backup_ok">Backup terminato</string>
+	<string name="msg_restore_ok">Ripristino completato</string>
+
+    <string name="msg_cannot_write_file">Impossibile scrivere il file</string>
+    <string name="msg_cannot_read_file">Impossibile leggere il file</string>
+    <string name="msg_missing_file">Il file non esiste</string>
+	<string name="msg_export_ok">File esportato</string>
+	<string name="msg_import_ok">File importato</string>
+
+    <string name="textColor">Testo Regolare</string>
+    <string name="hyperlinkColor">Testo Hyperlink</string>
+    <string name="genericColor">Colore generico</string>
+    <string name="color_picker_default_title">Seleziona un colore</string>
+    <string name="nightmode">Modalità Notte</string>
+
+    <string name="smart_titles">Titoli smart</string>
+
+    <string name="full_story">Articolo completo</string>
+
+    <string name="now">ora</string>
+    <string name="ago">fa</string>
+    <string name="minute">minuto</string>
+    <string name="minutes">minuti</string>
+    <string name="hour">ora</string>
+    <string name="hours">ore</string>
+
+    <string name="reset_default">Predefinito</string>
+
+    <string name="credits">Credits</string>
+    <string name="credits_text">This application includes the following items:&lt;br&gt;&lt;br&gt;&lt;b&gt;Android Support&lt;/b&gt; libraries distributed under the Apache License 2.0, http://www.apache.org/licenses</string>
+
+</resources>

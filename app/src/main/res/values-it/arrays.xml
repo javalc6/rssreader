@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="entries_list_preference">
+        <item>Deutsch</item>
+        <item>English</item>
+        <item>Español</item>
+        <item>Français</item>
+        <item>Italiano</item>
+        <item>Português</item>
+        <item>Русский</item>
+    </string-array>
+
+    <string-array name="categories_list">
+        <item>Finanza</item>
+        <item>Spettacolo</item>
+        <item>Moda</item>
+        <item>Stile di vita</item>
+        <item>Musica</item>
+        <item>Notizie</item>
+        <item>Politica</item>
+        <item>Scienza</item>
+        <item>Sport</item>
+        <item>Tecnologia</item>
+    </string-array>
+
+    <string-array name="prefs_theme_names">
+        <item>Bianco</item>
+        <item>Chiaro</item>
+        <item>Scuro</item>
+        <item>Nero</item>
+    </string-array>
+
+    <string-array name="refreshTimerArray">
+        <item>15 minuti</item>
+        <item>30 minuti</item>
+        <item>1 ora</item>
+        <item>3 ore</item>
+        <item>24 ore</item>
+    </string-array>
+
+    <string-array name="connectivityArray">
+        <item>Wi-Fi e rete mobile</item>
+        <item>Solo Wi-Fi</item>
+    </string-array>
+
+</resources>

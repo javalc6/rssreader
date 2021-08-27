@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="livio.rssreader">
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /><!--required to access data written before user uninstalls and reinstalls app-->
+	<!--  uses-feature android:name="android.software.webview" -->
+	<supports-screens android:largeScreens="true" android:xlargeScreens="true" />
+    <application android:hardwareAccelerated="true" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher"
+                 android:label="@string/app_name" android:theme="@style/ThemeNoActionBar" android:supportsRtl="true"
+                 android:usesCleartextTraffic="true" android:requestLegacyExternalStorage="true"
+                 android:allowBackup="true" android:fullBackupContent="@xml/mybackupscheme">
+		<!-- Main activity -->    
+        <activity android:name=".RSSReader" android:theme="@style/ThemeNoActionBar"
+				android:exported="true"
+                  android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:mimeType="application/rss+xml" />
+                <data android:scheme="http" android:mimeType="application/atom+xml" />
+                <data android:scheme="https" android:mimeType="application/rss+xml" />
+                <data android:scheme="https" android:mimeType="application/atom+xml" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".PreferencesFragXML" android:exported="false" android:theme="@style/ThemeHiContrast" android:configChanges="orientation|screenSize" android:resizeableActivity="false"
+	        android:label="@string/set_preferences"/>
+        <activity android:name=".SelectCategory" android:exported="false" android:theme="@style/ThemeHiContrast" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+	        android:label="@string/sel_cat_label"/>
+        <activity android:name=".ListFeeds" android:exported="false" android:theme="@style/ThemeHiContrast" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+        	android:label="@string/sel_feed_label"/>
+        <activity android:name=".ShowItem" android:exported="false" android:theme="@style/ThemeHiContrast" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+                  android:label="@string/show_label"/>
+        <activity android:name=".ShowHelp" android:exported="false" android:theme="@style/ThemeLightHiContrast" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+                  android:label="@string/show_help_label"/>
+        <activity
+            android:name=".SelectColors" android:exported="false" android:resizeableActivity="false" android:configChanges="orientation|screenSize"
+            android:theme="@style/Theme.MaterialComponents.Dialog.Bridge"
+            android:label="@string/prefs_theme_sub">
+        </activity>
+        <!-- Widget -->
+        <receiver android:name="livio.rssreader.RSSWidget" android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/rss_widget" />
+        </receiver>
+        <!-- Widget dark -->
+        <receiver android:name="livio.rssreader.RSSWidgetDark" android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/rss_widget_dark" />
+        </receiver>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="livio.rssreader.FileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+    </application>
+    <queries>
+        <!--package visibility for FileManager.java-->
+        <intent>
+            <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <!--package visibility for text to speech-->
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>	
+</manifest>
