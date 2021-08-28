@@ -1,0 +1,19 @@
+This minimal RSS news reader brings you the latest news. It includes several feeds in different categories, including news, technology, science, sports and others! You can also add your own feeds.
+<br><br>News feeds are available in the following languages: German, English, Spanish, French, Italian, Portuguese and Russian.
+
+<br><br><b><u>Features</u></b>
+<ul>
+<li>easy to use and lightweight with wide selection of news feeds</li>
+<li>text to speech: listen to your news</li>
+<li>choose your theme, add your personal feeds</li>
+<li>mini widget showing latest news headline</li>
+<li>backup and restore settings</li>
+<li>designed for speed and low battery consumption</li>
+<li>language of news feeds can be changed: please select "Settings" and then click on "Feeds language" to choose the language of news feeds</li>
+</ul>
+<b><u>Permissions</u></b>
+<br><br>This application requires the following permissions:
+<ul>
+<li>INTERNET - to retrieve news</li>
+<li>WRITE_EXTERNAL_STORAGE (aka Photos/Media/Files) - to backup settings</li>
+</ul>
