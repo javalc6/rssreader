@@ -109,6 +109,8 @@ public final class ShowHelp extends AppCompatActivity {
             position = 0;//default
             if (getIntent().getStringExtra("help") != null) {
                 help_filename = getIntent().getStringExtra("help");
+				if (help_filename == null)
+					help_filename = getString(R.string.helpfile);//default help file
                 int idx = help_filename.indexOf('/');
                 String selector = "";//default: no selector
                 if (idx != -1) {

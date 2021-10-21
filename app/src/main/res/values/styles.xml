@@ -28,6 +28,6 @@
         <item name="android:statusBarColor">@color/primarydark</item>
 	</style>
 
-    <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Dialog.Alert.Bridge"/>
+    <style name="AlertDialogTheme" parent="@style/Theme.MaterialComponents.Dialog.Alert.Bridge"/>
 
 </resources>

@@ -16,12 +16,12 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Parcelable;
 import android.speech.tts.UtteranceProgressListener;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
@@ -30,7 +30,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -46,8 +48,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.Stack;
 
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
 import livio.rssreader.backend.RSSFeed;
 import livio.rssreader.backend.RSSItem;
 import livio.rssreader.backend.TTSEngine;
@@ -59,7 +61,6 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
     private SmartPager smartPager;
     private ImageButton backbutton;
     private ImageButton fwdbutton;
-    private boolean rtl; 
     private boolean use_external_browser;
 
     private TTSEngine mTts;
@@ -78,10 +79,7 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         smartPager.onSaveInstanceState(outState);
-        int position = smartPager.getCurrentItem();
-        if (rtl)
-            position = smartPager.getCount() - 1 - position;
-        outState.putInt(SAVE_currentItem_ID, position);
+        outState.putInt(SAVE_currentItem_ID, smartPager.getCurrentItem());
         outState.putString(SAVE_language_ID, language);
     }
 
@@ -99,7 +97,6 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
    	 	Log.i(tag, "onCreate");
 
         setContentView(R.layout.showitem);
-        rtl = getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
 
         use_external_browser = startingIntent.getBooleanExtra("external_browser", false);
         ActionBar t = getSupportActionBar();
@@ -171,13 +168,13 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
             String default_language = startingIntent.getStringExtra("default_language");
             language = smartPager.feed.getLanguage(default_language);
 //            Log.d(tag, "language:" + language);
-            position = smartPager.getCount() - 1 - startingIntent.getIntExtra("position", 0);//ShowItem shows items in reversed order compared to RSSReader
+            position = smartPager.getItemCount() - 1 - startingIntent.getIntExtra("position", 0);//ShowItem shows items in reversed order compared to RSSReader
         } else {
             position = savedInstanceState.getInt(SAVE_currentItem_ID);
             language = savedInstanceState.getString(SAVE_language_ID);
         }
 //        Log.d(tag, "position:" + position);
-        smartPager.setCurrentItem(rtl ? smartPager.getCount() - 1 - position : position, false);
+        smartPager.setCurrentItem(position, false);
     }
 
     public void onNewIntent (Intent intent) {
@@ -255,10 +252,8 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
         if (play != null)
             play.setIcon(R.drawable.ic_play_arrow_white_36dp);
 
-        int n_items = smartPager.getCount();
+        int n_items = smartPager.getItemCount();
         int pos = smartPager.getCurrentItem();
-        if (rtl)
-            pos = n_items - 1 - pos;
 
         if (pos == 0) {// |<
             MenuItem prev = menu.findItem(R.id.menu_prev);
@@ -301,7 +296,7 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
                 return true;
             }
             if (smartPager.feed != null) {
-                RSSItem article = smartPager.feed.getItem(smartPager.getCount() - 1 - smartPager.getCurrentItem());//ShowItem shows items in reversed order compared to RSSReader
+                RSSItem article = smartPager.feed.getItem(smartPager.getItemCount() - 1 - smartPager.getCurrentItem());//ShowItem shows items in reversed order compared to RSSReader
                 if (article != null) {
                     String content = article.getDescription();
                     if ((content != null) && mTts.checkTTS(language)) {
@@ -325,7 +320,7 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
         } else if (itemId == R.id.menu_share) {
             try {
                 if (smartPager.feed != null) {
-                    RSSItem article = smartPager.feed.getItem(smartPager.getCount() - 1 - smartPager.getCurrentItem());//ShowItem shows items in reversed order compared to RSSReader
+                    RSSItem article = smartPager.feed.getItem(smartPager.getItemCount() - 1 - smartPager.getCurrentItem());//ShowItem shows items in reversed order compared to RSSReader
                     if (article != null) {
                         Intent intent = new Intent(Intent.ACTION_SEND);
                         intent.setType("text/plain");
@@ -344,14 +339,14 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
     }
 
     private void backpage() {
-        movepage(rtl);
+        movepage(false);
     }
     public void backpage(View view) {
         backpage();
     }
 
     private void fwdpage() {
-        movepage(!rtl);
+        movepage(true);
     }
     public void fwdpage(View view) {
         fwdpage();
@@ -360,7 +355,7 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
     private void movepage(boolean up) {
         int pos = smartPager.getCurrentItem();
         if (up) {
-            if (pos < smartPager.getCount() - 1) {
+            if (pos < smartPager.getItemCount() - 1) {
                 smartPager.setCurrentItem(pos + 1, true); // scroll
             }
         } else {
@@ -371,7 +366,7 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
         invalidateOptionsMenu();
     }
 
-    protected class WebViewPlus extends WebView { // extended web view
+    public class WebViewPlus extends WebView { // extended web view
         String _msg;
         final String style;
 
@@ -445,11 +440,8 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
 
 
     // http://developer.android.com/reference/android/support/v4/view/PagerAdapter.html
-    class SmartPager extends PagerAdapter {
-        final Stack<WebViewPlus> idlelist = new Stack<>();
-        final ViewPager viewPager;
-        WebViewPlus primaryItem;
-        final WebViewPlus homeView; // "home page"
+    class SmartPager extends RecyclerView.Adapter {
+        final ViewPager2 viewPager;
         final Context context;
         final int n_items;
         final Bundle payload;
@@ -457,7 +449,7 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
         final boolean text_mode;
         final int background;
 
-        SmartPager(ViewPager vpager, Bundle savedInstanceState, Context ctx, Bundle payload) throws IOException {
+        SmartPager(ViewPager2 vpager, Bundle savedInstanceState, Context ctx, Bundle payload) throws IOException {
             viewPager = vpager;
             this.payload = payload;
             text_mode = payload.getBoolean("text_mode", false);
@@ -474,33 +466,133 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
             if (n_items == 0)//inutile procedere se non c'è nulla da visualizzare, problema dovuto ad eventuali corse critiche
                 throw new IOException("SmartPager constructor failed due to n_items = 0");
             vpager.setAdapter(this);
-//            vpager.addOnPageChangeListener(this);
+            vpager.registerOnPageChangeCallback(new OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int pos) {
+                    super.onPageSelected(pos);
+//                    Log.d("onPageSelected", "pos:"+pos);
+                    RSSItem rssitem = feed.getItem(n_items - 1 - pos);//ShowItem shows items in reversed order compared to RSSReader
+                    ActionBar t = getSupportActionBar();
+                    if ((t != null) && (rssitem != null)) {
+                        t.setTitle(Html.fromHtml(rssitem.getTitle(false)));
+                    }
+                    invalidateOptionsMenu();//<--necessario per aggiornare le icone < > nell'action bar in alto
+                }
+            });
             context = ctx;
             if (savedInstanceState != null) {
-                homeView = new WebViewPlus(savedInstanceState, ctx, background, payload.getString("html_style"), text_mode);
                 viewPager.setCurrentItem(savedInstanceState.getInt(SAVE_currentItem_ID), false);
-            } else {
-                homeView = new WebViewPlus(null, ctx, background, payload.getString("html_style"), text_mode);
-                homeView.loadDataWithBaseURL("", "text/html", "utf-8"); //empty page - needed?
             }
         }
 
+
         @Override
-        public int getCount() {
-            return n_items;
+        public void onAttachedToRecyclerView(RecyclerView recyclerView) {//17-10-2021: ViewPager2
+// workaround for issue https://issuetracker.google.com/issues/123006042
+// workaround is a simplified version of https://github.com/android/views-widgets-samples/blob/master/ViewPager2/app/src/main/java/androidx/viewpager2/integration/testapp/NestedScrollableHost.kt
+// workaround limitation: gli scroll orizzontali sono passati direttamente al viewpager che bypassano il webviewplus, ok per help e showitem, meno bene per il dizionario offline
+            recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+                int lastX;
+                int lastY;
+                int touchSlop;
+                boolean waitingFirst;
+                boolean disallowInterceptTouch;
+
+                @Override
+                public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+//                    Log.d(tag, "onInterceptTouchEvent+"+e.getAction());
+                    switch (e.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            lastX = (int) e.getX();
+                            lastY = (int) e.getY();
+                            touchSlop = ViewConfiguration.get(context).getScaledEdgeSlop();
+                            waitingFirst = true;
+                            disallowInterceptTouch = false;
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            int dx = Math.abs((int) e.getX() - lastX);
+                            int dy = Math.abs((int) e.getY() - lastY);
+                            int scaledDx = dx / 2;// assuming ViewPager2 touch-slop is 2x touch-slop of child
+                            if (waitingFirst && (scaledDx > touchSlop || dy > touchSlop)) {
+                                waitingFirst = false;
+                                if (dy > scaledDx) {
+                                    // Gesture is perpendicular, disallow all parents to intercept
+                                    disallowInterceptTouch = true;
+                                }
+                            }
+                            if (disallowInterceptTouch)
+                                rv.requestDisallowInterceptTouchEvent(true);
+                            break;
+                    }
+                    return false;
+                }
+
+                @Override
+                public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                }
+
+                @Override
+                public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+                }
+            });
+        }
+
+
+        int getCurrentItem() {
+            return viewPager.getCurrentItem();
+        }
+
+        void setCurrentItem(int item, boolean smoothScroll){
+//            Log.d("setCurrentItem", "pos:"+item);
+            int pos = item; 
+            if ((pos >= 0) && (pos < smartPager.getItemCount() - 1)) {
+                fwdbutton.setAlpha(1f);
+                fwdbutton.animate().alpha(0f).setDuration(6000).start();
+            }
+            if (pos > 0) {
+                backbutton.setAlpha(1f);
+                backbutton.animate().alpha(0f).setDuration(6000).start();
+            }
+            viewPager.setCurrentItem(item, smoothScroll);
+
+        }
+
+        void onSaveInstanceState(Bundle outState) {
+//            homeView.saveInstanceState(outState); // handling webview persistence
+        }
+
+        void clearWebViews(boolean includeDiskFiles) {		//17-10-2021: ViewPager2
+            try {
+                RecyclerView rv = ((RecyclerView) viewPager.getChildAt(0));
+                if (rv != null) {
+                    ViewHolder vh = (ViewHolder) rv.findViewHolderForAdapterPosition(0);
+                    if (vh != null) {
+                        vh.getWebViewPlus().clearCache(includeDiskFiles);
+                        Log.d(tag, "successful clearWebViews");
+                    }
+                }
+            } catch (RuntimeException re) {
+                Log.d(tag, "RuntimeException in clearWebViews", re);
+//ignore it, we were just trying to clear the webview cache
+            }
+        }
+
+        @NonNull
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {//17-10-2021: ViewPager2
+            WebViewPlus wvp = new WebViewPlus(null, context, payload.getInt("background"), payload.getString("html_style"), text_mode);
+            wvp.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            ));
+            return new ViewHolder(wvp);
         }
 
         @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            WebViewPlus wv;
-            if (position == 0) // page 0
-                wv = homeView;
-            else if (idlelist.empty())
-                wv =  new WebViewPlus(null, context, payload.getInt("background"), payload.getString("html_style"), text_mode);
-            else {
-                wv = idlelist.pop();
-            }
-            RSSItem item = feed.getItem(rtl ? position : n_items - 1 - position);//ShowItem shows items in reversed order compared to RSSReader
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {//17-10-2021: ViewPager2
+//            Log.d("onBindViewHolder", "pos:"+position);
+            WebViewPlus wv = ((ViewHolder) holder).getWebViewPlus();
+            RSSItem item = feed.getItem(n_items - 1 - position);//ShowItem shows items in reversed order compared to RSSReader
             if (item != null) {
                 wv.loadDataWithBaseURL(item.getPubDate(context)
                         + " <a href=\""+item.getLink()+"\">"+getString(R.string.full_story)+"</a><br><br>" +
@@ -510,85 +602,25 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
                 Log.i(tag, "instantiateItem, item = null !");
             }
 
-            container.addView(wv);
-            return wv;
         }
 
         @Override
-        public void destroyItem(ViewGroup container, int position, Object view) {
-            container.removeView((WebViewPlus) view);
-            if (position != 0) {// page > 0
-                ((WebViewPlus) view)._msg = "";
-                ((WebViewPlus) view).loadUrl("about:blank");// clean-up view to re-cycle
-                ((WebViewPlus) view).setBackgroundColor(background);  // required
+        public int getItemCount() {//17-10-2021: ViewPager2
+            return n_items;
+        }
 
-                idlelist.push((WebViewPlus) view);
+        public class ViewHolder extends RecyclerView.ViewHolder {//17-10-2021: ViewPager2
+            private final WebViewPlus wvp;
+
+            public ViewHolder(View v) {
+                super(v);
+                wvp = (WebViewPlus) v;
+            }
+
+            public WebViewPlus getWebViewPlus() {
+                return wvp;
             }
         }
-
-        @Override
-        public void setPrimaryItem(ViewGroup container, int position, Object view) {
-//            Log.d("setPrimaryItem", "pos:"+position);
-            primaryItem = (WebViewPlus) view;
-            ActionBar t = getSupportActionBar();
-            RSSItem item = feed.getItem(rtl ? position : n_items - 1 - position);//ShowItem shows items in reversed order compared to RSSReader
-            if ((t != null) && (item != null))
-                t.setTitle(Html.fromHtml(item.getTitle(false)));
-            invalidateOptionsMenu();//<--necessario per aggiornare le icone < > nell'action bar in alto
-        }
-
-        int getCurrentItem() {
-            return viewPager.getCurrentItem();
-        }
-
-        void setCurrentItem(int item, boolean smoothScroll){
-//            Log.d("setCurrentItem", "pos:"+item);
-            int pos = item; 
-            if (rtl)
-                pos = smartPager.getCount() - 1 - pos;
-            if ((pos >= 0) && (pos < smartPager.getCount() - 1)) {
-                fwdbutton.setAlpha(1f);
-                fwdbutton.animate().alpha(0f).setDuration(6000).start();
-            }
-            if (pos > 0) {
-                backbutton.setAlpha(1f);
-                backbutton.animate().alpha(0f).setDuration(6000).start();
-            }
-            viewPager.setCurrentItem(item, smoothScroll);
-        }
-
-        @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return view == object;
-        }
-
-        void onSaveInstanceState(Bundle outState) {
-            homeView.saveInstanceState(outState); // handling webview persistence
-        }
-
-        @Override
-        public void finishUpdate(ViewGroup container) {}
-
-
-        @Override
-        public void startUpdate(ViewGroup container) {}
-
-
-        @Override
-        public void restoreState(Parcelable state, ClassLoader loader) {}
-
-        @Override
-        public Parcelable saveState() {
-            return null;
-        }
-
-        void clearWebViews(boolean includeDiskFiles) {		// clean-up
-            int nviews = viewPager.getChildCount();
-            for (int i=0; i < nviews; i++) {
-                ((WebViewPlus)viewPager.getChildAt(i)).clearCache(includeDiskFiles);
-            }
-        }
-
     }
 
 }

@@ -531,7 +531,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             return true;
         } else if (itemId == R.id.menu_help) {
             Intent intent = new Intent(this, ShowHelp.class);
-            intent.putExtra("help", "news");
+            intent.putExtra("help", getString(R.string.helpfile));
             startActivity(intent);
             return true;
         }
