@@ -18,6 +18,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
+        app:tint="@color/white"
         app:backgroundTint="@color/accent"
         app:elevation="4dp"/>
 

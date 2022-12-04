@@ -1,17 +1,20 @@
 package livio.rssreader.backend;
 
+import androidx.annotation.NonNull;
+
 public final class IconItem {
 	public final String name;
 	final String resourceId;
     private boolean checked;
 
-	public IconItem(String name, String resourceFilePath, boolean checked) {
+	public IconItem(@NonNull String name, String resourceFilePath, boolean checked) {
 		this.name = name;
 		this.resourceId = resourceFilePath;
         this.checked = checked;
 	}
 
-	@Override
+	@NonNull
+    @Override
 	public String toString() {
 		return this.name;
 	}

@@ -37,16 +37,6 @@
         app:showAsAction="never"
         android:title="@string/restore"
         android:icon="@drawable/ic_cloud_download_white_24dp">
-        <menu>
-            <group>
-                <item
-                    android:id="@+id/menu_local_storage"
-                    android:title="@string/local_storage"/>
-                <item
-                    android:id="@+id/menu_ext_storage"
-                    android:title="@string/ext_storage"/>
-            </group>
-        </menu>
     </item>
 
     <item

@@ -13,9 +13,12 @@ for use in mission critical, life support and military purposes.
 The use of this software is at the risk of the user.
 */
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.speech.tts.UtteranceProgressListener;
 
 import androidx.annotation.NonNull;
@@ -54,6 +57,10 @@ import livio.rssreader.backend.RSSFeed;
 import livio.rssreader.backend.RSSItem;
 import livio.rssreader.backend.TTSEngine;
 
+import static livio.rssreader.SelectColors.get_theme_idx;
+import static tools.ColorBase.isDarkColor;
+import static tools.ColorBase.preset_colors;
+
 public final class ShowItem extends AppCompatActivity implements AudioManager.OnAudioFocusChangeListener {
 	private final String tag = "ShowItem";
 	private String language;
@@ -76,28 +83,34 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
     private static final String SAVE_msg_ID = "msg";
 
     /** Called to save instance state: put critical variables here! */
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         smartPager.onSaveInstanceState(outState);
         outState.putInt(SAVE_currentItem_ID, smartPager.getCurrentItem());
         outState.putString(SAVE_language_ID, language);
     }
 
-	@SuppressLint("NewApi")
-	public void onCreate(Bundle savedInstanceState) {
+    @Override
+    public Resources.Theme getTheme() {
+        Resources.Theme theme = super.getTheme();
         Intent startingIntent = getIntent();
         boolean light_theme = startingIntent.getBooleanExtra("light_theme", false);
         if (light_theme) { // light background
-            setTheme(R.style.ThemeLightHiContrast);
+            theme.applyStyle(R.style.ThemeLightHiContrast, true);
         } else { // dark background
-            setTheme(R.style.ThemeHiContrast);
+            theme.applyStyle(R.style.ThemeHiContrast, true);
         }
+        return theme;
+    }
 
+	@SuppressLint("NewApi")
+	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
    	 	Log.i(tag, "onCreate");
 
         setContentView(R.layout.showitem);
 
+        Intent startingIntent = getIntent();
         use_external_browser = startingIntent.getBooleanExtra("external_browser", false);
         ActionBar t = getSupportActionBar();
 		if (t != null) {

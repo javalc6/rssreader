@@ -14,6 +14,8 @@ The use of this software is at the risk of the user.
 */
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import livio.rssreader.backend.UserDB;
 import livio.rssreader.backend.Item;
 import livio.rssreader.backend.ItemArrayAdapter;
@@ -37,6 +39,7 @@ import android.view.Menu;
 
 import android.view.MenuItem;
 
+import android.view.View;
 import android.widget.ListView;
 
 import static livio.rssreader.backend.UserDB.DEFAULT_FEED_ID;
@@ -60,15 +63,7 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
 		if (t != null) {
 			t.setDisplayHomeAsUpEnabled(true);
 		}
-        		
-        Intent startingIntent = getIntent();
-        if (startingIntent != null) {
-        	Bundle b = startingIntent.getBundleExtra(SelectCategory.ID_CATEGORY);
-        	if (b != null)	{
-        		cat = b.getString("category");
-    		}
-        }		        
-		
+
 	}
 
 /////////////////////////////////////////    
@@ -78,13 +73,21 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
         SharedPreferences prefs;
 		
 		@Override
-        public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {//03-12-2022: sostituisce onActivityCreated deprecated
+            super.onViewCreated(view, savedInstanceState);
 	        
 	        final Activity act = getActivity();
             prefs = PreferenceManager.getDefaultSharedPreferences(act);
 
             udb = UserDB.getInstance(act, prefs);
+
+            Intent startingIntent = act.getIntent();
+            if (startingIntent != null) {
+                Bundle b = startingIntent.getBundleExtra(SelectCategory.ID_CATEGORY);
+                if (b != null)	{
+                    cat = b.getString("category");
+                } else Log.e(tag, "missing category!");
+            }
 
             currentUserFeeds = udb.getUserFeeds(cat);
             nativeFeeds = UserDB.getNativeFeeds();
@@ -103,7 +106,7 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
             ListView lv = getListView();
             lv.setTextFilterEnabled(true);
 
-            lv.setOnItemClickListener((parent, view, position, id) -> { //select a feed
+            lv.setOnItemClickListener((parent, v, position, id) -> { //select a feed
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString(RSSReader.PREF_FEED_ID, getFeed(position)[2]);
                 editor.apply();
@@ -111,7 +114,7 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
                 act.finish();
             });
 //long click --> edit (work in progress)
-            lv.setOnItemLongClickListener((parent, view, position, id) -> { //edit a feed
+            lv.setOnItemLongClickListener((parent, v, position, id) -> { //edit a feed
                 if (isUserFeed(position)) {//only feeds in user category can be edited
                     String[] feed = getFeed(position);
                     NewFeedDialog editNameDialog = NewFeedDialog.newInstance(feed);
@@ -141,7 +144,8 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
                     addFeed(cat, feed);
                     iaa.add(new Item(feed[0], false));
                     final Activity act = getActivity();
-                    act.invalidateOptionsMenu();
+                    if (act != null)
+                        act.invalidateOptionsMenu();
                 }
                 iaa.notifyDataSetChanged();
             }

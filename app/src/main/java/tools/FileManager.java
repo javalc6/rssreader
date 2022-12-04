@@ -203,7 +203,7 @@ public final class FileManager {
                 else resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             } catch (JSONException e) {
                 Log.w(tag, "JSONException on menu_backup");
-//                ReportBug.reportException(this, packageName + "-" + version, e);
+
                 resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             }
             Snackbar.make(mActivity.findViewById(android.R.id.content), mActivity.getString(resid), Snackbar.LENGTH_SHORT).show();
@@ -244,7 +244,7 @@ public final class FileManager {
                 resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             } catch (JSONException e) {
                 Log.w(tag, "JSONException on menu_backup");
-//                ReportBug.reportException(this, packageName + "-" + version, e);
+
                 resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             } catch (NoSuchAlgorithmException e) {
 //ignore it, should never occur
@@ -350,7 +350,7 @@ public final class FileManager {
             return;
         } catch (JSONException e) {
             Log.w(tag, "JSONException on menu_backup");
-//            ReportBug.reportException(this, packageName + "-" + version, e);
+
             resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
         } catch (android.content.ActivityNotFoundException ex) {
             Log.e(tag, "doExtendedBackup: ActivityNotFoundException", ex);
@@ -485,7 +485,7 @@ public final class FileManager {
                     Log.d(tag, error);
                 }
             } catch (JSONException e) {
-                //            ReportBug.reportException(this, packageName + "-" + version, e);
+
                 error = "invalid JSON format";
                 Log.d(tag, "do_extended_readfile", e);
             } catch (NoSuchAlgorithmException e) {

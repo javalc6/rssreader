@@ -20,7 +20,7 @@
         android:gravity="center_horizontal" >
     </TextView>
 
-    <SeekBar
+    <com.google.android.material.slider.Slider
         android:id="@+id/seek_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

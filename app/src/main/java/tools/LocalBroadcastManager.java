@@ -57,6 +57,7 @@ public final class LocalBroadcastManager {//LocalBroadcastManager class added af
             receiver = _receiver;
         }
 
+        @NonNull
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder(128);

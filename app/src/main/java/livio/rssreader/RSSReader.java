@@ -74,6 +74,8 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -84,6 +86,7 @@ import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -181,6 +184,8 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
     public static final String PREF_CLIENT_VERSION = "client_version";
     public static final String PREF_FEED_ID = "news_feed";
 
+    public static final String PREF_BRICIOLA = "briciola";//used in place of Settings.Secure.ANDROID_ID, DO NOT insert this in backable_prefs
+
     private final static String tag = "RSSReader";
 
     public final static String uniqueWorkerName = "RSSReaderService";
@@ -221,23 +226,30 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
     private final FileManager mBackupRestore = new FileManager(this, this, true, APP_FOLDER);
 
+    @Override
+    public Resources.Theme getTheme() {
+        Resources.Theme theme = super.getTheme();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int theme_idx = get_theme_idx(prefs, getResources());
+        int background = preset_colors[theme_idx][0];
+        if (!isDarkColor(background)) { // light background
+            theme.applyStyle(R.style.ThemeLightNoActionBar, true);
+        } else { // dark background
+            theme.applyStyle(R.style.ThemeNoActionBar, true);
+        }
+        return theme;
+    }
+
     /** Called when the activity is first created. */
     @SuppressLint("NewApi")
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int theme_idx = get_theme_idx(prefs, getResources());
-        int background = preset_colors[theme_idx][0];
-        if (!isDarkColor(background)) { // light background
-            setTheme(R.style.ThemeLightNoActionBar);
-        } else { // dark background
-            setTheme(R.style.ThemeNoActionBar);
-        }
         super.onCreate(savedInstanceState);
         if (BuildConfig.DEBUG)
             Log.d(tag, "onCreate");
 
         setContentView(R.layout.main);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         System.setProperty("http.keepAlive", "false"); // workaround to avoid responseCode = -1 problem
 
@@ -336,7 +348,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             Uri intent_data = intent.getData();
             if (intent_data != null) {
                 if (BuildConfig.DEBUG)
-                    Log.d(tag, "intent uri: " + intent_data.toString());
+                    Log.d(tag, "intent uri: " + intent_data);
 //TODO: process feed via intent
 //command: adb shell am start -W -a android.intent.action.VIEW -d "<replace with url to feed>"  -t "application/rss+xml"
             }
@@ -434,11 +446,6 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         inflater.inflate(R.menu.menu, menu);
         ttsplay = menu.findItem(R.id.menu_play);
         ttsplay.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {//scopedstorage
-            MenuItem restore = menu.findItem(R.id.menu_restore);//scopedstorage
-            restore.getSubMenu().clear();//scopedstorage - disable (local restore / external restore)
-        }
         return true;
     }    
     
@@ -455,7 +462,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
+// Handle item selection
         int itemId = item.getItemId();
         if (itemId == R.id.menu_preferences) {
             showPreferences();
@@ -515,16 +522,27 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         } else if (itemId == R.id.menu_backup) {
             doBackup(prefs, mBackupRestore, getResources());
             return true;
-        } else if (itemId == R.id.menu_local_storage) {//restore from local storage (direct) - not valid for Android 11 or later
-            mBackupRestore.readLocalFile(EXTENDED_BACKUP_FILENAME, BACKUP_FILENAME);//scopedstorage
-            return true;
         } else if (itemId == R.id.menu_restore) {//scopedstorage (purtroppo in Android 11 non si riesce ad usare in modo sicuro filename2uri_downloads_Q(), quindi usiamo per il restore comunque il SAF, come nel caso di storage esterno
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                 mBackupRestore.openFileSAF(EXTENDED_BACKUP_MIMETYPE_ONEDRIVE, false);//scopedstorage, use SAF on Android 11 or later
-            } // else ignore
-            return true;
-        } else if (itemId == R.id.menu_ext_storage) {//restore from external storage - not valid for Android 11 or later
-            mBackupRestore.readExternalFile();
+            } else {
+//18-09-2022: nuova gestione con PopupMenu per evitare problemi in ChromeOS basato su Android 11 (o superiore)
+//PopupMenu risolve problema del passaggio del mouse sopra la voce del menu 'restore' che apre il filemanager su ChromeOS in modo indesiderato
+                PopupMenu popup = showRestorePopup(findViewById(R.id.my_toolbar), Gravity.END);
+
+                popup.setOnMenuItemClickListener(item1 -> {
+//                    mDrawerLayout.closeDrawer(mDrawerList);
+                    int itemId1 = item1.getItemId();
+                    if (itemId1 == R.id.menu_ext_storage) {//restore from external storage
+                        mBackupRestore.readExternalFile();
+                        return true;
+                    } else if (itemId1 == R.id.menu_local_storage) {//restore from local storage (direct)
+                        mBackupRestore.readLocalFile(EXTENDED_BACKUP_FILENAME, BACKUP_FILENAME);//scopedstorage
+                        return true;
+                    }
+                    return false;//never happen
+                });
+            }
             return true;
         } else if (itemId == R.id.menu_exit) {
             finishAffinity();//nn
@@ -536,6 +554,17 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private PopupMenu showRestorePopup(View view, int gravity) {
+        Context wrapper = new ContextThemeWrapper(RSSReader.this, R.style.MyPopupMenu);//18-09-2022: aggiunto wrapper per risolvere un problema sul colore del testo del popup quando il tema è scuro
+        PopupMenu popup = new PopupMenu(wrapper, view, gravity);
+        Menu popmenu = popup.getMenu();
+        popmenu.add(Menu.NONE, R.id.menu_local_storage, Menu.NONE, R.string.local_storage);//menu_local_storage is hidden in buildNavDrawerItems()
+        popmenu.add(Menu.NONE, R.id.menu_ext_storage, Menu.NONE, R.string.ext_storage);//menu_ext_storage is hidden in buildNavDrawerItems()
+
+        popup.show();
+        return popup;
     }
 
     private static void doBackup(SharedPreferences prefs, FileManager mBackupRestore, Resources resources) {
@@ -676,7 +705,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String[] permissions, int[] grantResults) {
+                                           @NonNull String[] permissions, int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             mBackupRestore.processRequestPermissionsResult(requestCode);
         } else {// permission denied

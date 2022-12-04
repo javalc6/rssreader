@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
 import livio.rssreader.R;
 import tools.DateParser;
 
@@ -131,7 +132,7 @@ public final class RSSItem implements Serializable, Comparable<RSSItem> {
         } else return getPubDate(context);
     }
 
-
+    @NonNull
     public String toString() {
 		if (_title == null) return "<untitled>";
 /* limit how much text we display

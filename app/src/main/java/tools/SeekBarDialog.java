@@ -20,7 +20,8 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.SeekBar;
+
+import com.google.android.material.slider.Slider;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -28,10 +29,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.preference.PreferenceDialogFragmentCompat;
 import livio.rssreader.R;
 
+import static com.google.android.material.slider.LabelFormatter.LABEL_GONE;
+
 public final class SeekBarDialog extends PreferenceDialogFragmentCompat {
     private final static String tag = "SeekBarDialog";
 //    private boolean mPreferenceChanged;
-    private SeekBar mSeekBar;
+    private Slider mSlider;
 
     private int mMinProgress;
     private int mMaxProgress;
@@ -85,42 +88,38 @@ public final class SeekBarDialog extends PreferenceDialogFragmentCompat {
     }
 
     @Override
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+    protected void onPrepareDialogBuilder(@NonNull AlertDialog.Builder builder) {
         super.onPrepareDialogBuilder(builder);
         // set layout
         Context context = builder.getContext();
         View dialogView = LayoutInflater.from(context).inflate(R.layout.seekbar_dialog, null, false);
-        mSeekBar = dialogView.findViewById(R.id.seek_bar);
+        mSlider = dialogView.findViewById(R.id.seek_bar);
         final TextView valueText = dialogView.findViewById(R.id.text_progress);
         valueText.setTextColor(getThemeColor(android.R.attr.textColorSecondary));
 
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int newValue, boolean fromUser) {
+
+        mSlider.addOnChangeListener((seekBar, newValue, fromUser) -> {
 //                mPreferenceChanged = true;
-                if(mInterval != 1 && newValue % mInterval != 0)
-                    newValue = Math.round(((float)newValue)/mInterval)*mInterval;
-
-                String progressStr;
-                if (modePercentage)
-                    progressStr = String.valueOf((newValue + mMinProgress) * 100 / mDefault);
-                else progressStr = String.valueOf(newValue + mMinProgress);
-                valueText.setText(mSuffix == null ? progressStr : progressStr.concat(mSuffix));
-                Log.d(tag, "onProgressChanged.value = "+(newValue+mMinProgress));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
+/*rimosso dopo avere convertito SeekBar in Slider
+            if(mInterval != 1 && newValue % mInterval != 0)
+                newValue = Math.round(newValue / mInterval) * mInterval;
+*/
+            String progressStr;
+            if (modePercentage)
+                progressStr = String.valueOf((newValue) * 100 / mDefault);
+            else progressStr = String.valueOf(newValue);
+            valueText.setText(mSuffix == null ? progressStr : progressStr.concat(mSuffix));
+            Log.d(tag, "onProgressChanged.value = "+(newValue));
         });
-//        mSeekBar.setKeyProgressIncrement(1);
-        mSeekBar.setMax(mMaxProgress - mMinProgress);
-        mSeekBar.setProgress(value - mMinProgress);
-        Log.d(tag, "setProgress = "+(value - mMinProgress));
+        if (modePercentage) {//in case of percentage we have to change the text displayed in the bubble on the slider
+            mSlider.setLabelFormatter(value -> String.valueOf((value) * 100 / mDefault));
+        }
+        mSlider.setValueFrom(mMinProgress);
+        mSlider.setValueTo(mMaxProgress);
+        mSlider.setValue(value);
+        mSlider.setStepSize(mInterval);
+        mSlider.setLabelBehavior(LABEL_GONE);
+        Log.d(tag, "setValue = " + value);
         builder.setView(dialogView);
 
     }
@@ -129,10 +128,12 @@ public final class SeekBarDialog extends PreferenceDialogFragmentCompat {
     public void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
             SeekBarPreference preference = (SeekBarPreference) getPreference();
-            int progress = mSeekBar.getProgress();
+/*rimosso dopo avere convertito SeekBar in Slider
             if(mInterval != 1 && progress % mInterval != 0)
                 progress = Math.round(((float)progress)/mInterval)*mInterval;
             int value = progress + mMinProgress;
+ */
+            int value = (int) mSlider.getValue();
             if (preference.callChangeListener(value)) {
                 preference.setValue(value);
             }

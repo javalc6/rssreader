@@ -16,9 +16,11 @@ import android.app.backup.BackupManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -29,6 +31,7 @@ import tools.SeekBarDialog;
 import tools.SeekBarPreference;
 
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 import static livio.rssreader.RSSReader.PREF_FONTSIZE;
 
@@ -59,7 +62,18 @@ public final class PreferencesFragXML extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
+    @Override
+    public void onStart() {//14-11-2022: narrow panel in case of table in landscape mode
+        super.onStart();
+        Resources resources = getResources();
+        if (resources.getBoolean(R.bool.is_tablet_landscape)) {//isTablet && isLandscape
+//		int dialogHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.6);
+            int dialogWidth = (int) (resources.getDisplayMetrics().widthPixels * 0.6);
+            getWindow().setLayout(dialogWidth, WindowManager.LayoutParams.MATCH_PARENT);
+        }
+    }
+
     public static class PrefsFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener{
     	SharedPreferences prefs;
     	
@@ -91,7 +105,7 @@ public final class PreferencesFragXML extends AppCompatActivity {
         private static final String DIALOG_FRAGMENT_TAG = "SeekBarDialogPreference";
 
         @Override
-        public void onDisplayPreferenceDialog(Preference preference) {
+        public void onDisplayPreferenceDialog(@NonNull Preference preference) {
 // check if dialog is already showing
             if (getParentFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
                 return;

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="livio.rssreader">
-	<uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /><!--required to access data written before user uninstalls and reinstalls app-->
@@ -41,18 +42,18 @@
                   android:label="@string/show_help_label"/>
         <activity
             android:name=".SelectColors" android:exported="false" android:resizeableActivity="false" android:configChanges="orientation|screenSize"
-            android:theme="@style/Theme.MaterialComponents.Dialog.Bridge"
+            android:theme="@style/MyDialogTheme"
             android:label="@string/prefs_theme_sub">
         </activity>
         <!-- Widget -->
-        <receiver android:name="livio.rssreader.RSSWidget" android:label="@string/widget_name">
+        <receiver android:name="livio.rssreader.RSSWidget" android:exported="true" android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/rss_widget" />
         </receiver>
         <!-- Widget dark -->
-        <receiver android:name="livio.rssreader.RSSWidgetDark" android:label="@string/widget_name">
+        <receiver android:name="livio.rssreader.RSSWidgetDark" android:exported="true" android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

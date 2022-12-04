@@ -198,7 +198,7 @@ public final class RSSFeed implements Serializable {
 //---begin---
                 int xml = 0;
                 if (rssstate == 0) { // no rss found
-                    if ((body != null) && (encoding.length() == 0) && (xml = st.indexOf("<?xml")) != -1) {//if encoding is not defined, check encoding, to support russian web sites with encoding windows-1251
+                    if ((body != null) && (encoding.isEmpty()) && (xml = st.indexOf("<?xml")) != -1) {//if encoding is not defined, check encoding, to support russian web sites with encoding windows-1251
                         int pos = st.indexOf(encoding_element, xml);
                         if (pos != -1) {
                             int end = st.indexOf("\"", pos + encoding_element.length());

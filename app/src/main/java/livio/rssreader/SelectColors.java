@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
@@ -257,7 +258,7 @@ public final class SelectColors extends AppCompatActivity implements AdapterView
             //Auto-generated constructor stub
         }
 
-        ColorItem(String name, int color) {
+        ColorItem(@NonNull String name, int color) {
             this.name = name;
             this.resourceId = color;
         }
@@ -266,6 +267,7 @@ public final class SelectColors extends AppCompatActivity implements AdapterView
             this.resourceId = color;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return this.name;

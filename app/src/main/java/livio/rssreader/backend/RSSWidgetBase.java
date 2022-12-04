@@ -133,7 +133,7 @@ abstract public class RSSWidgetBase extends AppWidgetProvider {//widget-theme
         updateViews.setTextViewText(R.id.message, Html.fromHtml(description));
 // When user clicks on widget, launch main activity
         updateViews.setOnClickPendingIntent(R.id.widget,
-                PendingIntent.getActivity(context, 0, new Intent(context, RSSReader.class), 0));
+                PendingIntent.getActivity(context, 0, new Intent(context, RSSReader.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
         return updateViews;
     }
 
