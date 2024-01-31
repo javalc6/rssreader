@@ -1,6 +1,6 @@
-+====================+
-| Simple News Reader |
-+====================+
+
+Simple News Reader
+==================
 
 This Android application is a minimal RSS news reader that brings you the latest news. 
 It includes several feeds in different categories, like news, technology, science, sports and others! You can also add your own feeds.
@@ -11,18 +11,26 @@ News feeds are available in the following languages: German, English, Spanish, F
 Features
 ========
 ♦ easy to use and lightweight with wide selection of news feeds
+
 ♦ text to speech: listen to your news
+
 ♦ choose your theme, add your personal feeds
+
 ♦ mini widget showing latest news headline
+
 ♦ backup and restore settings
+
 ♦ designed for speed and low battery consumption
+
 ♦ language of news feeds can be changed: please select "Settings" and then click on "Feeds language" to choose the language of news feeds
 
 
 Permissions
 ===========
 This application requires the following permissions:
+
 ♢ INTERNET - to retrieve news
+
 ♢ WRITE_EXTERNAL_STORAGE (aka Photos/Media/Files) - to backup settings
 
 
@@ -53,6 +61,7 @@ In case you don't agree with these conditions, do not use this software. By usin
 Credits
 =======
 This application re-uses following third party classes adapted for the purposes of this app:
+
 1) LocalBroadcastManager: this class is derived from Google LocalBroadcastManager
 2) Entities: this class is derived from Apache class, part of https://commons.apache.org/proper/commons-lang/
 3) Android Support: this Google library is included in the app package without any modification
@@ -61,9 +70,5 @@ This application re-uses following third party classes adapted for the purposes 
 Repository
 ==========
 source code: https://github.com/javalc6/rssreader
+
 user guide: http://thesaurus.altervista.org/newsreader-help
-
-
-===============================================================================
-Release 1.0, 16-08-2021
-Livio (javalc6@gmail.com)
