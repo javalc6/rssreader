@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="livio.rssreader">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /><!--required to access data written before user uninstalls and reinstalls app-->
+	<uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
 	<!--  uses-feature android:name="android.software.webview" -->
 	<supports-screens android:largeScreens="true" android:xlargeScreens="true" />
     <application android:hardwareAccelerated="true" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher"
-                 android:label="@string/app_name" android:theme="@style/ThemeNoActionBar" android:supportsRtl="true"
+                 android:label="@string/app_name" android:theme="@style/Theme.App" android:supportsRtl="true"
                  android:usesCleartextTraffic="true" android:requestLegacyExternalStorage="true"
+				 android:dataExtractionRules="@xml/data_extraction_rules"
                  android:allowBackup="true" android:fullBackupContent="@xml/mybackupscheme">
 		<!-- Main activity -->    
-        <activity android:name=".RSSReader" android:theme="@style/ThemeNoActionBar"
+        <activity android:name=".RSSReader"
 				android:exported="true"
                   android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
                   android:label="@string/app_name">
@@ -30,18 +32,17 @@
                 <data android:scheme="https" android:mimeType="application/atom+xml" />
             </intent-filter>
         </activity>
-        <activity android:name=".PreferencesFragXML" android:exported="false" android:theme="@style/ThemeHiContrast" android:configChanges="orientation|screenSize" android:resizeableActivity="false"
-	        android:label="@string/set_preferences"/>
-        <activity android:name=".SelectCategory" android:exported="false" android:theme="@style/ThemeHiContrast" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+        <activity android:name=".PreferencesFragXML" android:exported="false" android:configChanges="screenSize|screenLayout|orientation" 	        android:label="@string/set_preferences"/>
+        <activity android:name=".SelectCategory" android:exported="false" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
 	        android:label="@string/sel_cat_label"/>
-        <activity android:name=".ListFeeds" android:exported="false" android:theme="@style/ThemeHiContrast" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+        <activity android:name=".ListFeeds" android:exported="false" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
         	android:label="@string/sel_feed_label"/>
-        <activity android:name=".ShowItem" android:exported="false" android:theme="@style/ThemeHiContrast" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+        <activity android:name=".ShowItem" android:exported="false" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
                   android:label="@string/show_label"/>
-        <activity android:name=".ShowHelp" android:exported="false" android:theme="@style/ThemeLightHiContrast" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+        <activity android:name=".ShowHelp" android:exported="false" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
                   android:label="@string/show_help_label"/>
         <activity
-            android:name=".SelectColors" android:exported="false" android:resizeableActivity="false" android:configChanges="orientation|screenSize"
+            android:name=".SelectColors" android:exported="false" android:configChanges="screenSize|screenLayout|orientation"
             android:theme="@style/MyDialogTheme"
             android:label="@string/prefs_theme_sub">
         </activity>

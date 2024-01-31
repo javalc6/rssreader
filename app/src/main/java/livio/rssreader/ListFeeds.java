@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import livio.rssreader.backend.UserDB;
 import livio.rssreader.backend.Item;
 import livio.rssreader.backend.ItemArrayAdapter;
@@ -26,7 +27,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -34,6 +35,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.fragment.app.ListFragment;
+import tools.FormFactorUtils;
+
 import android.util.Log;
 import android.view.Menu;
 
@@ -58,11 +61,13 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
         super.onCreate(savedInstanceState);
 //        Log.i(tag,"ListFeeds.onCreate");
         setContentView(R.layout.frg_listfeeds);
-        
-        ActionBar t = getSupportActionBar();
-		if (t != null) {
-			t.setDisplayHomeAsUpEnabled(true);
-		}
+
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(!FormFactorUtils.isArc(this));
+        }
 
 	}
 
@@ -75,9 +80,9 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
 		@Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {//03-12-2022: sostituisce onActivityCreated deprecated
             super.onViewCreated(view, savedInstanceState);
-	        
+//	        Log.d(tag, "onViewCreated");
 	        final Activity act = getActivity();
-            prefs = PreferenceManager.getDefaultSharedPreferences(act);
+            prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(act);
 
             udb = UserDB.getInstance(act, prefs);
 
@@ -123,16 +128,24 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
                 } else return false;
             });
 
+        }
+
+        @Override
+        public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+            super.onViewStateRestored(savedInstanceState);
+//            Log.d(tag, "onViewStateRestored");
+            final Activity act = getActivity();
             final FloatingActionButton fab = act.findViewById(R.id.addfab);
+            Log.d(tag, "fab="+fab);
             if (fab != null) {
                 fab.setOnClickListener(v -> {
+                    Log.d(tag, "setOnClickListener");
+
                     NewFeedDialog editNameDialog = NewFeedDialog.newInstance(new String[UserDB.FEED_SIZE]);// new feed
                     editNameDialog.show(((ListFeeds)act).getSupportFragmentManager(), "new_feed_dialog");
                 });
             }
-
         }
-
         public void onFinishEditDialog(String[] feed) {//add or replace feed
             ItemArrayAdapter iaa = (ItemArrayAdapter) getListAdapter();
             if (iaa != null) {

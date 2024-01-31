@@ -65,7 +65,7 @@ public final class WebFetch {
         } else {
             conn = (HttpURLConnection) server.openConnection();//http
         }
-//		conn.setReadTimeout(5000);//http
+		conn.setReadTimeout(15000);//avoid infinite timeout
         conn.setRequestProperty("Host", server.getHost());//http
         if ((accept != null) && (accept.length() > 0))
             conn.setRequestProperty("Accept", accept);
@@ -89,6 +89,7 @@ public final class WebFetch {
     // fetchURL(String urlName)
     public WebResponse fetchURL(String urlName, int requestId, String[] custom_header) throws IOException {//added custom_header to support optiona custom HTTP header
         HttpURLConnection conn = connect(urlName); //http
+		conn.setReadTimeout(15000);//avoid infinite timeout
         if (custom_header != null)
             conn.addRequestProperty(custom_header[0], custom_header[1]);//http
 
@@ -123,7 +124,8 @@ public final class WebFetch {
 //            Log.i(tag,"responseCode: "+responseCode);
             if ((responseCode == HttpURLConnection.HTTP_MOVED_TEMP) ||
                     (responseCode == HttpURLConnection.HTTP_MOVED_PERM) ||
-                    (responseCode == 307)) {//response code 307 aggiunto per gestire https://www.lequipe.fr/Xml/actu_rss.xml
+                    (responseCode == 307) ||//response code 307 aggiunto per gestire https://www.lequipe.fr/Xml/actu_rss.xml
+                    (responseCode == 308)) {//response code 308 aggiunto per gestire http://economico.sapo.pt/rss/ultimas
                 conn.disconnect(); //http
 // rewrite URL with Location
                 String urlName = conn.getHeaderField("Location"); //http

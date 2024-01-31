@@ -1,0 +1,10 @@
+<data-extraction-rules>
+    <cloud-backup>
+		<exclude domain="sharedpref" path="config_date"/>
+		<exclude domain="sharedpref" path="client_version"/>
+    </cloud-backup>
+    <device-transfer>
+		<exclude domain="sharedpref" path="config_date"/>
+		<exclude domain="sharedpref" path="client_version"/>
+    </device-transfer>
+</data-extraction-rules>

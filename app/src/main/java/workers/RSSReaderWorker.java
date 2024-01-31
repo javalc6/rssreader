@@ -20,7 +20,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.URLUtil;
 
@@ -79,7 +78,7 @@ public final class RSSReaderWorker extends Worker {
         try {
             if (debug)
                 Log.d(tag, "executing task:"+getTags());
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
             String feed_id = prefs.getString(RSSReader.PREF_FEED_ID, null);
             FeedsDB feedsDB = FeedsDB.getInstance();
             if (feed_id == null) {
@@ -110,7 +109,7 @@ public final class RSSReaderWorker extends Worker {
             Message result;//l'uso di Message è obsoleto, andrà eliminato
             int what, arg1 = 0, arg2 = 0;
             try {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 UserDB ft = UserDB.getInstance(getApplicationContext(), prefs);
                 String[] feed_data = ft.getFeedData(feed);
                 String feed_url = URLUtil.guessUrl(feed_data[1]); //guessUrl() sanitizes user input
@@ -137,6 +136,7 @@ public final class RSSReaderWorker extends Worker {
 //response code 304: some servers sent 304 in place of 200 OK, even if we didn't sent a conditional request
 //in case a server send 304, we handle it like a 200 OK, to improve user experience
                 HttpURLConnection conn = fetch.connect(feed_url); //http
+				conn.setReadTimeout(15000);//avoid infinite timeout
                 WebResponse mResponse = fetch.openStream(conn, ++requestId);
                 if (requestId != mResponse.requestId) {
                     Log.i(tag,"GetFeedTask: cancelling an old request");
@@ -214,7 +214,7 @@ public final class RSSReaderWorker extends Worker {
             int[] ids_dark = AppWidgetManager.getInstance(context)
                     .getAppWidgetIds(new ComponentName(context, RSSWidgetDark.class));
             if ((what == MSG_UPDATE) && (ids.length + ids_dark.length > 0)) {//refresh widgets
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
 
                 String feed_id = prefs.getString(RSSReader.PREF_FEED_ID, null);
                 if (feed_id == null) {

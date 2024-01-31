@@ -14,6 +14,7 @@ The use of this software is at the risk of the user.
 */
 import android.Manifest;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -203,7 +204,6 @@ public final class FileManager {
                 else resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             } catch (JSONException e) {
                 Log.w(tag, "JSONException on menu_backup");
-
                 resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             }
             Snackbar.make(mActivity.findViewById(android.R.id.content), mActivity.getString(resid), Snackbar.LENGTH_SHORT).show();
@@ -244,7 +244,6 @@ public final class FileManager {
                 resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             } catch (JSONException e) {
                 Log.w(tag, "JSONException on menu_backup");
-
                 resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             } catch (NoSuchAlgorithmException e) {
 //ignore it, should never occur
@@ -350,7 +349,6 @@ public final class FileManager {
             return;
         } catch (JSONException e) {
             Log.w(tag, "JSONException on menu_backup");
-
             resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
         } catch (android.content.ActivityNotFoundException ex) {
             Log.e(tag, "doExtendedBackup: ActivityNotFoundException", ex);
@@ -485,7 +483,6 @@ public final class FileManager {
                     Log.d(tag, error);
                 }
             } catch (JSONException e) {
-
                 error = "invalid JSON format";
                 Log.d(tag, "do_extended_readfile", e);
             } catch (NoSuchAlgorithmException e) {
@@ -663,17 +660,21 @@ public final class FileManager {
         mActivity.startActivityForResult(intent, REQUEST_CODE_READ_FILE);
     }
 
-    public void createFileSAF(String filename) {//scopedstorage
+    public boolean createFileSAF(String filename) {//scopedstorage
         if (debug)
             Log.d(tag, "createFileSAF");
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType(fileHandler.getMimeType());
         intent.putExtra(Intent.EXTRA_TITLE, filename);
-        mActivity.startActivityForResult(intent, REQUEST_CODE_WRITE_FILE);
+        try {
+            mActivity.startActivityForResult(intent, REQUEST_CODE_WRITE_FILE);
+            return true;
+        } catch (ActivityNotFoundException ex) {
+            Log.d(tag, "cannot launch SAF", ex);
+            return false;
+        }
     }
-
-
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public boolean create_file_downloads_Q(String filename, String mimetype, String content) {//scopedstorage: save file in download folder, according to new method required by Android R

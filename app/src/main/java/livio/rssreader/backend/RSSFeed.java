@@ -212,7 +212,7 @@ public final class RSSFeed implements Serializable {
                         rssstate = 1; // rss found, looking for channel
                     else if ((xml = st.indexOf("<feed")) != -1) { //check basic feed ?
                         if ((xml + 5 == st.length()) || st.charAt(xml + 5) == ' ')//nota: dopo <feed è importante che termini la linea o ci sia blank, non rimuovere!
-                        rssstate = 2; // feed found
+                            rssstate = 2; // feed found
                     } else if ((xml = st.indexOf("<rdf:RDF")) != -1) {
                         if (st.indexOf("/rss/", xml) != -1)// check rdf based rss ?
                             rssstate = 1; // rss found, looking for channel
@@ -223,7 +223,7 @@ public final class RSSFeed implements Serializable {
                         if (newfeedurl == null) {
                             int pos, href, start, stop;
                             if (((pos = st.indexOf("<link")) != -1) && ((pos = st.indexOf("alternate", pos)) != -1) &&
-                                ((st.indexOf("type=\"application/rss+xml\"", pos) != -1) || (st.indexOf("type=\"atom/rss+xml\"", pos) != -1)) &&
+                                    ((st.indexOf("type=\"application/rss+xml\"", pos) != -1) || (st.indexOf("type=\"atom/rss+xml\"", pos) != -1)) &&
                                     ((href = st.indexOf("href", pos)) != -1)) {
 //autodiscovery: try rss feed auto-discovery via dirty parsing:
 //e.g.  <link rel="alternate" type="application/rss+xml" title="blabla" href="http://www.repubblica.it/rss/homepage/rss2.0.xml" />
@@ -248,181 +248,183 @@ public final class RSSFeed implements Serializable {
 
                 boolean tagging = false;
                 int st_length = st.length();
-                for (int i = xml; i < st_length; i++) {
-                    char ch = st.charAt(i);
-                    switch (state) {
-                        case 0: // idle
-                            if (ch == '<') {
-                                if (st.charAt(i + 1) == '/') { // warning: missing check on bound
-                                    i++;
-                                    state = 2; // end tag
-                                    if (debug) Log.d(tagz, "state = " + state);
-                                    deepness--;
-                                } else {
-                                    state = 1; // start tag (or standalone tag)
-                                    if (debug) Log.d(tagz, "state = " + state);
-                                    tagging = true;
-                                    tag.setLength(0);
-                                    deepness++;
-                                }
-                            }
-                            break;
-
-                        case 1: // start tag (or standalone tag)
-                            switch (ch) {
-                                case '>':
-                                    if (st.charAt(i - 1) == '/') {
-                                        deepness--; // standalone tag
-                                        if (deepness == 0)
-                                            state = 0; // idle
-                                        else state = 3; // read content
+                if (xml != -1) {
+                    for (int i = xml; i < st_length; i++) {
+                        char ch = st.charAt(i);
+                        switch (state) {
+                            case 0: // idle
+                                if (ch == '<') {
+                                    if (st.charAt(i + 1) == '/') { // warning: missing check on bound
+                                        i++;
+                                        state = 2; // end tag
                                         if (debug) Log.d(tagz, "state = " + state);
+                                        deepness--;
                                     } else {
-                                        state = 3; // read content
+                                        state = 1; // start tag (or standalone tag)
                                         if (debug) Log.d(tagz, "state = " + state);
-                                        content.setLength(0); // content is the final buffer final
-                                        econtent.setLength(0); // econtent is temporary buffer to handle not CDATA content
-                                        String stag = tag.toString().toLowerCase(); // note: equals() does not work on StringBuffer as you may expect!
-                                        if (stag.equals("channel")) {
-                                            rssstate = 2; // channel found
-                                            if (debug) Log.d(tagz, "rssstate = " + rssstate);
-                                        } else if ((rssstate > 1) && (stag.equals("item") || stag.equals("entry"))) {
-                                            rssstate = 3; // item found
-                                            if (debug) Log.d(tagz, "rssstate = " + rssstate);
-                                            if (item != null) {
-                                                result.add(item);
-                                            }
-                                            item = new RSSItem();
-                                        }
-
+                                        tagging = true;
+                                        tag.setLength(0);
+                                        deepness++;
                                     }
-                                    break;
-                                case ' ':
-                                    tagging = false;
-                                    break;
-                                default:
-                                    if (tagging)
-                                        tag.append(ch);
-                                    break;
-                            }
-                            break;
+                                }
+                                break;
 
-                        case 2: // end tag
-                            int gt = st.indexOf(">", i); // uu
-                            if (gt == -1) continue main; // uu
-                            i = gt; // uu
+                            case 1: // start tag (or standalone tag)
+                                switch (ch) {
+                                    case '>':
+                                        if (st.charAt(i - 1) == '/') {
+                                            deepness--; // standalone tag
+                                            if (deepness == 0)
+                                                state = 0; // idle
+                                            else state = 3; // read content
+                                            if (debug) Log.d(tagz, "state = " + state);
+                                        } else {
+                                            state = 3; // read content
+                                            if (debug) Log.d(tagz, "state = " + state);
+                                            content.setLength(0); // content is the final buffer final
+                                            econtent.setLength(0); // econtent is temporary buffer to handle not CDATA content
+                                            String stag = tag.toString().toLowerCase(); // note: equals() does not work on StringBuffer as you may expect!
+                                            if (stag.equals("channel")) {
+                                                rssstate = 2; // channel found
+                                                if (debug) Log.d(tagz, "rssstate = " + rssstate);
+                                            } else if ((rssstate > 1) && (stag.equals("item") || stag.equals("entry"))) {
+                                                rssstate = 3; // item found
+                                                if (debug) Log.d(tagz, "rssstate = " + rssstate);
+                                                if (item != null) {
+                                                    result.add(item);
+                                                }
+                                                item = new RSSItem();
+                                            }
+
+                                        }
+                                        break;
+                                    case ' ':
+                                        tagging = false;
+                                        break;
+                                    default:
+                                        if (tagging)
+                                            tag.append(ch);
+                                        break;
+                                }
+                                break;
+
+                            case 2: // end tag
+                                int gt = st.indexOf(">", i); // uu
+                                if (gt == -1) continue main; // uu
+                                i = gt; // uu
 //assert: now it is true that (st.charAt(i) == '>')							
 
-                            if (deepness == 0)
-                                state = 0; // idle
-                            else state = 3; // read content
-                            if (debug) Log.d(tagz, "state = " + state);
-                            String stag = tag.toString().toLowerCase(); // note: equals() does not work on StringBuffer as you may expect!
-                            if (debug) Log.d(tagz, "stag = " + stag);
-                            if (rssstate == 2) {
-                                if (debug) Log.d(tagz, "parsing " + stag);
-                                switch (stag) {
-                                    case "title":
+                                if (deepness == 0)
+                                    state = 0; // idle
+                                else state = 3; // read content
+                                if (debug) Log.d(tagz, "state = " + state);
+                                String stag = tag.toString().toLowerCase(); // note: equals() does not work on StringBuffer as you may expect!
+                                if (debug) Log.d(tagz, "stag = " + stag);
+                                if (rssstate == 2) {
+                                    if (debug) Log.d(tagz, "parsing " + stag);
+                                    switch (stag) {
+                                        case "title":
 //                                    setTitle(content.toString()); don't use title sent by server, as it is unreliable
-                                        break;
-                                    case "pubdate":
-                                    case "published":
-                                    case "updated":
-                                    case "dc:date":
-                                        setPubDate(content.toString());
-                                        break;
-                                    case "language":
-                                        setLanguage(content.toString());
-                                        break;
-                                    case "link"://publisher
-                                        setPublisherLink(content.toString());
-                                        break;
+                                            break;
+                                        case "pubdate":
+                                        case "published":
+                                        case "updated":
+                                        case "dc:date":
+                                            setPubDate(content.toString());
+                                            break;
+                                        case "language":
+                                            setLanguage(content.toString());
+                                            break;
+                                        case "link"://publisher
+                                            setPublisherLink(content.toString());
+                                            break;
+                                    }
+                                } else if (item != null) { // i.e. rssstate == 3
+                                    switch (stag) {
+                                        case "title":
+                                            item.setTitle(content.toString());
+                                            break;
+                                        case "link":
+                                            item.setLink(content.toString());
+                                            break;
+                                        case "description":
+                                            item.setDescription(content.toString());
+                                            break;
+                                        case "content:encoded":
+                                            item.setDescription(Entities.XML.unescape(content));
+                                            break;
+                                        case "category":
+                                            item.setCategory(content.toString());
+                                            break;
+                                        case "pubdate":
+                                        case "published":
+                                        case "updated":
+                                        case "dc:date":
+                                            item.setPubDate(content.toString());
+                                            break;
+                                    }
                                 }
-                            } else if (item != null) { // i.e. rssstate == 3
-                                switch (stag) {
-                                    case "title":
-                                        item.setTitle(content.toString());
-                                        break;
-                                    case "link":
-                                        item.setLink(content.toString());
-                                        break;
-                                    case "description":
-                                        item.setDescription(content.toString());
-                                        break;
-                                    case "content:encoded":
-                                        item.setDescription(Entities.XML.unescape(content));
-                                        break;
-                                    case "category":
-                                        item.setCategory(content.toString());
-                                        break;
-                                    case "pubdate":
-                                    case "published":
-                                    case "updated":
-                                    case "dc:date":
-                                        item.setPubDate(content.toString());
-                                        break;
-                                }
-                            }
-                            break;
+                                break;
 
-                        case 3: // read content
-                            int lt = st.indexOf("<", i); // uu
-                            if (lt == -1) {// uu
-                                econtent.append(st.substring(i));// uu
-                                continue main;
-                            }// uu
-                            if (lt != i) { // uu (ch != '<')
-                                econtent.append(st.substring(i, lt));// uu
-                                i = lt; // uu
-                            } // uu
+                            case 3: // read content
+                                int lt = st.indexOf("<", i); // uu
+                                if (lt == -1) {// uu
+                                    econtent.append(st.substring(i));// uu
+                                    continue main;
+                                }// uu
+                                if (lt != i) { // uu (ch != '<')
+                                    econtent.append(st.substring(i, lt));// uu
+                                    i = lt; // uu
+                                } // uu
 //assert: now it is true that (st.charAt(i) == '<')
-                            switch (st.charAt(i + 1)) {
-                                case '/':  // warning: missing check on bound
-                                    i++;
-                                    state = 2; // end tag
+                                switch (st.charAt(i + 1)) {
+                                    case '/':  // warning: missing check on bound
+                                        i++;
+                                        state = 2; // end tag
 
-                                    if (debug) Log.d(tagz, "state = " + state);
-                                    content.append(Entities.XML.unescape(econtent)); // put temporary buffer in final one
-
-                                    econtent.setLength(0); // clear temp buffer
-
-                                    deepness--;
-                                    break;
-                                case '!':
-//special (eg: <![CDATA[), not a tag!
-                                    if (st.substring(i).startsWith("<![CDATA[")) {
-                                        state = 4; // CDATA, look for end "]]>"
                                         if (debug) Log.d(tagz, "state = " + state);
                                         content.append(Entities.XML.unescape(econtent)); // put temporary buffer in final one
-                                        econtent.setLength(0); // clear temp buffer
-                                        i += 8; // skip CDATA
-                                    } else econtent.append(ch);
-                                    break;
-                                default:
-                                    state = 1; // start tag (or standalone tag)
 
+                                        econtent.setLength(0); // clear temp buffer
+
+                                        deepness--;
+                                        break;
+                                    case '!':
+//special (eg: <![CDATA[), not a tag!
+                                        if (st.substring(i).startsWith("<![CDATA[")) {
+                                            state = 4; // CDATA, look for end "]]>"
+                                            if (debug) Log.d(tagz, "state = " + state);
+                                            content.append(Entities.XML.unescape(econtent)); // put temporary buffer in final one
+                                            econtent.setLength(0); // clear temp buffer
+                                            i += 8; // skip CDATA
+                                        } else econtent.append(ch);
+                                        break;
+                                    default:
+                                        state = 1; // start tag (or standalone tag)
+
+                                        if (debug) Log.d(tagz, "state = " + state);
+                                        tagging = true;
+                                        tag.setLength(0);
+                                        deepness++;
+                                        break;
+                                }
+                                break;
+                            case 4: // CDATA, look for end "]]>"
+                                int eta = st.indexOf("]]>", i);
+                                if (eta == -1) {
+                                    content.append(st.substring(i));
+                                    continue main;
+                                } else {
+                                    content.append(st.substring(i, eta));
+                                    state = 3; // read content
                                     if (debug) Log.d(tagz, "state = " + state);
-                                    tagging = true;
-                                    tag.setLength(0);
-                                    deepness++;
-                                    break;
-                            }
-                            break;
-                        case 4: // CDATA, look for end "]]>"
-                            int eta = st.indexOf("]]>", i);
-                            if (eta == -1) {
-                                content.append(st.substring(i));
-                                continue main;
-                            } else {
-                                content.append(st.substring(i, eta));
-                                state = 3; // read content
-                                if (debug) Log.d(tagz, "state = " + state);
-                                i = eta + 2;
-                            }
-                            break;
-                        default:
-                            Log.w(tagz, "Invalid state");
-                            break;
+                                    i = eta + 2;
+                                }
+                                break;
+                            default:
+                                Log.w(tagz, "Invalid state");
+                                break;
+                        }
                     }
                 }
                 if (state == 2)

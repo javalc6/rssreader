@@ -16,14 +16,15 @@ import java.util.ArrayList;
 
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 import livio.rssreader.backend.FeedsDB;
 import livio.rssreader.backend.IconArrayAdapter;
 import livio.rssreader.backend.IconItem;
 import androidx.appcompat.app.AppCompatActivity;
 import livio.rssreader.backend.UserDB;
+import tools.FormFactorUtils;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,7 +43,7 @@ import com.google.android.material.snackbar.Snackbar;
 import static livio.rssreader.RSSReader.PREF_FEEDS_LANGUAGE;
 import static livio.rssreader.backend.UserDB.CAT_SIZE;
 
-public final class SelectCategory extends AppCompatActivity implements OnItemClickListener, AdapterView.OnItemLongClickListener, NewCategoryDialog.EditNameDialogListener {
+public final class SelectCategory extends AppCompatActivity implements OnItemClickListener, AdapterView.OnItemLongClickListener {
 	public final String tag = "SelectCategory";
 	final static String ID_CATEGORY = "livio.rssreader.category";
 
@@ -54,13 +55,15 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
 		 Log.i(tag,"onCreate");
         setContentView(R.layout.categories);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
 
         udb = UserDB.getInstance(this, prefs);
 
-		ActionBar t = getSupportActionBar();
-		if (t != null) {
-			t.setDisplayHomeAsUpEnabled(true);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(!FormFactorUtils.isArc(this));
 		}
         ArrayList<IconItem> catList = new ArrayList<>();
         String[] categories = getResources().getStringArray(R.array.categories_list);//localized names
@@ -84,6 +87,16 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
         final FloatingActionButton fab = findViewById(R.id.addfab);
         if (fab != null) {
             fab.setOnClickListener(v -> {
+                getSupportFragmentManager().setFragmentResultListener("category_key", this, (requestKey, bundle) -> {
+/*
+        Log.d(tag, "category title:"+category[0]);
+        Log.d(tag, "category description:"+category[1]);
+        Log.d(tag, "category id:"+category[2]);
+*/
+// category[3] e category[4] sono riservate per usi futuri, per esempio per definire l'icona associata alla categoria utente
+                    int position = udb.updateCategory(bundle.getStringArray("category"), this);
+                    recreate();
+                });
                 NewCategoryDialog editNameDialog = NewCategoryDialog.newInstance(new String[CAT_SIZE]);//new category
                 editNameDialog.show(getSupportFragmentManager(), "new_cat_dialog");
             });
@@ -106,6 +119,16 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {//edit a category
         if (position >= FeedsDB.categories.length) {//only user category can be edited
             String[] category = udb.getUserCat(position - FeedsDB.categories.length);
+            getSupportFragmentManager().setFragmentResultListener("category_key", this, (requestKey, bundle) -> {
+/*
+        Log.d(tag, "category title:"+category[0]);
+        Log.d(tag, "category description:"+category[1]);
+        Log.d(tag, "category id:"+category[2]);
+*/
+// category[3] e category[4] sono riservate per usi futuri, per esempio per definire l'icona associata alla categoria utente
+                udb.updateCategory(bundle.getStringArray("category"), this);
+                recreate();
+            });
             NewCategoryDialog editNameDialog = NewCategoryDialog.newInstance(category);
             editNameDialog.show(getSupportFragmentManager(), "edit_cat_dialog");
             return true;
@@ -179,7 +202,7 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
     }
 
     private void selectLanguageDialog() {//custom dialog with all languages from resources
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
         final String[] languages = getResources().getStringArray(R.array.entries_list_preference);
         final String[] langcodes = getResources().getStringArray(R.array.entryvalues_list_preference);
         String pref_lang = prefs.getString(PREF_FEEDS_LANGUAGE, getString(R.string.default_feed_language_code));
@@ -191,7 +214,6 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
             }
         }
         new MaterialAlertDialogBuilder(this)
-            .setIcon(R.drawable.ic_menu_lang)
             .setTitle(R.string.dialog_title_list_preference)
             .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss())
             .setSingleChoiceItems(languages, checkeditem, (dialog, which) -> {
@@ -202,18 +224,6 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
                 editor.apply();
                 dialog.dismiss();
             }).show();
-    }
-
-    @Override
-    public void onFinishEditDialog(String[] category) {
-/*
-        Log.d(tag, "category title:"+category[0]);
-        Log.d(tag, "category description:"+category[1]);
-        Log.d(tag, "category id:"+category[2]);
-*/
-// category[3] e category[4] sono riservate per usi futuri, per esempio per definire l'icona associata alla categoria utente
-        int position = udb.updateCategory(category, this);
-        recreate();
     }
 
 }

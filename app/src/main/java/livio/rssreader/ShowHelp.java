@@ -4,23 +4,19 @@ import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.database.sqlite.SQLiteException;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Parcelable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import tools.FormFactorUtils;
 
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -97,9 +93,11 @@ public final class ShowHelp extends AppCompatActivity {
 
         setContentView(R.layout.showhelp);
 
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         ActionBar t = getSupportActionBar(); //ab
         if (t != null) {//ab
-            t.setDisplayHomeAsUpEnabled(!FormFactorUtils.isArc()); //show back arrow in actionbar on Android devices, but not on Chromebook devices
+            t.setDisplayHomeAsUpEnabled(!FormFactorUtils.isArc(this)); //show back arrow in actionbar on Android devices, but not on Chromebook devices
         }
 
         backbutton = findViewById(R.id.backbutton);
@@ -291,7 +289,7 @@ public final class ShowHelp extends AppCompatActivity {
     }
 
     // http://developer.android.com/reference/android/support/v4/view/PagerAdapter.html
-    class SmartPager extends RecyclerView.Adapter {
+    class SmartPager extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final ViewPager2 viewPager;
         final Context context;
         final int n_items;

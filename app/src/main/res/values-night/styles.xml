@@ -1,0 +1,9 @@
+<resources>
+    <!-- Base application dark theme. -->
+    <style name="Base.Theme.App" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primarydarkmode</item>
+        <item name="colorPrimaryVariant">@color/primarydarkmode</item>
+        <item name="colorAccent">@color/primarydarkmode</item>
+    </style>
+
+</resources>

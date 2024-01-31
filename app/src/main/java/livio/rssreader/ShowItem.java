@@ -13,16 +13,12 @@ for use in mission critical, life support and military purposes.
 The use of this software is at the risk of the user.
 */
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.Build;
-import android.preference.PreferenceManager;
 import android.speech.tts.UtteranceProgressListener;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.appcompat.app.ActionBar;
@@ -57,10 +53,6 @@ import livio.rssreader.backend.RSSFeed;
 import livio.rssreader.backend.RSSItem;
 import livio.rssreader.backend.TTSEngine;
 
-import static livio.rssreader.SelectColors.get_theme_idx;
-import static tools.ColorBase.isDarkColor;
-import static tools.ColorBase.preset_colors;
-
 public final class ShowItem extends AppCompatActivity implements AudioManager.OnAudioFocusChangeListener {
 	private final String tag = "ShowItem";
 	private String language;
@@ -90,19 +82,6 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
         outState.putString(SAVE_language_ID, language);
     }
 
-    @Override
-    public Resources.Theme getTheme() {
-        Resources.Theme theme = super.getTheme();
-        Intent startingIntent = getIntent();
-        boolean light_theme = startingIntent.getBooleanExtra("light_theme", false);
-        if (light_theme) { // light background
-            theme.applyStyle(R.style.ThemeLightHiContrast, true);
-        } else { // dark background
-            theme.applyStyle(R.style.ThemeHiContrast, true);
-        }
-        return theme;
-    }
-
 	@SuppressLint("NewApi")
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +91,9 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
 
         Intent startingIntent = getIntent();
         use_external_browser = startingIntent.getBooleanExtra("external_browser", false);
+
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         ActionBar t = getSupportActionBar();
 		if (t != null) {
 			t.setDisplayHomeAsUpEnabled(true);
@@ -402,7 +384,6 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
                      return overrideUrlLoading(request.getUrl().toString());//twin
                  }
 
-                @RequiresApi(api = Build.VERSION_CODES.M)
                 @Override
                 public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {//API >= 23
                     if (request.isForMainFrame()) {
@@ -453,7 +434,7 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
 
 
     // http://developer.android.com/reference/android/support/v4/view/PagerAdapter.html
-    class SmartPager extends RecyclerView.Adapter {
+    class SmartPager extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final ViewPager2 viewPager;
         final Context context;
         final int n_items;

@@ -19,11 +19,10 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AlertDialog;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -40,13 +39,21 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.appcompat.widget.SwitchCompat;
 import tools.ColorPickerDialog;
 
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
+import static androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode;
+import static androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode;
 import static livio.rssreader.RSSReader.PREF_THEME;
+import static livio.rssreader.RSSReader.PREF_THEME_AUTO;
 import static tools.ColorBase.color_wheel_mod;
 import static tools.ColorBase.half_color;
 import static tools.ColorBase.invert_color;
 import static tools.ColorBase.isDarkColor;
+import static tools.ColorBase.is_dark_theme;
 import static tools.ColorBase.luminance;
 import static tools.ColorBase.preset_colors;
 import static tools.ColorBase.themes;
@@ -54,7 +61,6 @@ import static tools.ColorPickerDialog.CIRCLE_CIRCLE;
 
 public final class SelectColors extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private static final String tag = "SelectColors";
-    private Button mThemes;
     private ColorArrayAdapter mAdapter;
     private SharedPreferences prefs;
     private ColorItem ci0;
@@ -64,43 +70,57 @@ public final class SelectColors extends AppCompatActivity implements AdapterView
     @SuppressLint("NewApi")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         setContentView(R.layout.select_colors);
-
-        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK; //night
+        prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
 
         int theme = get_theme_idx(prefs, getResources());
         String[] theme_names = getResources().getStringArray(R.array.prefs_theme_names);
-        mThemes = findViewById(R.id.themes);
+        final Button mThemes = findViewById(R.id.themes);
         mThemes.setTag(theme);
-        if ((nightModeFlags == Configuration.UI_MODE_NIGHT_YES) && (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O))//night
-            mThemes.setText(R.string.nightmode);
-        else {
-            mThemes.setText(theme_names[theme]);
-            mThemes.setOnClickListener(v -> {
-                int ctheme = (Integer) mThemes.getTag();
-                new MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
-                .setSingleChoiceItems(theme_names, ctheme, (dialog, item) -> {
-//                Log.d(tag, "clicked theme: "+item+", previous theme: "+ctheme);
-                    if (item != ctheme) {
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString(PREF_THEME, themes[item]);
-                        editor.apply();
-                        int[] colors = getThemeColors(prefs, getResources());//dt
-                        ci0.setColor(colors[1]);
-                        ci1.setColor(colors[2]);
-                        ci2.setColor(colors[3]);
-                        mAdapter.notifyDataSetChanged();
 
-                        mThemes.setText(theme_names[item]);
-                        mThemes.setTag(item);
-                    }
-                    dialog.dismiss();// dismiss the alertbox after chose option
-                })
-                .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss())
-                .show();
+        SwitchCompat theme_auto = findViewById(R.id.theme_auto);//zzautotheme
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {//zzautotheme
+            theme_auto.setVisibility(View.GONE);//theme auto is not available before Android O
+        } else {
+            theme_auto.setChecked(prefs.getBoolean(PREF_THEME_AUTO, true));
+            theme_auto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean(PREF_THEME_AUTO, isChecked);
+                editor.apply();
+//                    mAdapter.notifyDataSetChanged();
+                recreate();
             });
         }
+
+        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) && prefs.getBoolean(PREF_THEME_AUTO, true)) {//zzautotheme
+            mThemes.setText(R.string.auto);
+            mThemes.setEnabled(false);
+        } else {
+			mThemes.setText(theme_names[theme]);
+			mThemes.setOnClickListener(v -> {
+				int ctheme = (Integer) mThemes.getTag();
+				new MaterialAlertDialogBuilder(this)
+				.setSingleChoiceItems(theme_names, ctheme, (dialog, item) -> {
+	//                Log.d(tag, "clicked theme: "+item+", previous theme: "+ctheme);
+					if (item != ctheme) {
+						SharedPreferences.Editor editor = prefs.edit();
+						editor.putString(PREF_THEME, themes[item]);
+						editor.apply();
+						int[] colors = getThemeColors(prefs, getResources());//dt
+						ci0.setColor(colors[1]);
+						ci1.setColor(colors[2]);
+						ci2.setColor(colors[3]);
+						mAdapter.notifyDataSetChanged();
+
+						mThemes.setText(theme_names[item]);
+						mThemes.setTag(item);
+					}
+					dialog.dismiss();// dismiss the alertbox after chose option
+				})
+				.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss())
+				.show();
+			});
+		}
 
         ArrayList<ColorItem> catList = new ArrayList<>();
         int[] colors = getThemeColors(prefs, getResources());//dt
@@ -144,7 +164,7 @@ public final class SelectColors extends AppCompatActivity implements AdapterView
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long rowId) {
         if ((position >= 0) && (position < 3)) {
-            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(parent.getContext());
+            final SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(parent.getContext());
             if (prefs == null) // main activity died
                 return;
             int theme_idx = get_theme_idx(prefs, getResources());
@@ -227,26 +247,44 @@ public final class SelectColors extends AppCompatActivity implements AdapterView
         editor.apply();
     }
 
-    //night: dark theme handling compatible with Android P and later
-    public static int get_theme_idx(SharedPreferences prefs, Resources resources) { //dt: returns theme_idx
-        int theme = tools.ColorBase.get_theme_idx(prefs.getString(PREF_THEME, "white"));
-        int nightModeFlags = resources.getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK; //night
+    //zznight: dark theme handling compatible with Android P and later
+    public static int get_theme_idx(SharedPreferences prefs, Resources resources) { //zzdt: returns theme_idx
+        if ((android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) && prefs.getBoolean(PREF_THEME_AUTO, true)) {//zzautotheme
+            int nightModeFlags = resources.getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK; //zznight
 //        Log.d(tag, "nightModeFlags="+nightModeFlags);
-        if ((nightModeFlags == Configuration.UI_MODE_NIGHT_YES) && (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O))//night
-            return tools.ColorBase.force_dark_theme(theme);//night, night mode-->force dark theme
-        return theme;
+            if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES)//zznight
+                return 2;//dark gray
+            else return 1;//light gray
+        } else return tools.ColorBase.get_theme_idx(prefs.getString(PREF_THEME, "white"));
     }
 
-    public static boolean isDarkTheme(SharedPreferences prefs, Resources resources) {//night
-        int nightModeFlags = resources.getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK; //night
+    public static boolean isDarkTheme(SharedPreferences prefs, Resources resources) {//zznight
+        if ((android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) && prefs.getBoolean(PREF_THEME_AUTO, true)) {//zzautotheme
+            int nightModeFlags = resources.getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK; //zznight
 //        Log.d(tag, "nightModeFlags="+nightModeFlags);
-        if ((nightModeFlags == Configuration.UI_MODE_NIGHT_YES) && (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O))//night
-            return true;//night, modo notte
-        else {
+            return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+        } else {
             int theme_idx = get_theme_idx(prefs, resources);
             int background = preset_colors[theme_idx][0];
             return isDarkColor(background);
         }
+    }
+
+    //setNightMode() returns true if setDefaultNightMode() has been called to recreate activities
+    public static boolean setNightMode(SharedPreferences prefs) {//must be called by any activities that changes values of PREF_THEME_AUTO and/or PREF_THEME
+        int night_mode;
+        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) && prefs.getBoolean(PREF_THEME_AUTO, true))
+            night_mode = MODE_NIGHT_FOLLOW_SYSTEM;
+        else {
+            String theme = prefs.getString(PREF_THEME, "light");
+            if (is_dark_theme(theme))
+                night_mode = MODE_NIGHT_YES;
+            else night_mode = MODE_NIGHT_NO;
+        }
+        if (getDefaultNightMode() != night_mode) {
+            setDefaultNightMode(night_mode);
+            return true;
+        } else return false;
     }
 
     private static class ColorItem {

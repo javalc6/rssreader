@@ -64,7 +64,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.speech.tts.UtteranceProgressListener;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -74,7 +73,6 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.ActionBar;
@@ -133,6 +131,7 @@ import workers.RSSReaderWorker;
 
 import static livio.rssreader.SelectColors.getThemeColors;
 import static livio.rssreader.SelectColors.get_theme_idx;
+import static livio.rssreader.SelectColors.setNightMode;
 import static livio.rssreader.backend.TTSEngine.utteranceId_last;
 import static livio.rssreader.backend.TTSEngine.utteranceId_oneshot;
 import static tools.ColorBase.isDarkColor;
@@ -168,6 +167,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
     private static final String PREF_BACKUP_DIALOG = "backup_dialog_ts";
 
     public static final String PREF_THEME = "theme";
+    public static final String PREF_THEME_AUTO = "theme_auto";
     public static final String PREF_FONTSIZE = "fontsize";
     public static final String PREF_LT_TEXTCOLOR = "lt_text_color";
     public static final String PREF_LT_HYPERLINKCOLOR = "lt_hyperlink_color";
@@ -226,30 +226,17 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
     private final FileManager mBackupRestore = new FileManager(this, this, true, APP_FOLDER);
 
-    @Override
-    public Resources.Theme getTheme() {
-        Resources.Theme theme = super.getTheme();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int theme_idx = get_theme_idx(prefs, getResources());
-        int background = preset_colors[theme_idx][0];
-        if (!isDarkColor(background)) { // light background
-            theme.applyStyle(R.style.ThemeLightNoActionBar, true);
-        } else { // dark background
-            theme.applyStyle(R.style.ThemeNoActionBar, true);
-        }
-        return theme;
-    }
-
     /** Called when the activity is first created. */
     @SuppressLint("NewApi")
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
+        setNightMode(prefs);//importante: deve essere eseguito prima di super.onCreate()
         super.onCreate(savedInstanceState);
         if (BuildConfig.DEBUG)
             Log.d(tag, "onCreate");
 
         setContentView(R.layout.main);
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         System.setProperty("http.keepAlive", "false"); // workaround to avoid responseCode = -1 problem
 
@@ -265,7 +252,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         }//autobackup
 
 
-        final Toolbar toolbar = findViewById(R.id.my_toolbar);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         ActionBar ab = getSupportActionBar();
@@ -528,7 +515,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             } else {
 //18-09-2022: nuova gestione con PopupMenu per evitare problemi in ChromeOS basato su Android 11 (o superiore)
 //PopupMenu risolve problema del passaggio del mouse sopra la voce del menu 'restore' che apre il filemanager su ChromeOS in modo indesiderato
-                PopupMenu popup = showRestorePopup(findViewById(R.id.my_toolbar), Gravity.END);
+                PopupMenu popup = showRestorePopup(findViewById(R.id.toolbar), Gravity.END);
 
                 popup.setOnMenuItemClickListener(item1 -> {
 //                    mDrawerLayout.closeDrawer(mDrawerList);
@@ -557,8 +544,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
     }
 
     private PopupMenu showRestorePopup(View view, int gravity) {
-        Context wrapper = new ContextThemeWrapper(RSSReader.this, R.style.MyPopupMenu);//18-09-2022: aggiunto wrapper per risolvere un problema sul colore del testo del popup quando il tema è scuro
-        PopupMenu popup = new PopupMenu(wrapper, view, gravity);
+        PopupMenu popup = new PopupMenu(RSSReader.this, view, gravity);
         Menu popmenu = popup.getMenu();
         popmenu.add(Menu.NONE, R.id.menu_local_storage, Menu.NONE, R.string.local_storage);//menu_local_storage is hidden in buildNavDrawerItems()
         popmenu.add(Menu.NONE, R.id.menu_ext_storage, Menu.NONE, R.string.ext_storage);//menu_ext_storage is hidden in buildNavDrawerItems()
@@ -568,9 +554,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
     }
 
     private static void doBackup(SharedPreferences prefs, FileManager mBackupRestore, Resources resources) {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {//scopedstorage
-            mBackupRestore.createFileSAF(EXTENDED_BACKUP_FILENAME);//scopedstorage
-        } else {
+        if ((Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) || !mBackupRestore.createFileSAF(EXTENDED_BACKUP_FILENAME)) {//scopedstorage
             int theme_idx = get_theme_idx(prefs, resources);
             int background = preset_colors[theme_idx][0];
             final String AUTHORITY_FP = BuildConfig.APPLICATION_ID + ".FileProvider";

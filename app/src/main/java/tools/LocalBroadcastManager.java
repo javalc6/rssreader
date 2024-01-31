@@ -185,7 +185,7 @@ public final class LocalBroadcastManager {//LocalBroadcastManager class added af
                                 receivers.remove(k);
                             }
                         }
-                        if (receivers.size() <= 0) {
+                        if (receivers.size() == 0) {
                             mActions.remove(action);
                         }
                     }
@@ -284,7 +284,7 @@ public final class LocalBroadcastManager {//LocalBroadcastManager class added af
             final BroadcastRecord[] brs;
             synchronized (mReceivers) {
                 final int N = mPendingBroadcasts.size();
-                if (N <= 0) {
+                if (N == 0) {
                     return;
                 }
                 brs = new BroadcastRecord[N];

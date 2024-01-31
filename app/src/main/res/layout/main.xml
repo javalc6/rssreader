@@ -6,12 +6,12 @@
                 android:layout_height="fill_parent">
 
     <include layout="@layout/toolbar"
-             android:id="@+id/my_toolbar"/>
+             android:id="@+id/toolbar"/>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swiperefresh"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/my_toolbar"
+        android:layout_below="@id/toolbar"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
         <androidx.recyclerview.widget.RecyclerView

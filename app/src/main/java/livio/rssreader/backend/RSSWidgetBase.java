@@ -36,7 +36,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -90,7 +89,7 @@ abstract public class RSSWidgetBase extends AppWidgetProvider {//widget-theme
 // this line will be moved in WidgetConfigure.java
         SharedPreferences.Editor prefs_edit = context.getSharedPreferences(PREFS_NAME, 0).edit();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
         for (int appWidgetId : appWidgetIds) {
             String feed_id = prefs.getString(RSSReader.PREF_FEED_ID, null);//lang
             if (feed_id == null) {
@@ -138,7 +137,7 @@ abstract public class RSSWidgetBase extends AppWidgetProvider {//widget-theme
     }
 
     private void doPeriodicWork(Context context, ExistingPeriodicWorkPolicy epwp) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
         int refresh_timer = Integer.parseInt(prefs.getString(RSSReader.PREF_REFRESH_TIMER, "3600"));
         Log.d(tag, "doPeriodicWork: "+ refresh_timer);
         PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(RSSReaderWorker.class, refresh_timer, TimeUnit.SECONDS)//workmanager
@@ -154,7 +153,7 @@ abstract public class RSSWidgetBase extends AppWidgetProvider {//widget-theme
 
     private String getItemfromfile(Context context) {
         FeedsDB feedsDB = FeedsDB.getInstance();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
         String feed_id = prefs.getString(RSSReader.PREF_FEED_ID, null);//lang
         if (feed_id == null) {
             String pref_lang = prefs.getString(PREF_FEEDS_LANGUAGE, context.getString(R.string.default_feed_language_code));

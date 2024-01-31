@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="horizontal"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <CheckBox android:id="@+id/checkbox"
               android:layout_width="wrap_content"
@@ -14,7 +14,7 @@
 
     <ImageView
 		android:id="@+id/item_icon"
-		android:tint="#99A"
+		app:tint="#99A"
 	    android:layout_gravity="center_vertical"
 	    android:scaleType="fitCenter"		    
 		android:padding="@dimen/thumbnail_padding"

@@ -3,12 +3,25 @@
                 android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical" >
+
+    <include layout="@layout/toolbar" android:id="@+id/toolbar"/>
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/smartpager"
+        android:layout_below="@+id/toolbar"
         android:layout_above="@+id/indicators"
         android:layout_width="match_parent"
         android:layout_height="match_parent"  />
 
+    <LinearLayout
+        android:id="@+id/indicators"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:paddingBottom="12dp"
+        android:paddingTop="12dp"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_height="36dp" />
 
     <ImageButton
         android:id="@+id/backbutton"
@@ -32,15 +45,5 @@
         android:onClick="fwdpage"
         android:layout_alignParentBottom="true"
         android:layout_centerVertical="true" />
-
-    <LinearLayout
-        android:id="@+id/indicators"
-        android:layout_width="match_parent"
-        android:paddingBottom="12dp"
-        android:paddingTop="12dp"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
-        android:layout_height="36dp" >
-    </LinearLayout>
 
 </RelativeLayout>

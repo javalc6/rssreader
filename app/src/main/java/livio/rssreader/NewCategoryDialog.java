@@ -12,7 +12,6 @@ for use in mission critical, life support and military purposes.
 
 The use of this software is at the risk of the user.
 */
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,25 +70,19 @@ public final class NewCategoryDialog extends AppCompatDialogFragment implements 
 		if (target == cancelButton)
 		    this.dismiss();
 		else if (target == okButton) {//add new category or edit an existing category
-			Activity act = getActivity();
-			if (act != null) {
-                String[] category = getArguments().getStringArray("category");
-				if (mCatTitle.getText().toString().length() > 0) {
-                    category[0] = mCatTitle.getText().toString();//title
-                    category[1] = mCatDescription.getText().toString();//url
-                    EditNameDialogListener listener = (EditNameDialogListener) act;//return results back to caller
-                    listener.onFinishEditDialog(category);
-                    this.dismiss();
-				} else {
-					mCatTitle.setError(getString(R.string.missing_title));
+			String[] category = getArguments().getStringArray("category");
+			if (mCatTitle.getText().toString().length() > 0) {
+				category[0] = mCatTitle.getText().toString();//title
+				category[1] = mCatDescription.getText().toString();//url
+				Bundle result = new Bundle();
+				result.putStringArray("category", category);
+				getParentFragmentManager().setFragmentResult("category_key", result);
+				this.dismiss();
+			} else {
+				mCatTitle.setError(getString(R.string.missing_title));
 //					Toast.makeText(act, R.string.missing_title, Toast.LENGTH_SHORT).show();
-				}
-            } else this.dismiss();
+			}
         }
     }
 
-    public interface EditNameDialogListener {//interface to pass results back
-        void onFinishEditDialog(String[] category);
-    }
- 
 }

@@ -39,7 +39,7 @@
             app:useSimpleSummaryProvider="true"
             app:dialogTitle="@string/download_images"
             app:defaultValue="any" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:key="use_external_browser"
             app:title="@string/use_external_browser"
             app:defaultValue="false" />
@@ -70,7 +70,7 @@
             app:entryValues="@array/titles_size"
             app:dialogTitle="@string/num_items"
             app:defaultValue="20" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             app:key="smart_titles"
             app:title="@string/smart_titles"
             app:defaultValue="false" />

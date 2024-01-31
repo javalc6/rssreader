@@ -116,6 +116,7 @@
     <string name="genericColor">Color genérico</string>
     <string name="color_picker_default_title">Selecciona un color</string>
     <string name="nightmode">Modo nocturno</string>
+    <string name="auto">Automático</string>
 
     <string name="smart_titles">Títulos smart</string>
 
