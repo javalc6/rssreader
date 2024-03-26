@@ -9,6 +9,9 @@ News feeds are available in the following languages: German, English, Spanish, F
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/livio.rssreader/)
+[<img src="https://play.google.com/intl/en/badges/images/badge_new.png"
+     alt="Get it on Google Play"
+     height="46">](https://play.google.com/store/apps/details?id=livio.rssreader)     
 
 Features
 ========
