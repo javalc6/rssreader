@@ -34,6 +34,10 @@ public final class NewFeedDialog extends AppCompatDialogFragment implements OnCl
         // Empty constructor required for DialogFragment
     }
 
+    public int getTheme() {//Workaround for issue 37059987
+        return R.style.FixedDialog;
+    }
+
     static NewFeedDialog newInstance(String[] feed) {
         NewFeedDialog f = new NewFeedDialog();
 

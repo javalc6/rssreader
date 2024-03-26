@@ -33,6 +33,10 @@ public final class NewCategoryDialog extends AppCompatDialogFragment implements 
         // Empty constructor required for DialogFragment
     }
 
+    public int getTheme() {//Workaround for issue 37059987
+        return R.style.FixedDialog;
+    }
+
     static NewCategoryDialog newInstance(String[] category) {
         NewCategoryDialog f = new NewCategoryDialog();
 
