@@ -23,7 +23,7 @@
     <string name="menu_publisher">Publisher information</string>
     <string name="msg_publisher">Publisher of current feed: &lt;a href="%2$s"&gt;%1$s&lt;/a&gt;</string>
 
-    <string name="app_descrip">Простой и быстрый веб-читатель новостей</string>
+    <string name="app_descrip">Это приложение предоставляет самый быстрый способ получать новости из сети</string>
 
     <string name="set_preferences">Настройки</string>
 
