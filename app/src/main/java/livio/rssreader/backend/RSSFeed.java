@@ -40,28 +40,28 @@ import tools.Entities;
 
 
 public final class RSSFeed implements Serializable {
-	private static final long serialVersionUID = 2L;//publisher, changed value to 2
+    private static final long serialVersionUID = 2L;//publisher, changed value to 2
 
     private final static boolean debug = false;//BuildConfig.DEBUG;//should be false in prod environment
 
     private String _title = "<untitled>";
-	private String _language = null;
-	private Date _pubdate;
+    private String _language = null;
+    private Date _pubdate;
     private String _publisherurl = null;//publisher
 
     private String etag;
     private String lastmod;
     private final String feed_id;
 
-	private long time; // new field
-	private final List<RSSItem> _itemlist;
-	private final static String tagz = "RSSFeed";
-	
-	private RSSFeed(String feed_id) {//do not use constructor from other classes, instead please use getInstance()
-		_itemlist = new Vector<>(0);
-		_pubdate = new Date(); // default date
+    private long time; // new field
+    private final List<RSSItem> _itemlist;
+    private final static String tagz = "RSSFeed";
+
+    private RSSFeed(String feed_id) {//do not use constructor from other classes, instead please use getInstance()
+        _itemlist = new Vector<>(0);
+        _pubdate = new Date(); // default date
         this.feed_id = feed_id;
-	}
+    }
 
     public static RSSFeed getInstance(File cachedir, String feed_id) {
         File feedFile = new File(cachedir, feed_id.concat(".cache"));
@@ -75,40 +75,40 @@ public final class RSSFeed implements Serializable {
         return new RSSFeed(feed_id);
     }
 
-	public RSSItem getItem(int location) {
-		return _itemlist.get(location);
-	}
-	
-	public List<RSSItem> getAllItems() {
-		return _itemlist;
-	}
-	
-	public int size() {
-		return _itemlist.size();
-	}
+    public RSSItem getItem(int location) {
+        return _itemlist.get(location);
+    }
 
-	private void setTitle(String title) {
-		_title = title.trim();
-	}
-	private void setLanguage(String lang) {
-		_language = lang.trim();
-	}
+    public List<RSSItem> getAllItems() {
+        return _itemlist;
+    }
+
+    public int size() {
+        return _itemlist.size();
+    }
+
+    private void setTitle(String title) {
+        _title = title.trim();
+    }
+    private void setLanguage(String lang) {
+        _language = lang.trim();
+    }
     void setPublisherLink(String link) {//publisher
         _publisherurl = link;
     }
 
-	private void setPubDate(String pubdate)	{
+    private void setPubDate(String pubdate)	{
         _pubdate = DateParser.parseDate(pubdate);
-	}
+    }
 
-	public String getTitle() {
-		return _title;
-	}
-	public String getLanguage(String default_lang) {
-	    if (_language == null)
-	        return default_lang;
-		return _language;
-	}
+    public String getTitle() {
+        return _title;
+    }
+    public String getLanguage(String default_lang) {
+        if (_language == null)
+            return default_lang;
+        return _language;
+    }
     public String getPublisherLink() {//publisher, note that it defaults to feed_url
         return _publisherurl;
     }
@@ -133,32 +133,32 @@ public final class RSSFeed implements Serializable {
         this.etag = etag;
         this.lastmod = lastmod;
 
-		File feedFile = new File(context.getCacheDir(), feed_id.concat(".cache"));
+        File feedFile = new File(context.getCacheDir(), feed_id.concat(".cache"));
 //		feedFile.deleteOnExit(); // delete the file when exiting
-		FileOutputStream fos = new FileOutputStream(feedFile);
-		ObjectOutputStream os = new ObjectOutputStream(fos);
-		os.writeObject(this);
-		os.close();
+        FileOutputStream fos = new FileOutputStream(feedFile);
+        ObjectOutputStream os = new ObjectOutputStream(fos);
+        os.writeObject(this);
+        os.close();
     }
-    
+
     public boolean isFileUpdated(long age) {
         return time != 0 && System.currentTimeMillis() - time <= age;
     }
-     
-// doProcessStream()
+
+    // doProcessStream()
 // in positive case it returns the number of collected items
 // in negative case it returns an error code < 0
     private final static int zNullStream = -1;
-//    final static int zInvalidResponseCode = -2; removed
+    //    final static int zInvalidResponseCode = -2; removed
     private final static int zMissingRSSTag = -3;
     public final static int zRedirectFeed = -4;
     private final static int zEmptyBody = -5;
 
     private final static String encoding_element = "encoding=\"";
 
-//use doProcessStream() only for xml content (not suitable for html content!)
-	public RSSFeedResult doProcessStream(InputStream is, String encoding, int max_titles, String feed_url, String title) throws IOException, UnsupportedCharsetException {
-		if (is == null) return new RSSFeedResult(zNullStream);
+    //use doProcessStream() only for xml content (not suitable for html content!)
+    public RSSFeedResult doProcessStream(InputStream is, String encoding, int max_titles, String feed_url, String title) throws IOException, UnsupportedCharsetException {
+        if (is == null) return new RSSFeedResult(zNullStream);
         BufferedReader stream;//stream handling modified to support russian web sites with encoding windows-1251
         byte[] body = null;
         if (encoding.length() > 0)
@@ -179,20 +179,20 @@ public final class RSSFeed implements Serializable {
         _title = title;//set title here and not during web data retrieval
         _publisherurl = feed_url;
         String newfeedurl = null;
-		PriorityQueue<RSSItem> result = new PriorityQueue<>();
+        PriorityQueue<RSSItem> result = new PriorityQueue<>();
         time = System.currentTimeMillis();
-		RSSItem item = null;
-		int rssstate = 0; // 0: init, 1: rss found, 2: channel found
+        RSSItem item = null;
+        int rssstate = 0; // 0: init, 1: rss found, 2: channel found
         if (debug) Log.d(tagz, "doProcessStream, encoding="+encoding);
-		int state = 0; // idle
-		int deepness = 0;
-		String st;
-		StringBuilder content = new StringBuilder(512), econtent = new StringBuilder(512);
-		StringBuilder tag = new StringBuilder();
+        int state = 0; // idle
+        int deepness = 0;
+        String st;
+        StringBuilder content = new StringBuilder(512), econtent = new StringBuilder(512);
+        StringBuilder tag = new StringBuilder();
 //		String stag;
-		long timer = System.nanoTime();
+        long timer = System.nanoTime();
         boolean rdf = false;
-		try {
+        try {
             main:
             while ((st = stream.readLine()) != null) {
 //---begin---
@@ -203,10 +203,13 @@ public final class RSSFeed implements Serializable {
                         if (pos != -1) {
                             int end = st.indexOf("\"", pos + encoding_element.length());
                             encoding = st.substring(pos + encoding_element.length(), end);//now encoding is defined
-                            stream.close(); //close stream before re-opening it
-                            stream = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(body), encoding));//re-open stream with proper encoding, beware of loops!!
-                            if (debug)
-                                Log.d(tagz, "encoding: " + encoding);
+                            if (!encoding.isEmpty()) {//change encoding
+                                stream.close(); //close stream before re-opening it
+                                stream = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(body), encoding));//re-open stream with proper encoding, beware of loops!!
+                                if (debug)
+                                    Log.d(tagz, "encoding: " + encoding);
+                                continue;
+                            }
                         }
                     } else if ((xml = st.indexOf("<rss")) != -1)//check basic rss ?
                         rssstate = 1; // rss found, looking for channel
@@ -312,7 +315,7 @@ public final class RSSFeed implements Serializable {
                                 int gt = st.indexOf(">", i); // uu
                                 if (gt == -1) continue main; // uu
                                 i = gt; // uu
-//assert: now it is true that (st.charAt(i) == '>')							
+//assert: now it is true that (st.charAt(i) == '>')
 
                                 if (deepness == 0)
                                     state = 0; // idle
@@ -439,7 +442,7 @@ public final class RSSFeed implements Serializable {
                 if (item != null)
                     result.add(item);
                 _itemlist.clear();
-                while ((result.size() > 0) && (_itemlist.size() < max_titles))
+                while ((!result.isEmpty()) && (_itemlist.size() < max_titles))
                     _itemlist.add(result.poll());
                 if (debug) Log.d(tagz, "number of parsed items: " + _itemlist.size());
                 return new RSSFeedResult(_itemlist.size());
@@ -447,9 +450,9 @@ public final class RSSFeed implements Serializable {
                 return new RSSFeedResult(zRedirectFeed, newfeedurl);
             else return new RSSFeedResult(zMissingRSSTag);
         } finally {
-		    stream.close();
+            stream.close();
         }
-	} // end of doProcessStream()
-	
+    } // end of doProcessStream()
+
 
 }
