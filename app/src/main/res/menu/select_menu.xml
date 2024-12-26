@@ -8,10 +8,29 @@
         android:icon="@android:drawable/ic_menu_add" -->
 
     <item
-        android:id="@+id/menu_delfeed"
+        android:id="@+id/menu_del_feed"
         android:title="@string/delete"
         android:icon="@android:drawable/ic_menu_delete"
         app:showAsAction="ifRoom"
         android:visible="false"/>
+
+    <item
+        android:id="@+id/menu_select_all"
+        android:title="@string/select_all_user_feeds"
+        android:icon="@drawable/ic_select_all_36dp"
+        app:showAsAction="ifRoom"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/menu_move_feed"
+        android:title="@string/move_to_category"
+        app:showAsAction="never"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/menu_import_opml"
+        android:title="@string/import_opml"
+        app:showAsAction="never"
+        android:visible="true"/>
 
 </menu>

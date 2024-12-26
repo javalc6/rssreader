@@ -114,7 +114,7 @@ public final class LocalBroadcastManager {//LocalBroadcastManager class added af
         mHandler = new Handler(context.getMainLooper()) {
 
             @Override
-            public void handleMessage(Message msg) {
+            public void handleMessage(@NonNull Message msg) {
                 switch (msg.what) {
                     case MSG_EXEC_PENDING_BROADCASTS:
                         executePendingBroadcasts();
@@ -185,7 +185,7 @@ public final class LocalBroadcastManager {//LocalBroadcastManager class added af
                                 receivers.remove(k);
                             }
                         }
-                        if (receivers.size() == 0) {
+                        if (receivers.isEmpty()) {
                             mActions.remove(action);
                         }
                     }

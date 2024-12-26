@@ -27,6 +27,11 @@
         android:title="@string/menu_preferences"
         android:icon="@android:drawable/ic_menu_preferences" />
     <item
+        android:id="@+id/menu_import_opml"
+        android:title="@string/import_opml"
+        app:showAsAction="never"
+        android:visible="true"/>
+    <item
         android:id="@+id/menu_backup"
         app:showAsAction="never"
         android:title="@string/backup"

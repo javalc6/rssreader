@@ -52,7 +52,7 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
 	@SuppressLint("NewApi")
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		 Log.i(tag,"onCreate");
+        Log.i(tag,"onCreate");
         setContentView(R.layout.categories);
 
         SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
@@ -67,8 +67,8 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
 		}
         ArrayList<IconItem> catList = new ArrayList<>();
         String[] categories = getResources().getStringArray(R.array.categories_list);//localized names
-		for (int k = 0; k < FeedsDB.categories.length; k++)
-			catList.add(new IconItem(categories[k], FeedsDB.categories[k][1], false));
+        for (int k = 0; k < FeedsDB.categories.length; k++)
+            catList.add(new IconItem(categories[k], FeedsDB.categories[k][1], false));
 
         for (int k = 0; k < udb.getUserCats().size(); k++)//user categories
             catList.add(new IconItem(udb.getUserCat(k)[0], null, false));
@@ -156,7 +156,7 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
 
         getMenuInflater().inflate(R.menu.select_cat_menu, menu);
         menu.findItem(R.id.menu_lang).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        if (udb.getUserCats().size() > 0) {
+        if (!udb.getUserCats().isEmpty()) {
             MenuItem del = menu.findItem(R.id.menu_delcat);
             del.setVisible(true);
             del.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);

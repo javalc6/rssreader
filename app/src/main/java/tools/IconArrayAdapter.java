@@ -13,6 +13,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import livio.rssreader.R;
 
 /******************************************************************************
@@ -22,18 +25,16 @@ final class IconArrayAdapter extends ArrayAdapter<IconItem> {
     private final LayoutInflater mInflater;
     private final Context context;
     private final int resourceid;
-    private final int textcolor;
 
     private List<IconItem> iconItems;
 
     public IconArrayAdapter(Context context, int textViewResourceId,
-                            List<IconItem> objects, int textcolor) {
+                            List<IconItem> objects) {
         super(context, textViewResourceId, objects);
         mInflater = LayoutInflater.from(context);
         this.context = context;
         this.iconItems = objects;
         this.resourceid = textViewResourceId;
-        this.textcolor = textcolor;
     }
 
     public int getCount() {
@@ -54,7 +55,8 @@ final class IconArrayAdapter extends ArrayAdapter<IconItem> {
         }
     }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         final ItemViewHolder holder;
         if (convertView == null) {
             convertView = mInflater.inflate(resourceid, parent, false);
@@ -69,15 +71,14 @@ final class IconArrayAdapter extends ArrayAdapter<IconItem> {
         // Get item
         IconItem iconItem = getItem(position);
         holder.textView.setText(iconItem.name);
-//imposta un colore del testo + leggibile, introdotto a causa del porting ad Android 5.0
-// usare colori assoluti per massimizzare il contrasto del selector
-        holder.textView.setTextColor(textcolor);
         try {
-            Resources res;
-            if (iconItem.packagename == null)  // own package ?
-                res = context.getResources();
-            else res = context.getPackageManager().getResourcesForApplication(iconItem.packagename);
-            Drawable d = res.getDrawable(iconItem.resourceId);
+            Drawable d;
+            if (iconItem.packagename == null) { // own package ?
+                d = ContextCompat.getDrawable(context, iconItem.resourceId);
+            } else {
+                Resources res = context.getPackageManager().getResourcesForApplication(iconItem.packagename);
+                d = ResourcesCompat.getDrawable(res, iconItem.resourceId, null);
+            }
             if (d != null)
                 holder.icon.setImageDrawable(d);
 

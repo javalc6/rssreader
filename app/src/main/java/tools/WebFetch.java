@@ -44,7 +44,7 @@ public final class WebFetch {
         server = new URL(urlName);
         try { // check if proxy is set
             List<Proxy> proxies = ProxySelector.getDefault().select(new URI(urlName));
-            if (proxies.size() > 0) {
+            if (!proxies.isEmpty()) {
                 Proxy px = proxies.get(0);
                 if (!px.equals(Proxy.NO_PROXY)) {
                     InetSocketAddress addr = (InetSocketAddress) px.address();
@@ -67,12 +67,12 @@ public final class WebFetch {
         }
 		conn.setReadTimeout(15000);//avoid infinite timeout
         conn.setRequestProperty("Host", server.getHost());//http
-        if ((accept != null) && (accept.length() > 0))
+        if ((accept != null) && (!accept.isEmpty()))
             conn.setRequestProperty("Accept", accept);
         conn.addRequestProperty("Accept-Encoding", "gzip,deflate");//http
-        if ((ETag != null) && (ETag.length() > 0))
+        if ((ETag != null) && (!ETag.isEmpty()))
             conn.setRequestProperty("If-None-Match", ETag);
-        if ((LastMod != null) && (LastMod.length() > 0))
+        if ((LastMod != null) && (!LastMod.isEmpty()))
             conn.setRequestProperty("If-Modified-Since", LastMod);
 		if (user_agent == null)//http
 			user_agent = "WebFetch/1 (Linux; U; Android " + Build.VERSION.RELEASE +//http
@@ -96,7 +96,7 @@ public final class WebFetch {
         WebResponse resp = openStream(conn, requestId);
         if (inStream != null) {
             BufferedReader is;
-            if (resp.coding.length() > 0)
+            if (!resp.coding.isEmpty())
                 is = new BufferedReader(new InputStreamReader(inStream, resp.coding));
             else is = new BufferedReader(new InputStreamReader(inStream));
             StringBuilder result = new StringBuilder(8192);

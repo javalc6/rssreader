@@ -7,8 +7,8 @@ android {
         applicationId "livio.rssreader"
         minSdkVersion 23
         targetSdkVersion 35
-        versionCode 107
-        versionName "1.0.7"
+        versionCode 108
+        versionName "1.0.8"
     }
 
     compileOptions {
@@ -37,8 +37,5 @@ dependencies {
     implementation 'androidx.work:work-runtime:2.10.0'
 
     implementation 'com.google.android.material:material:1.12.0'
-
-//    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1' //added as workaround for issue https://issuetracker.google.com/issues/238425626
-//    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.0.0")) //27-02-2023: added as workaround for "Duplicate class in Kotlin Android" problem, but I don't use Kotlin!
 
 }

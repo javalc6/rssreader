@@ -333,7 +333,8 @@ public final class SelectColors extends AppCompatActivity implements AdapterView
             return this.colorItems.get(index);
         }
 
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @NonNull
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             View row = convertView;
             if (row == null) {
                 // ROW INFLATION

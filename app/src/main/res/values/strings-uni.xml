@@ -3,5 +3,6 @@
     <string name="app_credits" translatable="false">"Livio (javalc6@gmail.com)"</string>
     <string name="backup_mimetype" translatable="false">application/x-rssreader.backup</string>
     <string name="helpfile" translatable="false">news</string>
-	
+
+    <string name="opml_mimetype" translatable="false">text/x-opml</string>
 </resources>

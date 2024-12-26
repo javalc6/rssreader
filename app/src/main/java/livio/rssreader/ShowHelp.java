@@ -236,7 +236,7 @@ public final class ShowHelp extends AppCompatActivity {
     }
 
     private int getPos(String word) {
-        if (word.length() > 0) {
+        if (!word.isEmpty()) {
             String match = "<h3>" + word + "</h3>";
             int pos = 0;
             for (String item : help_content) {
@@ -249,7 +249,7 @@ public final class ShowHelp extends AppCompatActivity {
     }
 
     private int getPosAnchor(String word) {//positioning based on anchor (new method)
-        if (word.length() > 0) {
+        if (!word.isEmpty()) {
             String match = "<a name=\""+ word + "\"></a>";
             int pos = 0;
             for (String item : help_content) {

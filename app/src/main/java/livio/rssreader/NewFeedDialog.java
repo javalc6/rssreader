@@ -15,6 +15,7 @@ The use of this software is at the risk of the user.
 import android.app.Activity;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,8 +79,8 @@ public final class NewFeedDialog extends AppCompatDialogFragment implements OnCl
 			Activity act = getActivity();
 			if (act != null) {
                 String[] feed = getArguments().getStringArray("feed");
-				if (mRSSTitle.getText().toString().length() > 0) {
-					if (mRssUrl.getText().toString().length() > 0) {
+				if (!mRSSTitle.getText().toString().isEmpty()) {
+					if (!mRssUrl.getText().toString().isEmpty()) {
                         feed[0] = mRSSTitle.getText().toString();//title
                         feed[1] = mRssUrl.getText().toString();//url
                         EditNameDialogListener listener = getTargetFragment() == null ? (EditNameDialogListener) act :
@@ -97,7 +98,7 @@ public final class NewFeedDialog extends AppCompatDialogFragment implements OnCl
     }
 
     public interface EditNameDialogListener {//interface to pass results back
-        void onFinishEditDialog(String[] feed);
+        void onFinishEditDialog(@NonNull String[] feed);
     }
  
 }

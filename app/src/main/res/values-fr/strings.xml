@@ -14,6 +14,9 @@
     <string name="copy_label">Copier</string>	
     <string name="go_prev_label">Article précédent</string>
     <string name="go_next_label">Article suivant</string>
+    <string name="select_all_user_feeds">Sélectionner tous les feeds</string>
+    <string name="move_to_category">Déplacer vers la catégorie</string>
+    <string name="noitems_please_select">Aucun élément, veuillez sélectionner au moins un élément</string>
 
     <string name="menu_preferences">Paramètres</string>
     <string name="menu_about">About</string>    
@@ -51,6 +54,7 @@
     <string name="news_settings">News Feeds</string>
     <string name="news_feed">News Feed</string>
     <string name="delete">Effacer</string>
+    <string name="import_opml">Importer un fichier OPML</string>
     <string name="news_feed_desc">Sélectionnez le flux des nouvelles</string>
     <string name="refresh_timer">Période de mise à jour</string>
     <string name="max_titles">Max number of headlines</string>

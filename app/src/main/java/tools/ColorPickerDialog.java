@@ -21,6 +21,7 @@ for use in mission critical, life support and military purposes.
 
 The use of this software is at the risk of the user.
 */
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialog;
 import android.content.Context;
 import android.content.res.Resources;
@@ -103,7 +104,7 @@ public class ColorPickerDialog extends AppCompatDialog {
         final int mSize = gridL * 5;
 
         @Override
-        protected void onDraw(Canvas canvas) {
+        protected void onDraw(@NonNull Canvas canvas) {
             if (debug)
                 Log.d(tag, "onDraw");
             mPaintStroke.setStrokeWidth(mMarginSize + 1);

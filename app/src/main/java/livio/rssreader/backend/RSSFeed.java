@@ -161,7 +161,7 @@ public final class RSSFeed implements Serializable {
         if (is == null) return new RSSFeedResult(zNullStream);
         BufferedReader stream;//stream handling modified to support russian web sites with encoding windows-1251
         byte[] body = null;
-        if (encoding.length() > 0)
+        if (!encoding.isEmpty())
             stream = new BufferedReader(new InputStreamReader(is, encoding));
         else {
 //            stream = new BufferedReader(new InputStreamReader(is)); old implementation, not supporting change of encoding

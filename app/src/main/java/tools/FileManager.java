@@ -204,6 +204,7 @@ public final class FileManager {
                 else resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             } catch (JSONException e) {
                 Log.w(tag, "JSONException on menu_backup");
+//                ReportBug.reportException(this, packageName + "-" + version, e);
                 resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             }
             Snackbar.make(mActivity.findViewById(android.R.id.content), mActivity.getString(resid), Snackbar.LENGTH_SHORT).show();
@@ -244,6 +245,7 @@ public final class FileManager {
                 resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             } catch (JSONException e) {
                 Log.w(tag, "JSONException on menu_backup");
+//                ReportBug.reportException(this, packageName + "-" + version, e);
                 resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
             } catch (NoSuchAlgorithmException e) {
 //ignore it, should never occur
@@ -256,7 +258,7 @@ public final class FileManager {
 
 //do not use saveFile() for SDK >= 30, you must use createFileSAF() if SDK >= 30
     @Deprecated
-    public void saveFile(int textcolor, final String extended_filename, String simple_filename, final String AUTHORITY_FP, int icon_resource_id) {
+    public void saveFile(final String extended_filename, String simple_filename, final String AUTHORITY_FP, int icon_resource_id) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
             Log.e(tag, "saveFile() shall not be used on Android 11 or later");
         int resid;
@@ -294,7 +296,7 @@ public final class FileManager {
 // get list of receiver for ACTION_SEND
             final List<ResolveInfo> lri_send = getSendReceivers(pm, fileHandler.getMimeType());
 
-            if ((allowed_set.size() > 0) && (lri_send != null) && (lri_send.size() > 0)) {
+            if ((!allowed_set.isEmpty()) && (lri_send != null) && (!lri_send.isEmpty())) {
 // generate file to backup with new format (extended backup)
 
                 File backup_dir = new File(mActivity.getCacheDir(), BACKUP_FOLDER);//BACKUP_FOLDER è un in questo caso solo un folder convenzionale per separare i files di FileManager da altri files presenti in cache
@@ -324,7 +326,7 @@ public final class FileManager {
             }
 
             if (intentList.size() > 1) {//must be greater than 1, to be sure there are real intents (not only the local backup)
-                ArrayAdapter<IconItem> adapter = new IconArrayAdapter(mActivity, R.layout.icon_listitem, intentList, textcolor);
+                ArrayAdapter<IconItem> adapter = new IconArrayAdapter(mActivity, R.layout.icon_listitem, intentList);
 
                 new MaterialAlertDialogBuilder(mActivity)//'this' has replaced getSupportActionBar().getThemedContext() to avoid theme issues
                         .setTitle(backupMode ? R.string.backup : R.string.export_label)
@@ -349,6 +351,7 @@ public final class FileManager {
             return;
         } catch (JSONException e) {
             Log.w(tag, "JSONException on menu_backup");
+//            ReportBug.reportException(this, packageName + "-" + version, e);
             resid = backupMode ? R.string.msg_cannot_write_backup : R.string.msg_cannot_write_file;
         } catch (android.content.ActivityNotFoundException ex) {
             Log.e(tag, "doExtendedBackup: ActivityNotFoundException", ex);
@@ -390,7 +393,7 @@ public final class FileManager {
         try {
 // get list of receiver for ACTION_SEND
             final List<ResolveInfo> lri_send = getSendReceivers(mActivity.getPackageManager(), fileHandler.getMimeType());
-            if ((lri_send != null) && (lri_send.size() > 0)) {
+            if ((lri_send != null) && (!lri_send.isEmpty())) {
 // a causa di samsung (issue 70697) è necessario utilizzare un mimetype generico "*/*" perchè altrimenti non è possibile usare Google Drive per il restore del backup
                 String type = Build.MANUFACTURER.equalsIgnoreCase("samsung") ? "*/*" // // "*/*" is neeeded by samsung devices, due to issue 70697
                         : EXTENDED_BACKUP_MIMETYPE_ONEDRIVE;// "application/*" is needed by onedrive (microsoft)
@@ -483,6 +486,7 @@ public final class FileManager {
                     Log.d(tag, error);
                 }
             } catch (JSONException e) {
+                //            ReportBug.reportException(this, packageName + "-" + version, e);
                 error = "invalid JSON format";
                 Log.d(tag, "do_extended_readfile", e);
             } catch (NoSuchAlgorithmException e) {

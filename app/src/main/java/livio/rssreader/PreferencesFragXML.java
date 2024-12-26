@@ -109,8 +109,9 @@ public final class PreferencesFragXML extends AppCompatActivity {
 
 // zztabletlandscape: questo codice è alternativo al codice onStart
 // nota: viene ridotta solo la larghezza del contenuto della finestra sui tablet in modalità landscape
+        @NonNull
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
 
             View view = super.onCreateView(inflater, container, savedInstanceState);

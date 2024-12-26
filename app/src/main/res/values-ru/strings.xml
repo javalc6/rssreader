@@ -14,13 +14,16 @@
     <string name="copy_label">Копировать</string>	
     <string name="go_prev_label">Предыдущая статья</string>
     <string name="go_next_label">Следующая статья</string>
+    <string name="select_all_user_feeds">Выбрать все пользовательские каналы</string>
+    <string name="move_to_category">Переместить в категорию</string>
+    <string name="noitems_please_select">Нет элементов, выберите хотя бы один элемент</string>
 
     <string name="menu_preferences">Настройки</string>
     <string name="menu_about">О программе</string>    
     <string name="menu_help">Помощь</string>
     <string name="show_help_label">Помощь</string>
     <string name="menu_rss_refresh">Обновить</string>
-    <string name="menu_publisher">Publisher information</string>
+    <string name="menu_publisher">Информация об издателе</string>
     <string name="msg_publisher">Publisher of current feed: &lt;a href="%2$s"&gt;%1$s&lt;/a&gt;</string>
 
     <string name="app_descrip">Это приложение предоставляет самый быстрый способ получать новости из сети</string>
@@ -43,20 +46,21 @@
     <string name="dlg_add_feed">Insert new user feed</string>
     <string name="dlg_edit_feed">Edit user feed</string>
 
-    <string name="dlg_cat_title_hint">Title of the category</string>
-    <string name="dlg_cat_description_hint">Short description of the category</string>
-    <string name="dlg_add_category">Insert new category</string>
-    <string name="dlg_edit_category">Edit category</string>
+    <string name="dlg_cat_title_hint">Название категории</string>
+    <string name="dlg_cat_description_hint">Краткое описание категории</string>
+    <string name="dlg_add_category">Вставить новую категорию</string>
+    <string name="dlg_edit_category">Изменить категорию</string>
 
     <string name="news_settings">News Feeds</string>
     <string name="news_feed">News Feed</string>
     <string name="delete">Удалить</string>
+    <string name="import_opml">Импортировать файл OPML</string>
     <string name="news_feed_desc">Выберите канал новостей</string>
     <string name="refresh_timer">Период обновления</string>
-    <string name="max_titles">Max number of headlines</string>
+    <string name="max_titles">Максимальное количество заголовков</string>
     <string name="num_items">Количество элементов</string>
     <string name="missing_url">Please enter a valid rss feed address</string>
-    <string name="missing_title">Please enter a title</string>
+    <string name="missing_title">Пожалуйста, введите название</string>
     
    
     <string name="yes">Да</string>
@@ -84,7 +88,7 @@
     <string name="msg_corrupt_file">Офлайновая база данных повреждена. &lt;br&gt;Предлагаемое решение:&lt;br&gt; 1) Удалите это приложение&lt;br&gt;2) Переустановите это приложение из Google Play</string>
     
 	<string name="msg_done">Готово!</string>    
-	<string name="msg_nothing_to_delete">Nothing to delete</string>
+	<string name="msg_nothing_to_delete">Нечего удалять</string>
 
     <string name="backup_hint">Есть несохраненные данные, вы хотите сделать резервную копию?</string>
     <string name="backup">Резервное копирование</string>

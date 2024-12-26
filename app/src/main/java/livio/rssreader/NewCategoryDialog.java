@@ -75,9 +75,10 @@ public final class NewCategoryDialog extends AppCompatDialogFragment implements 
 		    this.dismiss();
 		else if (target == okButton) {//add new category or edit an existing category
 			String[] category = getArguments().getStringArray("category");
-			if (mCatTitle.getText().toString().length() > 0) {
-				category[0] = mCatTitle.getText().toString();//title
-				category[1] = mCatDescription.getText().toString();//url
+            String title = mCatTitle.getText().toString().trim();
+			if (!title.isEmpty()) {
+				category[0] = title;//title
+				category[1] = mCatDescription.getText().toString().trim();//url
 				Bundle result = new Bundle();
 				result.putStringArray("category", category);
 				getParentFragmentManager().setFragmentResult("category_key", result);

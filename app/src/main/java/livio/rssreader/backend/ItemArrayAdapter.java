@@ -42,6 +42,7 @@ public final class ItemArrayAdapter extends ArrayAdapter<Item> {
         this.ff = ff;
     }
 
+    @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         // Item to display

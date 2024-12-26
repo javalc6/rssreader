@@ -54,7 +54,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -127,15 +126,15 @@ import livio.rssreader.backend.TTSEngine;
 import tools.FileHandler;
 import tools.FileManager;
 import tools.LocalBroadcastManager;//added after deprecation of orignal class from Google
+import tools.ReportBug;
 import workers.RSSReaderWorker;
 
+import static livio.rssreader.SelectCategory.ID_CATEGORY;
 import static livio.rssreader.SelectColors.getThemeColors;
-import static livio.rssreader.SelectColors.get_theme_idx;
 import static livio.rssreader.SelectColors.setNightMode;
 import static livio.rssreader.backend.TTSEngine.utteranceId_last;
 import static livio.rssreader.backend.TTSEngine.utteranceId_oneshot;
 import static tools.ColorBase.isDarkColor;
-import static tools.ColorBase.preset_colors;
 import static tools.FileManager.EXTENDED_BACKUP_MIMETYPE_ONEDRIVE;
 
 
@@ -151,7 +150,6 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
     private static final int REQUEST_CODE_PREFERENCES = 1;
     private static final int REQUEST_SELECT_FEED = 2;
 //    private static final int REQUEST_EXTENDED_RESTORE = 3;
-    static final int REQUEST_CHECK_TTS = 4; //tts
 
     public final static String ID_ITEM = "livio.rssreader.item";
 
@@ -237,6 +235,8 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             Log.d(tag, "onCreate");
 
         setContentView(R.layout.main);
+
+        ReportBug.enableMonitor(this);
 
         System.setProperty("http.keepAlive", "false"); // workaround to avoid responseCode = -1 problem
 
@@ -460,6 +460,9 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         } else if (itemId == R.id.rss_refresh) {// refresh news
             refresh(true);
             return true;
+        } else if (itemId == R.id.menu_import_opml) {//zzimport
+            selectCategoryDialogImport();
+            return true;
         } else if (itemId == R.id.menu_play) {
             if (mTts.isSpeaking()) {
                 stopTTS();
@@ -507,7 +510,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             } else Log.i(tag, "feedFile does not exist on R.id.menu_play");
             return true;
         } else if (itemId == R.id.menu_backup) {
-            doBackup(prefs, mBackupRestore, getResources());
+            doBackup(mBackupRestore);
             return true;
         } else if (itemId == R.id.menu_restore) {//scopedstorage (purtroppo in Android 11 non si riesce ad usare in modo sicuro filename2uri_downloads_Q(), quindi usiamo per il restore comunque il SAF, come nel caso di storage esterno
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
@@ -553,12 +556,10 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         return popup;
     }
 
-    private static void doBackup(SharedPreferences prefs, FileManager mBackupRestore, Resources resources) {
+    private static void doBackup(FileManager mBackupRestore) {
         if ((Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) || !mBackupRestore.createFileSAF(EXTENDED_BACKUP_FILENAME)) {//scopedstorage
-            int theme_idx = get_theme_idx(prefs, resources);
-            int background = preset_colors[theme_idx][0];
             final String AUTHORITY_FP = BuildConfig.APPLICATION_ID + ".FileProvider";
-            mBackupRestore.saveFile(isDarkColor(background) ? Color.WHITE : Color.BLACK, EXTENDED_BACKUP_FILENAME, BACKUP_FILENAME, AUTHORITY_FP, R.mipmap.ic_launcher);
+            mBackupRestore.saveFile(EXTENDED_BACKUP_FILENAME, BACKUP_FILENAME, AUTHORITY_FP, R.mipmap.ic_launcher);
         }
     }
 
@@ -630,7 +631,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             long ts = prefs.getLong(PREF_BACKUP_TIME, -1);
             if (ts == -1) {//backup never perfomed
                 UserDB ft = UserDB.getInstance(this, prefs);
-                if (ft.getUserFeeds().size() > 0) {//data to save?
+                if (!ft.getUserFeeds().isEmpty()) {//data to save?
                     ts = prefs.getLong(PREF_BACKUP_DIALOG, -1);
                     if (ts == -1) {//first time ?
                         SharedPreferences.Editor editor = prefs.edit();
@@ -974,7 +975,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
             builder.setMessage(getString(R.string.backup_hint))
-                    .setPositiveButton(getString(R.string.backup), (dialog, id) -> doBackup(prefs, mBackupRestore, getResources()))
+                    .setPositiveButton(getString(R.string.backup), (dialog, id) -> doBackup(mBackupRestore))
                     .setNeutralButton(getString(android.R.string.cancel), (dialog, id) -> {
 //do nothing
                     });
@@ -1022,6 +1023,35 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
                     .setView(infoView)
                     .setNeutralButton(android.R.string.cancel, (dialog, id) -> dialog.cancel()).create();
         }
+    }
+
+    private void selectCategoryDialogImport() {//zzimport custom dialog to select target category to import OPML files
+        final ArrayList<String> catList = new ArrayList<>();
+        final String[] categories = getResources().getStringArray(R.array.categories_list);//localized names
+        for (int k = 0; k < FeedsDB.categories.length; k++)
+            catList.add(categories[k]);
+
+        UserDB udb = UserDB.getInstance(this, prefs);
+        for (int k = 0; k < udb.getUserCats().size(); k++)//user categories
+            catList.add(udb.getUserCat(k)[0]);
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.sel_cat_label)
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss())
+                .setSingleChoiceItems(catList.toArray(new String[0]), -1, (dialog, which) -> {
+                    Intent listActivity = new Intent(getBaseContext(), ListFeeds.class);
+                    Bundle b = new Bundle();
+                    String cat;
+                    if (which < FeedsDB.categories.length)
+                        cat = FeedsDB.categories[which][2];
+                    else cat = udb.getUserCat(which - FeedsDB.categories.length)[2];
+                    b.putString("category", cat);
+                    b.putBoolean("import", true);
+                    listActivity.putExtra(ID_CATEGORY, b);
+
+                    startActivityForResult(listActivity, REQUEST_CODE_PREFERENCES);
+                    dialog.dismiss();
+                }).show();
     }
 
 /////////////////////////////////////////

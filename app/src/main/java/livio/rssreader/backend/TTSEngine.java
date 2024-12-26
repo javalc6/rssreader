@@ -78,7 +78,7 @@ public final class TTSEngine implements TextToSpeech.OnInitListener {//standalon
         String utteranceId = segments.length == 0 ? utteranceId_oneshot : utteranceId_first;
         if (mTts.speak(word, TextToSpeech.QUEUE_FLUSH, null, utteranceId) != TextToSpeech.ERROR) {
             for (int i = 0; i < segments.length; i++)
-                if (segments[i].trim().length() > 0) { //twin something to say?
+                if (!segments[i].trim().isEmpty()) { //twin something to say?
                     utteranceId = i == segments.length - 1 ? utteranceId_last : utteranceId_interim;
                     mTts.speak(segments[i].trim(), TextToSpeech.QUEUE_ADD, null, utteranceId);
                 }
@@ -89,7 +89,7 @@ public final class TTSEngine implements TextToSpeech.OnInitListener {//standalon
         String utteranceId = segments.length == 1 ? utteranceId_oneshot : utteranceId_first;
         if (mTts.speak(segments[0].trim(), TextToSpeech.QUEUE_FLUSH, null, utteranceId) != TextToSpeech.ERROR) {
             for (int i = 1; i < segments.length; i++) {
-                if (segments[i].trim().length() > 0) { //twin something to say?
+                if (!segments[i].trim().isEmpty()) { //twin something to say?
                     utteranceId = i == segments.length - 1 ? utteranceId_last : utteranceId_interim;
                     mTts.speak(segments[i].trim(), TextToSpeech.QUEUE_ADD, null, utteranceId);
                 }

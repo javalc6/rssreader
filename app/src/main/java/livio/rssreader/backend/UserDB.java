@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import livio.rssreader.BuildConfig;
 import livio.rssreader.R;
@@ -174,7 +175,7 @@ public final class UserDB {
     }
 
     public boolean deleteFeed(String feed_id) {
-        if ((feed_id != null) && (feed_id.length() > 0)) {
+        if ((feed_id != null) && (!feed_id.isEmpty())) {
             if ((feed_id.charAt(0) >= '0') && (feed_id.charAt(0) <= '9')) {//isUserFeed
                 int ni = userFeeds.size();
                 for (int j = 0; j < ni; j++)
@@ -189,7 +190,7 @@ public final class UserDB {
         return false;
     }
 
-    public void addFeed(String[] feed) {
+    public void addFeed(@NonNull String[] feed) {
         if (BuildConfig.DEBUG)
             Log.d(tag, "add feed: "+feed[2]);
         int max = 0;
@@ -205,7 +206,7 @@ public final class UserDB {
         userFeeds.add(feed);
     }
 
-    public boolean updateFeed(String[] feed) {
+    public boolean updateFeed(@NonNull String[] feed) {
         String feed_id = feed[2];
         int ni = userFeeds.size();
         for (int j = 0; j < ni; j++)
@@ -219,7 +220,7 @@ public final class UserDB {
     }
 
     public String[] getFeedData(String feed_id) {// return feed data {title, url, feed_id, cat, timestamp(only in case of userfeed)}
-		if ((feed_id != null) && (feed_id.length() > 0)) {
+		if ((feed_id != null) && (!feed_id.isEmpty())) {
 //TODO: search should be improved
             if ((feed_id.charAt(0) >= '0') && (feed_id.charAt(0) <= '9')) {//isUserFeed
                 int ni = userFeeds.size();
@@ -238,7 +239,7 @@ public final class UserDB {
 	}
 
     public boolean setFeedUrl(Context context, String feed_id, String feedurl) {// set feed url
-        if ((feed_id != null) && (feed_id.length() > 0)) {
+        if ((feed_id != null) && (!feed_id.isEmpty())) {
 //TODO: search should be improved
             if ((feed_id.charAt(0) >= '0') && (feed_id.charAt(0) <= '9')) {//isUserFeed
                 int ni = userFeeds.size();
@@ -291,7 +292,7 @@ public final class UserDB {
 
     }
 
-    public int updateCategory(String[] category, Context context) {//add or replace category
+    public int updateCategory(@NonNull String[] category, Context context) {//add or replace category
         int position = -1; // invalid position
         if (category[2] == null) {// add new feed
             int max = 0;
@@ -326,16 +327,16 @@ public final class UserDB {
             try (FileOutputStream fos = context.openFileOutput(userDBfn, Context.MODE_PRIVATE)) {
                 ObjectOutputStream os = new ObjectOutputStream(fos);
                 int nobjects = 0;
-                if (userFeeds.size() > 0)
+                if (!userFeeds.isEmpty())
                     nobjects++;
-                if (userCats.size() > 0)
+                if (!userCats.isEmpty())
                     nobjects++;
                 os.writeInt(nobjects);//write number of objects
-                if (userFeeds.size() > 0) {
+                if (!userFeeds.isEmpty()) {
                     os.writeByte(zUserFeeds);//tag userfeeds
                     os.writeObject(userFeeds);//scrive su file la lista di feed utente linearizzata
                 }
-                if (userCats.size() > 0) {
+                if (!userCats.isEmpty()) {
                     os.writeByte(zUserCats);//tag usercats
                     os.writeObject(userCats);//scrive su file la lista di categorie utente linearizzata
                 }

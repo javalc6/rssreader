@@ -69,6 +69,7 @@ public final class IconArrayAdapter extends ArrayAdapter<IconItem> {
         return iconItems.get(index);
     }
 
+    @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         // Item to display
