@@ -445,7 +445,7 @@ public final class FeedsDB {
                             {"Pós-Graduando – Tudo sobre a Pós-Graduação", "http://www.posgraduando.com/feed", "s631.pt"},
                             {"RSS Feed do Site Inovação Tecnológica", "http://www.inovacaotecnologica.com.br/boletim/rss.xml", "s632.pt"},
                             {"ScienceBlogs Brasil – Blogs de Ciência", "http://scienceblogs.com.br/index.xml", "s633.pt"},
-                            {"Scientific American Brasil", "http://www2.uol.com.br/sciam/rss.xml", "s634.pt"},
+//                            {"Scientific American Brasil", "http://www2.uol.com.br/sciam/rss.xml", "s634.pt"},
                             {"Superinteressante", "http://super.abril.com.br/feed/", "s635.pt"},
                     },
                     {//o

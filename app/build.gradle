@@ -24,6 +24,9 @@ android {
         }
     }
     namespace 'livio.rssreader'
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {
