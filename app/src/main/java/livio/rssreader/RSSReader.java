@@ -126,7 +126,7 @@ import livio.rssreader.backend.TTSEngine;
 import tools.FileHandler;
 import tools.FileManager;
 import tools.LocalBroadcastManager;//added after deprecation of orignal class from Google
-import tools.ReportBug;
+//import tools.ReportBug;
 import workers.RSSReaderWorker;
 
 import static livio.rssreader.SelectCategory.ID_CATEGORY;
@@ -236,7 +236,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
         setContentView(R.layout.main);
 
-        ReportBug.enableMonitor(this);
+//        ReportBug.enableMonitor(this);
 
         System.setProperty("http.keepAlive", "false"); // workaround to avoid responseCode = -1 problem
 
