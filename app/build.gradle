@@ -7,8 +7,8 @@ android {
         applicationId "livio.rssreader"
         minSdkVersion 23
         targetSdkVersion 35
-        versionCode 108
-        versionName "1.0.8"
+        versionCode 109
+        versionName "1.0.9"
     }
 
     compileOptions {

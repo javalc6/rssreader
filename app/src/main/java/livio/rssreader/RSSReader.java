@@ -126,7 +126,7 @@ import livio.rssreader.backend.TTSEngine;
 import tools.FileHandler;
 import tools.FileManager;
 import tools.LocalBroadcastManager;//added after deprecation of orignal class from Google
-//import tools.ReportBug;
+import tools.ReportBug;
 import workers.RSSReaderWorker;
 
 import static livio.rssreader.SelectCategory.ID_CATEGORY;
@@ -197,7 +197,6 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
     private final static long zzBackup_age = 7L * 24L * 3600L * 1000L;
 
     private static String latest_feed_id = null;
-    static FeedsDB feedsDB = FeedsDB.getInstance();//contiene feeds per tutte le categorie e tutte le lingue definite
     static String message_publisher = "unknown";//publisher
     //colorpicker
 
@@ -236,7 +235,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
         setContentView(R.layout.main);
 
-//        ReportBug.enableMonitor(this);
+        ReportBug.enableMonitor(this);
 
         System.setProperty("http.keepAlive", "false"); // workaround to avoid responseCode = -1 problem
 
@@ -254,13 +253,6 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME |  ActionBar.DISPLAY_SHOW_TITLE);
-            ab.setIcon(R.drawable.ab_icon);
-            ab.setTitle(R.string.app_name);
-        }
 
         mTts = new TTSEngine(this, new UtteranceProgressListener() {
             @Override
@@ -471,6 +463,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             String pref_lang = prefs.getString(PREF_FEEDS_LANGUAGE, getString(R.string.default_feed_language_code));
             String feed_id = prefs.getString(PREF_FEED_ID, null);//lang
             if (feed_id == null) {
+                FeedsDB feedsDB = FeedsDB.getInstance();
                 feed_id = feedsDB.getDefaultFeedId(pref_lang);//lang
             }
             File feedFile = new File(getCacheDir(), feed_id.concat(".cache"));
@@ -610,6 +603,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         String feed_id = prefs.getString(PREF_FEED_ID, null);//lang
         if (feed_id == null) {
             String pref_lang = prefs.getString(PREF_FEEDS_LANGUAGE, getString(R.string.default_feed_language_code));
+            FeedsDB feedsDB = FeedsDB.getInstance();
             feed_id = feedsDB.getDefaultFeedId(pref_lang);//lang
         }
         File feedFile = new File(getCacheDir(), feed_id.concat(".cache"));
@@ -737,6 +731,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
                     String feed_id = prefs.getString(PREF_FEED_ID, null);//lang
                     if (feed_id == null) {
                         String pref_lang = prefs.getString(PREF_FEEDS_LANGUAGE, getString(R.string.default_feed_language_code));
+                        FeedsDB feedsDB = FeedsDB.getInstance();
                         feed_id = feedsDB.getDefaultFeedId(pref_lang);//lang
                     }
                     File feedFile = new File(getCacheDir(), feed_id.concat(".cache"));
@@ -889,6 +884,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         }
 //sync to file if needed
         if (listUserFeeds.size() + listUserCats.size() > 0) {
+            FeedsDB feedsDB = FeedsDB.getInstance();
             UserDB ft = UserDB.getInstance(this, prefs, feedsDB, listUserFeeds, listUserCats); //create feedstree with restored user feeds
             ft.synctoFile(this); //write restored user feeds to file
         }

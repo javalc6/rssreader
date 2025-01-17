@@ -25,7 +25,6 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import livio.rssreader.BuildConfig;
 import livio.rssreader.R;
 import livio.rssreader.RSSReader;
@@ -74,7 +73,7 @@ public final class UserDB {
         return singleton;
     }
 
-    public synchronized static UserDB getInstance(Context context, SharedPreferences prefs, @Nullable FeedsDB feedsDB, ArrayList<String[]> listUserFeeds, ArrayList<String[]> listUserCats) {
+    public synchronized static UserDB getInstance(Context context, SharedPreferences prefs, FeedsDB feedsDB, ArrayList<String[]> listUserFeeds, ArrayList<String[]> listUserCats) {
         if (singleton == null) {
             singleton = new UserDB(context, prefs, listUserFeeds, listUserCats, feedsDB);
         } else {
@@ -91,6 +90,7 @@ public final class UserDB {
         return singleton;
     }
 
+    /** @noinspection unchecked*/
     private UserDB(Context context, SharedPreferences prefs, FeedsDB feedsDB) {
         if (BuildConfig.DEBUG)
             Log.d(tag, "new UserDB from file in feedListfn");
