@@ -1,10 +1,17 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application dark theme. -->
     <style name="Base.Theme.App" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primarydarkmode</item>
         <item name="colorPrimaryVariant">@color/primarydarkmode</item>
         <item name="colorAccent">@color/primarydarkmode</item>
-        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:ignore="NewApi">true</item><!-- workaround per evitare l'applicazione di edge-to-edge -->
+        <!--item name="android:windowOptOutEdgeToEdgeEnforcement" tools:ignore="NewApi">true</item><!- workaround per evitare l'applicazione di edge-to-edge -->
     </style>
 
+    <style name="MyDialogTheme" parent="@style/Theme.Material3.DayNight.Dialog.Alert">
+        <item name="colorPrimary">@color/primarydarkmode</item>
+        <item name="colorPrimaryVariant">@color/primarydarkmode</item>
+        <item name="colorAccent">@color/primarydarkmode</item>
+        <item name="android:colorBackground">@color/gray75</item>
+        <item name="dialogCornerRadius">@dimen/dialogCornerRadius</item>
+    </style>
 </resources>

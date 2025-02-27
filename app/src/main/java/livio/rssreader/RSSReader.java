@@ -69,6 +69,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
@@ -232,6 +233,9 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         super.onCreate(savedInstanceState);
         if (BuildConfig.DEBUG)
             Log.d(tag, "onCreate");
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//zzedge-2-edge
+            EdgeToEdge.enable(this);//importante: deve essere eseguito prima di setContentView()
+        }
 
         setContentView(R.layout.main);
 
@@ -472,26 +476,27 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
                     RSSFeed feed = (RSSFeed) is.readObject();
                     if ((feed != null) && mTts.checkTTS(feed.getLanguage(pref_lang))) {
                         List<RSSItem> items = feed.getAllItems();
-                        String[] segments = new String[items.size()];
-                        int k = 0;
-                        boolean smart_titles = prefs.getBoolean(PREF_SMART_TITLES, false);
-                        for (RSSItem ritem : items) {
-                            segments[k++] = ritem.getTitle(smart_titles);
-                        }
-                        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-// Request audio focus for playback
-                        if (am != null) {
-                            int result = am.requestAudioFocus(this,
-                                    AudioManager.STREAM_MUSIC,// Use the music stream.
-                                    AudioManager.AUDIOFOCUS_GAIN);// Request permanent focus.
-
-                            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                                // Start playback.
+                        if (!items.isEmpty()) {
+                            String[] segments = new String[items.size()];
+                            int k = 0;
+                            boolean smart_titles = prefs.getBoolean(PREF_SMART_TITLES, false);
+                            for (RSSItem ritem : items) {
+                                segments[k++] = ritem.getTitle(smart_titles);
                             }
-                        }
-                        if (mTts.speakSegments(segments))
-                            item.setIcon(R.drawable.ic_stop_white_36dp);//play
+                            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+// Request audio focus for playback
+                            if (am != null) {
+                                int result = am.requestAudioFocus(this,
+                                        AudioManager.STREAM_MUSIC,// Use the music stream.
+                                        AudioManager.AUDIOFOCUS_GAIN);// Request permanent focus.
 
+                                if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                                    // Start playback.
+                                }
+                            }
+                            if (mTts.speakSegments(segments))
+                                item.setIcon(R.drawable.ic_stop_white_36dp);//play
+                        }
                     }
                 } catch (IOException e) {
                     //do nothing

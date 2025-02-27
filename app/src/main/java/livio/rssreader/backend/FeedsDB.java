@@ -658,6 +658,7 @@ public final class FeedsDB {
                             {"Entrepreneur", "http://feeds.feedburner.com/entrepreneur/latest", "t199.en"},
                             {"Fast Company", "http://feeds.feedburner.com/fastcompany/headlines", "t200.en"},
                             {"MacRumors", "http://www.macrumors.com/macrumors.xml", "t202.en"},
+                            {"Tom's Hardware", "https://www.tomshardware.com/feeds/all", "t203.en"},
                     },
             },
             {//it
@@ -796,6 +797,7 @@ public final class FeedsDB {
                             {"IlSoftware.it", "http://www.ilsoftware.it/rss.asp", "t326.it"},
                             {"Macity", "http://www.macitynet.it/macity/rss.xml", "t327.it"},
                             {"Motoricerca", "http://feeds.feedburner.com/motoricerca", "t328.it"},
+                            {"Tom's Hardware", "https://www.tomshw.it/feed", "t329.it"},
                     },
             },
             {//fr
@@ -906,6 +908,7 @@ public final class FeedsDB {
                             {"Next INpact – Actualités", "https://www.pcinpact.com/include/news.xml", "t554.fr"},
                             {"TechCrunch", "http://feeds.feedburner.com/francaistechcrunch", "t555.fr"},
                             {"Ubergizmo", "http://www.ubergizmo.com/fr/index.xml", "t556.fr"},
+                            {"Tom's Hardware", "https://www.tomshardware.fr/feed", "t557.fr"},
                     },
             },
             {//es

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="cardCornerRadius">4dp</dimen>
-    <dimen name="dialogCornerRadius">6dp</dimen>
+    <dimen name="dialogCornerRadius">16dp</dimen>
+    <dimen name="dialogPadding">16dp</dimen>
     <dimen name="widget_margin">0dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="thumbnail_width">40dp</dimen>

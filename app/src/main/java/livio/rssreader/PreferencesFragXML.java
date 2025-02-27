@@ -16,8 +16,10 @@ import android.app.backup.BackupManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
@@ -53,6 +55,9 @@ public final class PreferencesFragXML extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//zzedge-2-edge
+            EdgeToEdge.enable(this);//importante: deve essere eseguito prima di setContentView()
+        }
         setContentView(R.layout.showpreferences);
         if (savedInstanceState == null) {
             getSupportFragmentManager()
@@ -79,22 +84,6 @@ public final class PreferencesFragXML extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-/* zztabletlandscape: questo codice è alternativo al codice onCreateView
-// nota: viene ridotta solo la larghezza sia dell'action bar che del contenuto della finestra sui tablet in modalità landscape
-    @Override
-    public void onStart() {//14-11-2022: narrow panel in case of table in landscape mode
-        super.onStart();
-//        Log.d("onStart", "onStart");
-        if (!tools.FormFactorUtils.isRunningOnWindows()) {//28-01-2023: check that we are not running on windows to avoid weird behavior
-            Resources resources = getResources();
-            if (resources.getBoolean(R.bool.is_tablet_landscape)) {//isTablet && isLandscape
-//		int dialogHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.6);
-                int dialogWidth = (int) (resources.getDisplayMetrics().widthPixels * 0.6);
-                getWindow().setLayout(dialogWidth, WindowManager.LayoutParams.MATCH_PARENT);
-            }
-        }
-    }
-*/
     public static class PrefsFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener{
 
         @Override
@@ -107,8 +96,6 @@ public final class PreferencesFragXML extends AppCompatActivity {
             setFontSizeSummary();//twin
         }
 
-// zztabletlandscape: questo codice è alternativo al codice onStart
-// nota: viene ridotta solo la larghezza del contenuto della finestra sui tablet in modalità landscape
         @NonNull
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,

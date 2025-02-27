@@ -1,10 +1,10 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application light theme. -->
     <style name="Base.Theme.App" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primarydark</item>
         <item name="colorAccent">@color/primary</item>
-        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:ignore="NewApi">true</item><!-- workaround per evitare l'applicazione di edge-to-edge -->
+        <!--item name="android:windowOptOutEdgeToEdgeEnforcement" tools:ignore="NewApi">true</item><!- workaround per evitare l'applicazione di edge-to-edge -->
     </style>
 
     <!-- Application themes. -->
@@ -17,20 +17,22 @@
         <!-- Transparent system bars for edge-to-edge.
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
          -->
     </style>
 
-    <style name="MyDialogTheme" parent="@style/Theme.Material3.Dark.Dialog.Alert">
-        <item name="colorPrimary">@color/primarydarkmode</item>
-        <item name="colorPrimaryVariant">@color/primarydarkmode</item>
-        <item name="colorAccent">@color/primarydarkmode</item>
-        <item name="android:colorBackground">@color/gray75</item>
+    <style name="MyDialogTheme" parent="@style/Theme.Material3.DayNight.Dialog.Alert">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primarydark</item>
+        <item name="colorAccent">@color/primary</item>
         <item name="dialogCornerRadius">@dimen/dialogCornerRadius</item>
     </style>
 
     <!--Workaround for issue 37059987-->
     <style name="FixedDialog" parent="Theme.Material3.DayNight.Dialog">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primarydark</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="dialogCornerRadius">@dimen/dialogCornerRadius</item>
         <item name="windowNoTitle">false</item>
     </style>
 

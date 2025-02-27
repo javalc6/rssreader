@@ -7,16 +7,15 @@
         android:id="@+id/text_dialog_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dip"
-        android:paddingLeft="12dip"
-        android:paddingRight="12dip" >
+        android:layout_marginTop="8dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp" >
     </TextView>
 
     <TextView
         android:id="@+id/text_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dip"
         android:gravity="center_horizontal" >
     </TextView>
 
@@ -24,8 +23,8 @@
         android:id="@+id/seek_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="6dip"
-        android:layout_marginTop="6dip" />
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp" />
 
 </LinearLayout>
  

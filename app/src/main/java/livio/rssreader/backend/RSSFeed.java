@@ -356,6 +356,9 @@ public final class RSSFeed implements Serializable {
                                         case "content:encoded":
                                             item.setDescription(Entities.XML.unescape(content));
                                             break;
+                                        case "summary":
+                                            item.setDescription(content.toString());
+                                            break;
                                         case "category":
                                             item.setCategory(content.toString());
                                             break;

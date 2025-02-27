@@ -51,10 +51,10 @@ public final class SeekBarPreference extends DialogPreference {
     private int mMinProgress;
     private int mMaxProgress;
     private int mProgress;
-    private int mDefault;
+    private final int mDefault;
     private int mInterval = 1;
     private boolean modePercentage = false;
-    private String mSuffix;
+    private final String mSuffix;
 
     private int value;
 
@@ -65,8 +65,7 @@ public final class SeekBarPreference extends DialogPreference {
     public SeekBarPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         // get attributes specified in XML
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SeekBarDialogPreference, 0, 0);
-        try {
+        try (TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SeekBarDialogPreference, 0, 0)) {
             mMinProgress = a.getInteger(R.styleable.SeekBarDialogPreference_min, DEFAULT_MIN_PROGRESS);
             mMaxProgress = a.getInteger(R.styleable.SeekBarDialogPreference_android_max, DEFAULT_MAX_PROGRESS);
             mDefault = a.getInteger(R.styleable.SeekBarDialogPreference_android_defaultValue, DEFAULT_PROGRESS);
@@ -77,8 +76,6 @@ public final class SeekBarPreference extends DialogPreference {
             if(newInterval != null)
                 mInterval = Integer.parseInt(newInterval);
 //            Log.d(tag, "init:"+mMinProgress+":"+mMaxProgress+":"+mDefault+":"+mSuffix+":"+modePercentage+":"+mInterval);
-        } finally {
-            a.recycle();
         }
     }
 

@@ -15,8 +15,10 @@ The use of this software is at the risk of the user.
 import android.content.Context;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.speech.tts.UtteranceProgressListener;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +27,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -86,6 +89,9 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
    	 	Log.i(tag, "onCreate");
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//zzedge-2-edge
+            EdgeToEdge.enable(this);//importante: deve essere eseguito prima di setContentView()
+        }
 
         setContentView(R.layout.showitem);
 
@@ -306,7 +312,7 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
                         }
 
                         String[] segments = RSSReader.cleanupContent(content, true).split("\n+");
-                        if (mTts.speakSegments(segments))
+                        if ((segments.length > 0) && mTts.speakSegments(segments))
                             item.setIcon(R.drawable.ic_stop_white_36dp);//play
                     }
                 }
@@ -359,6 +365,23 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
             }
         }
         invalidateOptionsMenu();
+    }
+
+    public boolean dispatchKeyEvent(KeyEvent event) {//15-02-2025, added DPAD support
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            int keyCode = event.getKeyCode();
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    backpage();
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    fwdpage();
+                    return true;
+                default:
+//                    Log.d(tag, "key:" + keyCode);
+            }
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     public class WebViewPlus extends WebView { // extended web view

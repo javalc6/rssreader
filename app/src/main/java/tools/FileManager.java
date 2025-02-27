@@ -237,7 +237,7 @@ public final class FileManager {
         ObjectOutputStream obj_out = new ObjectOutputStream(f_out);
         obj_out.writeObject(content);
 */
-                writeFile(f_out, !backupMode, fileHandler.encodeFile(), fileHandler.getMimeType());//backupmode needs old format
+                writeFile(f_out, true, fileHandler.encodeFile(), fileHandler.getMimeType());//backupmode needs old format
                 f_out.close();
                 resid = backupMode ? R.string.msg_backup_ok : R.string.msg_export_ok;
             } catch (IOException e) {
@@ -640,7 +640,7 @@ public final class FileManager {
             }
             GZIPOutputStream f_out = new GZIPOutputStream(
                     new BufferedOutputStream(new FileOutputStream(pfd.getFileDescriptor())));
-            writeFile(f_out, !backupMode, fileHandler.encodeFile(), fileHandler.getMimeType());//backupmode needs old format
+            writeFile(f_out, true, fileHandler.encodeFile(), fileHandler.getMimeType());//backupmode needs old format
             f_out.close();
             pfd.close();
             return true;

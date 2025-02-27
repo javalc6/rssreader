@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.appcompat.widget.Toolbar;
@@ -18,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import tools.FormFactorUtils;
 
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -90,6 +93,9 @@ public final class ShowHelp extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(tag, "onCreate");
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//zzedge-2-edge
+            EdgeToEdge.enable(this);//importante: deve essere eseguito prima di setContentView()
+        }
 
         setContentView(R.layout.showhelp);
 
@@ -288,6 +294,23 @@ public final class ShowHelp extends AppCompatActivity {
         }
     }
 
+    public boolean dispatchKeyEvent(KeyEvent event) {//15-02-2025, added DPAD support
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            int keyCode = event.getKeyCode();
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_DPAD_LEFT:
+                    backpage();
+                    return true;
+                case KeyEvent.KEYCODE_DPAD_RIGHT:
+                    fwdpage();
+                    return true;
+                default:
+//                    Log.d(tag, "key:" + keyCode);
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
     // http://developer.android.com/reference/android/support/v4/view/PagerAdapter.html
     class SmartPager extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final ViewPager2 viewPager;
@@ -483,8 +506,9 @@ public final class ShowHelp extends AppCompatActivity {
                 Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 try {
                     startActivity(myIntent);
-                } catch (ActivityNotFoundException e) {
-                    Log.d(tag, "ActivityNotFoundException: "+e.getMessage());
+                } catch (ActivityNotFoundException | SecurityException e) {
+                    Log.d(tag, "Exception: " + e.getMessage());
+                    return false;//proceed online using the original link
                 }
                 return true;
             } else if (url.startsWith(HELP_SCHEME)) {//zzhelp, help screen

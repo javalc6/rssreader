@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="@dimen/dialogPadding"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
@@ -8,8 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:gravity="center_vertical"
         android:checked="false"
@@ -23,7 +24,7 @@
 	    android:layout_alignParentStart="true"
         android:layout_below="@id/theme_auto"
 	    android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
 		android:gravity="center_vertical"
 	    android:text="@string/prefs_theme" />
 
@@ -34,7 +35,7 @@
         android:layout_below="@id/theme_auto"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:layout_toEndOf="@id/theme" />
@@ -57,7 +58,6 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:text="@string/reset_default"
         android:layout_below="@id/itemlist"
         android:id="@+id/reset_colors"

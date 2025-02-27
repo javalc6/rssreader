@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -30,6 +31,7 @@ import android.app.Activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -74,6 +76,9 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//zzedge-2-edge
+            EdgeToEdge.enable(this);//importante: deve essere eseguito prima di setContentView()
+        }
         setContentView(R.layout.frg_listfeeds);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);

@@ -15,6 +15,7 @@ The use of this software is at the risk of the user.
 import java.util.ArrayList;
 
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import livio.rssreader.backend.FeedsDB;
@@ -25,6 +26,7 @@ import livio.rssreader.backend.UserDB;
 import tools.FormFactorUtils;
 
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +55,9 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(tag,"onCreate");
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//zzedge-2-edge
+            EdgeToEdge.enable(this);//importante: deve essere eseguito prima di setContentView()
+        }
         setContentView(R.layout.categories);
 
         SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
