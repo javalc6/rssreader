@@ -47,28 +47,16 @@ import java.util.Locale;
 
 
 /*
-ShowHelp come intent richiede il parametro 'help' che rappresenta il nome del file di aiuto da aprire ed eventualmente la sezione da aprire separata da /
+The activity ShowHelp processes the parameter 'help' when called as intent, this parameter contains the filename of the help file and optionally the section marked by /
 
-Navigazione interna:
-
-per selezionare voce 'bookmark'
-help:bookmark
-
-le seguenti modalità devono ancora essere implementate:
-per selezionare il file 'dict'
-help:/dict
-
-per selezionare il file 'dict', voce 'bookmark'
-help:/dict/bookmark
-
-
+For the internal navigation use scheme help:
  */
 
 public final class ShowHelp extends AppCompatActivity {
     private static final String tag = "ShowHelp";
     private static final String BASE_DIRECTORY_HELP = "help/";
 
-    public static final String HELP_SCHEME = "help:";	//zzhelp, support for help screens (proof of concept)
+    public static final String HELP_SCHEME = "help:";	//support for help screens (proof of concept)
 
     private SmartPager smartPager;
     private ImageButton backbutton;
@@ -79,7 +67,6 @@ public final class ShowHelp extends AppCompatActivity {
 
     private static final String SAVE_currentItem_ID = "currentitem";
     private static final String SAVE_helpfilename_ID = "filename";
-//    private static final String SAVE_msg_ID = "msg";//serve a qualcosa in ShowHelp ? eliminarlo in futuro
 
     /** Called to save instance state: put critical variables here! */
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -94,15 +81,15 @@ public final class ShowHelp extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.i(tag, "onCreate");
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//zzedge-2-edge
-            EdgeToEdge.enable(this);//importante: deve essere eseguito prima di setContentView()
+            EdgeToEdge.enable(this);//shall be executed before setContentView()
         }
 
         setContentView(R.layout.showhelp);
 
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ActionBar t = getSupportActionBar(); //ab
-        if (t != null) {//ab
+        ActionBar t = getSupportActionBar();
+        if (t != null) {
             t.setDisplayHomeAsUpEnabled(!FormFactorUtils.isArc(this)); //show back arrow in actionbar on Android devices, but not on Chromebook devices
         }
 
@@ -127,7 +114,7 @@ public final class ShowHelp extends AppCompatActivity {
                     help_filename = help_filename.substring(0, idx);
                 }
             }
-            readHelpFile(help_content);//inizializza help_content
+            readHelpFile(help_content);
             if (selector != null)
                 position = getPos(selector);
             else if (anchor != null)
@@ -137,7 +124,7 @@ public final class ShowHelp extends AppCompatActivity {
         } else {
             position = savedInstanceState.getInt(SAVE_currentItem_ID);
             help_filename = savedInstanceState.getString(SAVE_helpfilename_ID);
-            readHelpFile(help_content);//inizializza help_content
+            readHelpFile(help_content);
         }
 //        Log.d(tag, "position:" + position);
         smartPager = new SmartPager(findViewById(R.id.smartpager), this, position,
@@ -164,20 +151,20 @@ public final class ShowHelp extends AppCompatActivity {
 
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {//ab
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         int itemId = item.getItemId();
         if (itemId == android.R.id.home) {  //actionbar
-            finish();//ab
-            return true;    //ab
+            finish();
+            return true;    
         } else if (itemId == R.id.menu_about) {//                stopExtendedSpeech();
-            new About_DF().show(getSupportFragmentManager(), "about");  //df
+            new About_DF().show(getSupportFragmentManager(), "about"); 
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public static class About_DF extends AppCompatDialogFragment { //df
+    public static class About_DF extends AppCompatDialogFragment {
 
         public About_DF() {	// required empty constructor
         }
@@ -330,16 +317,16 @@ public final class ShowHelp extends AppCompatActivity {
             show_nav_buttons(position);
             this.indicators = indicators;
             if (indicators != null)
-                if (n_items > 1) { // attiva gli indicatori di posizione solo se il numero di elementi è basso ma superiore a 1
+                if (n_items > 1) { //activates position indicators only if the number of elements is low but greater than 1
                     vpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
                         @Override
                         public void onPageSelected(int pos) {
                             super.onPageSelected(pos);
 //                            Log.d("onPageSelected", "pos:"+pos);
-// nota: il loop parte da 1, perchè in posizione 0 c'è il filler1 che va saltato
+// note: the loop starts from 1, because in position 0 there is filler1 which must be skipped
                             for (int i = 1; i < indicators.getChildCount(); i++) {
                                 View view = indicators.getChildAt(i);
-                                view.setSelected((i - 1) == pos);//(i-1) è dovuto al fatto che in posizione 0 c'è il filler1 che va saltato
+                                view.setSelected((i - 1) == pos);//(i-1) is due to the fact that in position 0 there is filler1 which must be skipped
                             }
                             show_nav_buttons(pos);
                         }
@@ -349,7 +336,7 @@ public final class ShowHelp extends AppCompatActivity {
                     filler1.setLayoutParams((new LinearLayout.LayoutParams(dimens, dimens, 1)));
                     indicators.addView(filler1);
                     for (int i = 0; i < n_items; i++) {
-                        //ottieni larghezza e altezza di 'indicators' e poi calcola i vari parametri per posizionare i pallini
+                        //get width and height of 'indicators' and then calculate the various parameters to position the dots
                         View view = new View(ctx);
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dimens, dimens);
                         lp.setMargins(i == 0 ? dimens / 2 : dimens, 0, 0, 0);
@@ -379,7 +366,6 @@ public final class ShowHelp extends AppCompatActivity {
                                     }
                                     @Override
                                     public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-//                     if (!request.hasGesture()) return false;<--attenzione ad abilitarla, può dare problemi
                                         return overrideUrlLoading(request.getUrl().toString());
                                     }
                                 }
@@ -405,15 +391,12 @@ public final class ShowHelp extends AppCompatActivity {
 */
             String html = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style>" + help_style_API_M + "</style></head><body>" + help + "</body></html>";
             wv.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
-//old code:            wv.loadDataWithBaseURL("file:///android_asset/", "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><style>" + help_style + "</style></head><body>" + help + "</body></html>", "text/html", "utf-8", null);
-
         }
 
         @Override
         public void onAttachedToRecyclerView(RecyclerView recyclerView) {//17-10-2021: ViewPager2
 // workaround for issue https://issuetracker.google.com/issues/123006042
 // workaround is a simplified version of https://github.com/android/views-widgets-samples/blob/master/ViewPager2/app/src/main/java/androidx/viewpager2/integration/testapp/NestedScrollableHost.kt
-// workaround limitation: gli scroll orizzontali sono passati direttamente al viewpager che bypassano il webviewplus, ok per help e showitem, meno bene per il dizionario offline
             recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
                 int lastX;
                 int lastY;
@@ -469,12 +452,7 @@ public final class ShowHelp extends AppCompatActivity {
             viewPager.setCurrentItem(item, smoothScroll);
         }
 
-/*        void onSaveInstanceState(Bundle outState) {
-//            outState.putInt(SAVE_currentItem_ID, viewPager.getCurrentItem());
-            homeView.saveInstanceState(outState); // handling webview persistence
-        }*/
-
-        void clearWebViews(boolean includeDiskFiles) {		//17-10-2021: ViewPager2
+        void clearWebViews(boolean includeDiskFiles) {
             try {
                 RecyclerView rv = ((RecyclerView) viewPager.getChildAt(0));
                 if (rv != null) {
@@ -534,7 +512,7 @@ public final class ShowHelp extends AppCompatActivity {
             return n_items;
         }
 
-        public class ViewHolder extends RecyclerView.ViewHolder {//17-10-2021: ViewPager2
+        public class ViewHolder extends RecyclerView.ViewHolder {
             private final WebView wv;
 
             public ViewHolder(View v) {

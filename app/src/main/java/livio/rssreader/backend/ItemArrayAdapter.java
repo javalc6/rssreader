@@ -32,14 +32,16 @@ public final class ItemArrayAdapter extends ArrayAdapter<Item> {
     private final LayoutInflater inflater;
     private final String feed_id;
     private final ListFeeds.FeedsFragment ff;
+    private final boolean first_element_immutable;
     private int paintFlags;
 
-    public ItemArrayAdapter(Context context, List<Item> itemList, ListFeeds.FeedsFragment ff, String feed_id) {
+    public ItemArrayAdapter(Context context, List<Item> itemList, ListFeeds.FeedsFragment ff, String feed_id, boolean first_element_immutable) {
         super(context, R.layout.checkboxrow, R.id.rowtext, itemList);
         // Cache the LayoutInflate to avoid asking for a new one each time.
         inflater = LayoutInflater.from(context);
         this.feed_id = feed_id;
         this.ff = ff;
+        this.first_element_immutable = first_element_immutable;
     }
 
     @NonNull
@@ -81,9 +83,9 @@ public final class ItemArrayAdapter extends ArrayAdapter<Item> {
         // Tag the CheckBox with the Item it is displaying, so that we can
         // access the item in onClick() when the CheckBox is toggled.
         checkBox.setTag(item);
-        if (ff.isUserFeed(position))
-            checkBox.setVisibility(View.VISIBLE);
-        else checkBox.setVisibility(View.GONE);
+        if (first_element_immutable && position == 0)
+            checkBox.setVisibility(View.GONE);
+        else checkBox.setVisibility(View.VISIBLE);
 
         // Display item data
         checkBox.setChecked(item.isChecked());

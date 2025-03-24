@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "livio.rssreader"
         minSdkVersion 23
-        targetSdkVersion 35
-        versionCode 110
-        versionName "1.0.10"
+        targetSdkVersion 36
+        versionCode 111
+        versionName "1.11"
     }
 
     compileOptions {

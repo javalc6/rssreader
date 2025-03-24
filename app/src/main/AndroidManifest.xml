@@ -16,7 +16,7 @@
         <activity android:name=".RSSReader"
 				android:exported="true"
                   android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
-                  android:label="@string/app_name">
+                  >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

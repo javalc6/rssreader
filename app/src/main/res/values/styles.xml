@@ -27,15 +27,6 @@
         <item name="dialogCornerRadius">@dimen/dialogCornerRadius</item>
     </style>
 
-    <!--Workaround for issue 37059987-->
-    <style name="FixedDialog" parent="Theme.Material3.DayNight.Dialog">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primarydark</item>
-        <item name="colorAccent">@color/primary</item>
-        <item name="dialogCornerRadius">@dimen/dialogCornerRadius</item>
-        <item name="windowNoTitle">false</item>
-    </style>
-
     <!--App customized section-->
     <style name="Widget.App.Toolbar" parent="Widget.Material3.Toolbar">
         <item name="android:background">@color/primary</item>
