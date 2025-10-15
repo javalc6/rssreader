@@ -902,8 +902,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         }
 //sync to file if needed
         if (listUserFeeds.size() + listUserCats.size() + deletedNativeFeeds.size() > 0) {
-            FeedsDB feedsDB = FeedsDB.getInstance();
-            UserDB ft = UserDB.getInstance(this, prefs, feedsDB, listUserFeeds, listUserCats, deletedNativeFeeds); //create feedstree with restored user feeds
+            UserDB ft = UserDB.getInstance(this, prefs, listUserFeeds, listUserCats, deletedNativeFeeds); //create feedstree with restored user feeds
             ft.synctoFile(this); //write restored user feeds to file
         }
 

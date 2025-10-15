@@ -196,6 +196,7 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
         if (mTts != null) {
             mTts.stop();
             mTts.shutdown();
+            mTts = null;
         }
 
         if (smartPager != null)

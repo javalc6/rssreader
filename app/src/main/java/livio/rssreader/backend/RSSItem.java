@@ -52,7 +52,8 @@ public final class RSSItem implements Serializable, Comparable<RSSItem> {
 		_description = description.trim();
 	}
 	void setLink(String link) {
-		_link = link;
+        if (_link.isEmpty())//28-09-2025, added to support properly links in feed https://www.dday.it/rss
+		    _link = link;
 	}
 	void setCategory(String category) {
 		_category = category;

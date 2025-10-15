@@ -31,7 +31,15 @@
                 <data android:scheme="https" android:mimeType="application/atom+xml" />
             </intent-filter>
         </activity>
-        <activity android:name=".PreferencesFragXML" android:exported="false" android:configChanges="screenSize|screenLayout|orientation" 	        android:label="@string/set_preferences"/>
+        <activity android:name=".PreferencesFragXML"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:exported="false"
+            android:label="@string/set_preferences">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity android:name=".SelectCategory" android:exported="false" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
 	        android:label="@string/sel_cat_label"/>
         <activity android:name=".ListFeeds" android:exported="false" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"

@@ -82,11 +82,9 @@ public class OPMLParser {
 			for (OPMLOutline feed: outlines) {
 				System.out.println(feed.getType() + " - " + feed.getText() + " - " + feed.getUrl());
 			}
-		} catch (SAXException | ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+		} catch (SAXException | ParserConfigurationException | IOException e) {
             e.printStackTrace();
         }
-	}
+    }
 
 }

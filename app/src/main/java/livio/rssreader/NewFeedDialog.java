@@ -31,7 +31,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public final class NewFeedDialog extends AppCompatDialogFragment {
 
-    private NewFeedDialog() {//new feed
+    public NewFeedDialog() {//new feed
         // Empty constructor required for DialogFragment
     }
 

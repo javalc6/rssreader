@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
 		<exclude domain="sharedpref" path="config_date"/>

@@ -237,7 +237,7 @@ public final class FileManager {
         ObjectOutputStream obj_out = new ObjectOutputStream(f_out);
         obj_out.writeObject(content);
 */
-                writeFile(f_out, true, fileHandler.encodeFile(), fileHandler.getMimeType());//backupmode needs old format
+                writeFile(f_out, fileHandler.encodeFile(), fileHandler.getMimeType());//backupmode needs old format
                 f_out.close();
                 resid = backupMode ? R.string.msg_backup_ok : R.string.msg_export_ok;
             } catch (IOException e) {
@@ -306,7 +306,7 @@ public final class FileManager {
                 GZIPOutputStream ostream = new GZIPOutputStream(
                         new BufferedOutputStream(new FileOutputStream(mybackup)));
                 Uri ouri = FileProvider.getUriForFile(mActivity, AUTHORITY_FP, mybackup);
-                writeFile(ostream, true, fileHandler.encodeFile(), fileHandler.getMimeType());//use always new format, both backup mode and file mode
+                writeFile(ostream, fileHandler.encodeFile(), fileHandler.getMimeType());//use always new format, both backup mode and file mode
                 ostream.close();
 
 // now collect the list of intents to put in chooser
@@ -577,17 +577,15 @@ public final class FileManager {
         return error;
     }
 
-    private static void writeFile(GZIPOutputStream ostream, boolean newMode, String content, String mimetype) throws NoSuchAlgorithmException, IOException {
-        if (newMode) {
-            MessageDigest digester = MessageDigest.getInstance("MD5");
-            digester.update(content.getBytes(StandardCharsets.UTF_8));
-            String digest = Base64.encodeToString(digester.digest(), Base64.NO_WRAP + Base64.NO_PADDING);
+    private static void writeFile(GZIPOutputStream ostream, String content, String mimetype) throws NoSuchAlgorithmException, IOException {
+        MessageDigest digester = MessageDigest.getInstance("MD5");
+        digester.update(content.getBytes(StandardCharsets.UTF_8));
+        String digest = Base64.encodeToString(digester.digest(), Base64.NO_WRAP + Base64.NO_PADDING);
 
-            ostream.write(mimetype.getBytes(StandardCharsets.UTF_8));
-            ostream.write(EOL.getBytes(StandardCharsets.UTF_8));
-            ostream.write(digest.getBytes(StandardCharsets.UTF_8));
-            ostream.write(EOL.getBytes(StandardCharsets.UTF_8));
-        }
+        ostream.write(mimetype.getBytes(StandardCharsets.UTF_8));
+        ostream.write(EOL.getBytes(StandardCharsets.UTF_8));
+        ostream.write(digest.getBytes(StandardCharsets.UTF_8));
+        ostream.write(EOL.getBytes(StandardCharsets.UTF_8));
         ostream.write(content.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -610,7 +608,7 @@ public final class FileManager {
         ObjectOutputStream obj_out = new ObjectOutputStream(f_out);
         obj_out.writeObject(content);
 */
-                FileManager.writeFile(f_out, true, fileHandler.encodeFile(), fileHandler.getMimeType());
+                FileManager.writeFile(f_out, fileHandler.encodeFile(), fileHandler.getMimeType());
             } catch (IOException | JSONException | NoSuchAlgorithmException e) {
                 Log.w(tag, "createAutoRecovery: "+e.getMessage()+" writing " + filename);
             }
@@ -640,7 +638,7 @@ public final class FileManager {
             }
             GZIPOutputStream f_out = new GZIPOutputStream(
                     new BufferedOutputStream(new FileOutputStream(pfd.getFileDescriptor())));
-            writeFile(f_out, true, fileHandler.encodeFile(), fileHandler.getMimeType());//backupmode needs old format
+            writeFile(f_out, fileHandler.encodeFile(), fileHandler.getMimeType());//backupmode needs old format
             f_out.close();
             pfd.close();
             return true;

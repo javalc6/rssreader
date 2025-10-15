@@ -30,7 +30,7 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 
 public final class NewCategoryDialog extends AppCompatDialogFragment {
 
-    private NewCategoryDialog() {//new feed
+    public NewCategoryDialog() {//new feed
         // Empty constructor required for DialogFragment
     }
 

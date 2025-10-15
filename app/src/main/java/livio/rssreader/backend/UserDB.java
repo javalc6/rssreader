@@ -60,35 +60,31 @@ public final class UserDB {
     private HashSet<String> deletedNativeFeeds;//deleted native feeds, hash of {feed_id}
 
     private static String[][][] nativeFeeds;
-    public static String DEFAULT_FEED_ID;// the default feed_id can be used at start and in case of problems
 
     public synchronized static UserDB getInstance(Context context, SharedPreferences prefs) {
-        FeedsDB feedsDB = FeedsDB.getInstance();
         if (singleton == null) {
-            singleton = new UserDB(context, prefs, feedsDB);
+            singleton = new UserDB(context, prefs);
         } else {
             String feed_lang = prefs.getString(RSSReader.PREF_FEEDS_LANGUAGE, context.getString(R.string.default_feed_language_code));
             if (!pref_lang.equals(feed_lang)) {//update according to effective feed language
                 pref_lang = feed_lang;
-                int lang_idx = feedsDB.getLanguageIndex(pref_lang);
+                int lang_idx = FeedsDB.getLanguageIndex(pref_lang);
                 nativeFeeds = FeedsDB.nativeFeeds[lang_idx];
-                DEFAULT_FEED_ID = feedsDB.getDefaultFeedId(pref_lang);
             }
         }
         return singleton;
     }
 
-    public synchronized static UserDB getInstance(Context context, SharedPreferences prefs, FeedsDB feedsDB,
+    public synchronized static UserDB getInstance(Context context, SharedPreferences prefs,
             ArrayList<String[]> listUserFeeds, ArrayList<String[]> listUserCats, HashSet<String> deletedNativeFeeds) {
         if (singleton == null) {
-            singleton = new UserDB(context, prefs, listUserFeeds, listUserCats, feedsDB, deletedNativeFeeds);
+            singleton = new UserDB(context, prefs, listUserFeeds, listUserCats, deletedNativeFeeds);
         } else {
             String feed_lang = prefs.getString(RSSReader.PREF_FEEDS_LANGUAGE, context.getString(R.string.default_feed_language_code));
             if (!pref_lang.equals(feed_lang)) {//update according to effective feed language
                 pref_lang = feed_lang;
-                int lang_idx = feedsDB.getLanguageIndex(pref_lang);
+                int lang_idx = FeedsDB.getLanguageIndex(pref_lang);
                 nativeFeeds = FeedsDB.nativeFeeds[lang_idx];
-                DEFAULT_FEED_ID = feedsDB.getDefaultFeedId(pref_lang);
             }
             singleton.userFeeds = listUserFeeds;
             singleton.userCats = listUserCats;
@@ -98,7 +94,7 @@ public final class UserDB {
     }
 
     /** @noinspection unchecked*/
-    private UserDB(Context context, SharedPreferences prefs, FeedsDB feedsDB) {
+    private UserDB(Context context, SharedPreferences prefs) {
         if (BuildConfig.DEBUG)
             Log.d(tag, "new UserDB from file in feedListfn");
         userFeeds = new ArrayList<>();
@@ -107,9 +103,8 @@ public final class UserDB {
 
         pref_lang = prefs.getString(RSSReader.PREF_FEEDS_LANGUAGE, context.getString(R.string.default_feed_language_code));
 
-        int lang_idx = feedsDB.getLanguageIndex(pref_lang);
+        int lang_idx = FeedsDB.getLanguageIndex(pref_lang);
         nativeFeeds = FeedsDB.nativeFeeds[lang_idx];
-        DEFAULT_FEED_ID = feedsDB.getDefaultFeedId(pref_lang);
         try (FileInputStream fis = context.openFileInput(userDBfn)) {
             ObjectInputStream is = new ObjectInputStream(fis);
             int nobjects = is.readInt();
@@ -137,15 +132,14 @@ public final class UserDB {
     }
 
     private UserDB(Context context, SharedPreferences prefs, ArrayList<String[]> listUserFeeds,
-                   ArrayList<String[]> listUserCats, FeedsDB feedsDB, HashSet<String> deletedNativeFeeds) {
+                   ArrayList<String[]> listUserCats, HashSet<String> deletedNativeFeeds) {
         if (BuildConfig.DEBUG)
             Log.d(tag, "new UserDB from restore file");
         pref_lang = prefs.getString(RSSReader.PREF_FEEDS_LANGUAGE, context.getString(R.string.default_feed_language_code));
         userCats = listUserCats;
 
-        int lang_idx = feedsDB.getLanguageIndex(pref_lang);
+        int lang_idx = FeedsDB.getLanguageIndex(pref_lang);
         nativeFeeds = FeedsDB.nativeFeeds[lang_idx];
-        DEFAULT_FEED_ID = feedsDB.getDefaultFeedId(pref_lang);
         userFeeds = listUserFeeds;
         this.deletedNativeFeeds = deletedNativeFeeds;
     }

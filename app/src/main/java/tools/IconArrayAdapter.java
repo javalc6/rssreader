@@ -26,7 +26,7 @@ final class IconArrayAdapter extends ArrayAdapter<IconItem> {
     private final Context context;
     private final int resourceid;
 
-    private List<IconItem> iconItems;
+    private final List<IconItem> iconItems;
 
     public IconArrayAdapter(Context context, int textViewResourceId,
                             List<IconItem> objects) {

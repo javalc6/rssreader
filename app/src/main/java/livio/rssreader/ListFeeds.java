@@ -62,7 +62,6 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import static livio.rssreader.backend.UserDB.DEFAULT_FEED_ID;
 import static livio.rssreader.backend.UserDB.FEED_SIZE;
 
 // called by SelectCategory activity
@@ -128,7 +127,10 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
             for (int k = 0; k < size; k++)
                 itemList.add(new Item(getFeed(k)[0], false));
 
-            String feed_id = prefs.getString(RSSReader.PREF_FEED_ID, DEFAULT_FEED_ID);
+            String feed_lang = prefs.getString(RSSReader.PREF_FEEDS_LANGUAGE, getString(R.string.default_feed_language_code));
+            String defaultFeedId = FeedsDB.getDefaultFeedId(feed_lang);
+
+            String feed_id = prefs.getString(RSSReader.PREF_FEED_ID, defaultFeedId);
 
             setListAdapter(new ItemArrayAdapter(act, itemList, this, feed_id, catIdx == 0));
             ListView lv = getListView();
@@ -261,6 +263,8 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
                 assert iaa != null;
                 ArrayList<OPMLOutline> outlines = op.parse(is);
 //                Log.d(tag, "Number of outlines: " + outlines.size());
+                if (outlines.isEmpty())//invalid input file
+                    return false;
                 int count = 0;
                 for (OPMLOutline outline: outlines) {
 //                    Log.d(tag, outline.getType() + " - " + outline.getText() + " - " + outline.getUrl());
@@ -274,7 +278,7 @@ public final class ListFeeds extends AppCompatActivity implements NewFeedDialog.
                         iaa.add(new Item(feed[0], false));
                         if (++count >= MAX_NUM_OPML_IMPORT)
                             break;
-                    }
+                    } else Log.d(tag, "duplicate url: "+url);
                 }
                 if (count > 0) {
                     udb.synctoFile(getActivity());

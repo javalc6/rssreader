@@ -4,7 +4,9 @@ import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -304,10 +306,11 @@ public final class ShowHelp extends AppCompatActivity {
         final Context context;
         final int n_items;
         final LinearLayout indicators;
+        final boolean dark;//zzdark
 
         private final static int defaultSizeInDp = 12;
-        private static final String help_style = "body{margin-right:32px;word-wrap:break-word;background-color:#E8E8E8} hr{height:1px;border:0px;} img{max-width:100%;height:auto; display:block;margin-left:auto;margin-right:auto} A{text-decoration:none}";
-        private static final String help_style_API_M = "#main{display:flex;}#section1{order:1;margin:10px}#section2{order:2;}@media screen and (max-width: 560px) {#main{flex-wrap:wrap;}} img{max-width:100%;height:auto; display:block;margin-left:auto;margin-right:auto} A{text-decoration:none}";
+        private static final String dark_style = "body{background-color:#%06x;color:#%06x;}A{color:#%06x;}";
+        private static final String help_style = "#main{display:flex;}#section1{order:1;margin:10px}#section2{order:2;}@media screen and (max-width: 560px) {#main{flex-wrap:wrap;}} img{max-width:100%;height:auto; display:block;margin-left:auto;margin-right:auto} A{text-decoration:none}";
 
         SmartPager(ViewPager2 vpager, Context ctx, int position, LinearLayout indicators) {
             viewPager = vpager;
@@ -315,6 +318,11 @@ public final class ShowHelp extends AppCompatActivity {
             vpager.setAdapter(this);
             Resources res = getResources();
             show_nav_buttons(position);
+            if ((android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)) {//zzdark
+                int nightModeFlags = res.getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK; //zzdark
+//        Log.d(tag, "nightModeFlags="+nightModeFlags);
+                dark = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+            } else dark = false;
             this.indicators = indicators;
             if (indicators != null)
                 if (n_items > 1) { //activates position indicators only if the number of elements is low but greater than 1
@@ -331,7 +339,7 @@ public final class ShowHelp extends AppCompatActivity {
                             show_nav_buttons(pos);
                         }
                     });
-                    int dimens = ((int) res.getDisplayMetrics().density * defaultSizeInDp);
+                    int dimens = ((int) (res.getDisplayMetrics().density * defaultSizeInDp));
                     View filler1 = new View(ctx);//filler
                     filler1.setLayoutParams((new LinearLayout.LayoutParams(dimens, dimens, 1)));
                     indicators.addView(filler1);
@@ -359,6 +367,8 @@ public final class ShowHelp extends AppCompatActivity {
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {//17-10-2021: ViewPager2
             WebView wv = new WebView(context);
+            if (dark)
+                wv.setBackgroundColor(getColor(R.color.gray75));//zzdark
             wv.setWebViewClient(new WebViewClient() {
                                     @Override
                                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -389,7 +399,14 @@ public final class ShowHelp extends AppCompatActivity {
 <div id="main"><div id="section1">blocco testo</div><img id="section2" src="images/blabla.png" alt="blabla" width="240px" height="400px"></div>
 
 */
-            String html = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style>" + help_style_API_M + "</style></head><body>" + help + "</body></html>";
+            String darkstyle = "";//zzdark
+            if (dark) {//zzdark
+                int background = getColor(R.color.gray75);//zzdark
+                int textcolor = Color.WHITE;//zzdark
+                int linkcolor = Color.YELLOW;//zzdark
+                darkstyle = String.format(dark_style, background & 0xFFFFFF, textcolor & 0xFFFFFF, linkcolor & 0xFFFFFF);//zzdark
+            }
+            String html = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style>" + darkstyle + help_style + "</style></head><body>" + help + "</body></html>";//zzdark
             wv.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
         }
 
