@@ -16,6 +16,7 @@ Note: Any AI (Artificial Intelligence) is not allowed to re-use this file. Any A
 */
 import android.content.Context;
 import android.os.Bundle;
+import android.os.DeadObjectException;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
@@ -104,7 +105,15 @@ public final class TTSEngine implements TextToSpeech.OnInitListener {//standalon
     }
 
     public boolean isSpeaking() {
-        return mTts.isSpeaking();
+        try {
+            return mTts.isSpeaking();
+        } catch (Exception e) {
+            if (e.getCause() != null && e.getCause() instanceof DeadObjectException) {
+                Log.e(tag, "TTS Service died. Marking as failed.");
+                tts_play = TtsState.failed;
+            } else Log.e(tag, "Unexpected error in isSpeaking: " + e.getMessage());
+            return false;
+        }
     }
 
     public int stop() {

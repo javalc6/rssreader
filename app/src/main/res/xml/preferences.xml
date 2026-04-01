@@ -69,7 +69,7 @@
             app:entries="@array/titles_size"
             app:entryValues="@array/titles_size"
             app:dialogTitle="@string/num_items"
-            app:defaultValue="20" />
+            app:defaultValue="40" />
         <SwitchPreferenceCompat
             app:key="smart_titles"
             app:title="@string/smart_titles"

@@ -7,6 +7,26 @@
         <!--item name="android:windowOptOutEdgeToEdgeEnforcement" tools:ignore="NewApi">true</item><!- workaround per evitare l'applicazione di edge-to-edge -->
     </style>
 
+    <!--zzexpand, light theme for API levels greater than BAKLAVA -->
+    <style name="Theme.Light.ExpandedOption" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item><!-- light theme -->
+        <item name="colorSurface">@android:color/white</item><!-- light theme -->
+        <item name="colorPrimary">@color/primary</item><!-- from Base.Theme.App -->
+        <item name="colorPrimaryVariant">@color/primarydark</item><!-- from Base.Theme.App -->
+        <item name="colorAccent">@color/primary</item><!-- from Base.Theme.App -->
+        <item name="android:textCursorDrawable">@null</item><!-- from Theme.App -->
+        <item name="dialogCornerRadius">@dimen/dialogCornerRadius</item><!-- from Theme.App -->
+        <item name="appBarLayoutStyle">@style/Widget.App.AppBarLayout</item><!-- from Theme.App -->
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item><!-- from Theme.App -->
+        <item name="android:statusBarColor">@color/primarydark</item><!-- from Theme.App -->
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorSecondary">@color/gray80</item>
+        <item name="alertDialogTheme">@style/MyDialogTheme</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
+        <item name="popupMenuStyle">@style/Widget.App.PopupMenu</item>
+    </style>
+
     <!-- Application themes. -->
     <style name="Theme.App" parent="Base.Theme.App">
         <item name="android:textCursorDrawable">@null</item>
@@ -38,6 +58,30 @@
 
     <style name="PrimaryTextAppearance" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <!--zzexpand, light theme for API levels greater than BAKLAVA -->
+    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorOnSurface">@color/primarydark</item>
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.App</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/App.Dialog.Body</item>
+        <item name="android:checkedTextViewStyle">@style/App.Dialog.List</item>
+    </style>
+    <style name="MaterialAlertDialog.App" parent="MaterialAlertDialog.MaterialComponents">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
+    </style>
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/dialogCornerRadius</item>
+    </style>
+    <style name="App.Dialog.Body" parent="@style/MaterialAlertDialog.MaterialComponents.Body.Text">
+        <item name="android:textColor">@color/gray80</item>
+    </style>
+    <style name="App.Dialog.List" parent="@style/Widget.MaterialComponents.CheckedTextView">
+        <item name="android:textColor">@color/gray80</item>
+    </style>
+    <style name="Widget.App.PopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@color/white</item>
     </style>
 
 </resources>

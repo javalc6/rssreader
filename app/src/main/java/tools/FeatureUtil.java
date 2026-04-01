@@ -10,12 +10,14 @@ public class FeatureUtil {
 
     /** Returns true if the device has any feature in a given collection of system features */
     public static boolean hasAnySystemFeature(Context ctx, String... features) {
-        PackageManager pm = ctx.getPackageManager();
-        for (String feature : features) {
-            if (pm.hasSystemFeature(feature)) {
-                return true;
+        try {
+            PackageManager pm = ctx.getPackageManager();
+            for (String feature : features) {
+                if (pm.hasSystemFeature(feature)) {
+                    return true;
+                }
             }
-        }
+        } catch (RuntimeException ignore){}
         return false;
     }
 

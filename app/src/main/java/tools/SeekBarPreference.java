@@ -18,6 +18,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.preference.DialogPreference;
 
 import livio.rssreader.R;
@@ -50,19 +52,17 @@ public final class SeekBarPreference extends DialogPreference {
 
     private int mMinProgress;
     private int mMaxProgress;
-    private int mProgress;
+    private int mSeekBarValue;
     private final int mDefault;
     private int mInterval = 1;
     private boolean modePercentage = false;
     private final String mSuffix;
 
-    private int value;
-
-    public SeekBarPreference(Context context) {
+    public SeekBarPreference(@NonNull Context context) {
         this(context, null);
     }
 
-    public SeekBarPreference(Context context, AttributeSet attrs) {
+    public SeekBarPreference(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         // get attributes specified in XML
         try (TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SeekBarDialogPreference, 0, 0)) {
@@ -80,13 +80,12 @@ public final class SeekBarPreference extends DialogPreference {
     }
 
     public void setValue(int val) {
-        value = val;
+        mSeekBarValue = val;
         persistInt(val);
-//        Log.d(tag, "setValue = "+value);
     }
 
     public int getValue() {
-        return value;
+        return mSeekBarValue;
     }
 
     public int getMinProgress() {
@@ -109,34 +108,38 @@ public final class SeekBarPreference extends DialogPreference {
     }
 
     @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
+    protected Object onGetDefaultValue(@NonNull TypedArray a, int index) {
         return a.getInt(index, 0);
     }
 
     @Override
-    protected void onSetInitialValue(Object defaultValue) {
-//        setValue(getPersistedInt((Integer) defaultValue));-->Null Pointer exception
-        setValue(getPersistedInt(mDefault));
+    protected void onSetInitialValue(@Nullable Object defaultValue) {
+        if (defaultValue == null) {
+            defaultValue = 0;
+        }
+        setValue(getPersistedInt((Integer) defaultValue));
     }
 
 
     @Override
-    protected Parcelable onSaveInstanceState() {
-        // save the instance state so that it will survive screen orientation changes and other events that may temporarily destroy it
+    protected @Nullable Parcelable onSaveInstanceState() {
         final Parcelable superState = super.onSaveInstanceState();
+        if (isPersistent()) {
+            // No need to save instance state since it's persistent
+            return superState;
+        }
 
         // set the state's value with the class member that holds current setting value
         final SavedState myState = new SavedState(superState);
         myState.minProgress = mMinProgress;
         myState.maxProgress = mMaxProgress;
-        myState.progress = mProgress;
+        myState.seekBarValue = mSeekBarValue;
 
         return myState;
     }
 
     @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        // check whether we saved the state in onSaveInstanceState()
+    protected void onRestoreInstanceState(@Nullable Parcelable state) {
         if (state == null || !state.getClass().equals(SavedState.class)) {
             // didn't save the state, so call superclass
             super.onRestoreInstanceState(state);
@@ -147,26 +150,38 @@ public final class SeekBarPreference extends DialogPreference {
         SavedState myState = (SavedState) state;
         mMinProgress = myState.minProgress;
         mMaxProgress = myState.maxProgress;
-        mProgress = myState.progress;
+        mSeekBarValue = myState.seekBarValue;
 
         super.onRestoreInstanceState(myState.getSuperState());
     }
 
     private static class SavedState extends BaseSavedState {
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    @Override
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    @Override
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
         int minProgress;
         int maxProgress;
-        int progress;
+        int seekBarValue;
 
-        public SavedState(Parcelable superState) {
+        SavedState(Parcelable superState) {
             super(superState);
         }
 
-        public SavedState(Parcel source) {
+        SavedState(Parcel source) {
             super(source);
 
             minProgress = source.readInt();
             maxProgress = source.readInt();
-            progress = source.readInt();
+            seekBarValue = source.readInt();
         }
 
         @Override
@@ -175,19 +190,9 @@ public final class SeekBarPreference extends DialogPreference {
 
             dest.writeInt(minProgress);
             dest.writeInt(maxProgress);
-            dest.writeInt(progress);
+            dest.writeInt(seekBarValue);
         }
 
-        @SuppressWarnings("unused")
-        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
     }
 
 }

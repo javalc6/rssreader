@@ -51,11 +51,21 @@ import static livio.rssreader.RSSReader.PREF_REFRESH_TIMER;
 import static livio.rssreader.RSSReader.PREF_THEME;
 import static livio.rssreader.RSSReader.PREF_THEME_AUTO;
 import static livio.rssreader.SelectColors.setNightMode;
+import static tools.ColorBase.is_dark_theme;
 
 public final class PreferencesFragXML extends AppCompatActivity {
+    private static boolean light_theme_expanded_option;//zzexpanded
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
+        if (Build.VERSION.SDK_INT_FULL > Build.VERSION_CODES_FULL.BAKLAVA &&
+                !prefs.getBoolean(PREF_THEME_AUTO, true) &&
+                !is_dark_theme(prefs.getString(PREF_THEME, "light"))) {//zzexpanded: workaround for "expanded" dark mode
+            setTheme(R.style.Theme_Light_ExpandedOption);//light theme for API levels beyond BAKLAVA
+            light_theme_expanded_option = true;//zzexpanded
+        }
+
         super.onCreate(savedInstanceState);
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//zzedge-2-edge
             EdgeToEdge.enable(this);//shall be executed before setContentView()
@@ -87,12 +97,13 @@ public final class PreferencesFragXML extends AppCompatActivity {
     }
 
     public static class PrefsFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener{
+        SharedPreferences prefs;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
 
-            SharedPreferences prefs = getPreferenceScreen().getSharedPreferences();
+            prefs = getPreferenceScreen().getSharedPreferences();
     		prefs.registerOnSharedPreferenceChangeListener(this);
 
             setFontSizeSummary();//twin
@@ -156,12 +167,13 @@ public final class PreferencesFragXML extends AppCompatActivity {
                     getActivity().setResult(RESULT_OK);
                     break;
                 case PREF_THEME:
-                    if (!setNightMode(prefs))
+                    if (!setNightMode(prefs) || light_theme_expanded_option)
                         getActivity().setResult(RESULT_OK);//refresh UI for dark<->black and light<->white changes
                     break;
                 case PREF_THEME_AUTO://zzautotheme
                     setNightMode(prefs);
-//                    getActivity().setResult(RESULT_OK); useless as UI refresh is already requested by setNightMode()
+                    if (light_theme_expanded_option)
+                        getActivity().setResult(RESULT_OK);
                     break;
                 case PREF_LT_TEXTCOLOR:
                 case PREF_LT_HYPERLINKCOLOR:
@@ -179,6 +191,12 @@ public final class PreferencesFragXML extends AppCompatActivity {
                     getActivity().finish();
                     break;
             }
+        }
+
+        public void onDestroy() {
+            super.onDestroy();
+            if (prefs != null)
+                prefs.unregisterOnSharedPreferenceChangeListener(this);
         }
 
     }

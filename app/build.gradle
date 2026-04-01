@@ -1,31 +1,32 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId "livio.rssreader"
         minSdkVersion 23
-        targetSdkVersion 36
-        versionCode 112
-        versionName "1.12"
+        targetSdkVersion 37
+        versionCode 113
+        versionName "1.13"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled = true
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     buildTypes {
         release {
-            shrinkResources true
-            minifyEnabled true
+            shrinkResources = true
+            minifyEnabled = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    namespace 'livio.rssreader'
+    namespace = 'livio.rssreader'
     buildFeatures {
-        buildConfig true
+        buildConfig = true
     }
 }
 
@@ -35,9 +36,11 @@ dependencies {
 
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
     implementation 'androidx.preference:preference:1.2.1'
-    implementation 'androidx.work:work-runtime:2.10.5'
+    implementation 'androidx.work:work-runtime:2.11.2'
 
     implementation 'com.google.android.material:material:1.13.0'
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }

@@ -18,18 +18,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.concurrent.TimeUnit;
 
-import androidx.work.Constraints;
+import androidx.annotation.NonNull;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-import livio.rssreader.BuildConfig;
-import livio.rssreader.R;
-import livio.rssreader.RSSReader;
-
-import workers.RSSReaderWorker;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -42,9 +33,11 @@ import android.text.Html;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import livio.rssreader.BuildConfig;
+import livio.rssreader.R;
+import livio.rssreader.RSSReader;
 import static livio.rssreader.RSSReader.PREF_FEEDS_LANGUAGE;
-import static livio.rssreader.RSSReader.uniqueWorkerName;
-
+import static workers.RSSReaderWorker.doPeriodicWork;
 
 abstract public class RSSWidgetBase extends AppWidgetProvider {//widget-theme
 
@@ -106,11 +99,12 @@ abstract public class RSSWidgetBase extends AppWidgetProvider {//widget-theme
             prefs_edit.putString(WPREF_NEWS_FEED + appWidgetId, feed_data[1]);//lang
             prefs_edit.apply();
         }
-        doPeriodicWork(context, ExistingPeriodicWorkPolicy.KEEP);//workmanager
+        int refresh_timer = Integer.parseInt(prefs.getString(RSSReader.PREF_REFRESH_TIMER, "3600"));
+        doPeriodicWork(context, refresh_timer, ExistingPeriodicWorkPolicy.KEEP);//workmanager
     }
 
     @Override
-    public void onDeleted(Context context, int[] appWidgetIds) {
+    public void onDeleted(@NonNull Context context, int[] appWidgetIds) {
         Log.d(tag, "onDeleted");
 
         SharedPreferences.Editor prefs_edit = context.getSharedPreferences(PREFS_NAME, 0).edit();
@@ -121,14 +115,14 @@ abstract public class RSSWidgetBase extends AppWidgetProvider {//widget-theme
         prefs_edit.apply();
     }
 
-    public void onDisabled(Context context) {
+    public void onDisabled(@NonNull Context context) {
         Log.d(tag, "onDisabled");
 //        WorkManager.getInstance().cancelUniqueWork(uniqueWorkerName); - disabled to avoid interference with main activity
         super.onDisabled(context);
     }
 
 
-    private RemoteViews updateView(Context context, String description) {
+    private RemoteViews updateView(@NonNull Context context, String description) {
         Log.d(tag,"updateView");
         RemoteViews updateViews = new RemoteViews(BuildConfig.APPLICATION_ID, getLayout());//widget-theme
         updateViews.setTextViewText(R.id.message, Html.fromHtml(description));
@@ -138,22 +132,7 @@ abstract public class RSSWidgetBase extends AppWidgetProvider {//widget-theme
         return updateViews;
     }
 
-    private void doPeriodicWork(Context context, ExistingPeriodicWorkPolicy epwp) {
-        SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
-        int refresh_timer = Integer.parseInt(prefs.getString(RSSReader.PREF_REFRESH_TIMER, "3600"));
-        Log.d(tag, "doPeriodicWork: "+ refresh_timer);
-        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(RSSReaderWorker.class, refresh_timer, TimeUnit.SECONDS)//workmanager
-                .setConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build())
-                .addTag("RSSReader")
-                .build();
-        WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork(uniqueWorkerName,  epwp, periodicWorkRequest);//workmanager
-    }
-
-
-    private String getItemfromfile(Context context) {
+    private String getItemfromfile(@NonNull Context context) {
         FeedsDB feedsDB = FeedsDB.getInstance();
         SharedPreferences prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
         String feed_id = prefs.getString(RSSReader.PREF_FEED_ID, null);//lang

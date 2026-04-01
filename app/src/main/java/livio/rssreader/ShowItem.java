@@ -113,7 +113,7 @@ public final class ShowItem extends AppCompatActivity implements AudioManager.On
             smartPager = new SmartPager(findViewById(R.id.smartpager), savedInstanceState, this,
                     startingIntent.getBundleExtra(RSSReader.ID_ITEM));
         } catch (IOException e) {
-            Log.i(tag,"IOException reading feedFile in SmartPager");
+            Log.d(tag,"IOException reading feedFile in SmartPager", e);
             finish();//exit!
             return;
         }

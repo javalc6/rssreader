@@ -281,7 +281,9 @@ public final class SelectColors extends AppCompatActivity implements AdapterView
             String theme = prefs.getString(PREF_THEME, "light");
             if (is_dark_theme(theme))
                 night_mode = MODE_NIGHT_YES;
-            else night_mode = MODE_NIGHT_NO;
+            else if (Build.VERSION.SDK_INT_FULL <= Build.VERSION_CODES_FULL.BAKLAVA)
+                night_mode = MODE_NIGHT_NO;
+            else return false;//zzexpand
         }
         if (getDefaultNightMode() != night_mode) {
             setDefaultNightMode(night_mode);
@@ -314,7 +316,7 @@ public final class SelectColors extends AppCompatActivity implements AdapterView
         }
     }
 
-    private class ColorArrayAdapter extends ArrayAdapter<ColorItem> {
+    private static class ColorArrayAdapter extends ArrayAdapter<ColorItem> {
 
         private final int resourceid;
 

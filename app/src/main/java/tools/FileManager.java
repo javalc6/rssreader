@@ -265,7 +265,6 @@ public final class FileManager {
         try {
             PackageManager pm = mActivity.getPackageManager();
 // get list of receiver for ACTION_GET_CONTENT
-//            resid = R.string.msg_missing_file_manager; //default message to print out
             HashSet<String> allowed_set;
 
             allowed_set = new HashSet<>();
@@ -504,8 +503,8 @@ public final class FileManager {
     }
 
     private void execute_readfile(String filename) {
-        String error;
         if (isExternalStorageReadable()) {
+            String error;
             String folder = mAppFolder;
             if (backupMode)
                 folder += File.separator+BACKUP_FOLDER;
@@ -517,27 +516,26 @@ public final class FileManager {
                 error = mActivity.getString(backupMode ? R.string.msg_cannot_read_backup : R.string.msg_cannot_read_file);
                 Log.w(tag, "execute_readfile: "+e.getMessage()+" reading " + file);
             }
-        } else {//SHOW_ADVANCED not supported before lollipop
-            openFileSAF(EXTENDED_BACKUP_MIMETYPE_ONEDRIVE, true);//use saf if external storage is not writable;  "application/*" is safer compared to backup_mimetype when performing file search
-            return;
-        }
-        if (error != null) {//nota che readFile() ritorna null quando il file è letto correttamente
-            if (backupMode) {//in backup mode possiamo tentare il fallback su auto-recovery file se quest'ultimo esiste
-                File owndir = mActivity.getExternalFilesDir(null);//autobackup
-                if (owndir != null) {
-                    File backup_file = new File(owndir, filename);
-                    if (backup_file.exists()) {//fallback su auto-recovery file
-                        try (FileInputStream fis = new FileInputStream(backup_file)) {
-                            if (readFile(fis, true) == null)//return when restore of autobackup file is successful
-                                return;
-                        } catch (IOException | JSONException | NoSuchAlgorithmException e) {
-                            Log.w(tag, "execute_readfile: " + e.getMessage() + " reading " + filename);
-                            //variable error is not modified, to show original error to user
+            if (error != null) {
+                if (backupMode) {//backup mode --> try fallback on auto-recovery file if exists
+                    File owndir = mActivity.getExternalFilesDir(null);//autobackup
+                    if (owndir != null) {
+                        File backup_file = new File(owndir, filename);
+                        if (backup_file.exists()) {//fallback on auto-recovery file
+                            try (FileInputStream fis = new FileInputStream(backup_file)) {
+                                if (readFile(fis, true) == null)//return when restore of autobackup file is successful
+                                    return;
+                            } catch (IOException | JSONException | NoSuchAlgorithmException e) {
+                                Log.w(tag, "execute_readfile: " + e.getMessage() + " reading " + filename);
+                                //variable error is not modified, to show original error to user
+                            }
                         }
                     }
                 }
+                Snackbar.make(mActivity.findViewById(android.R.id.content), error, Snackbar.LENGTH_LONG).show();
             }
-            Snackbar.make(mActivity.findViewById(android.R.id.content), error, Snackbar.LENGTH_LONG).show();
+        } else {
+            openFileSAF(EXTENDED_BACKUP_MIMETYPE_ONEDRIVE, true);//use saf if external storage is not writable;  "application/*" is safer compared to backup_mimetype when performing file search
         }
     }
 
@@ -656,10 +654,14 @@ public final class FileManager {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);//oppure ACTION_OPEN_DOCUMENT_TREE ?
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType(mimetype);
-        intent.putExtra("android.content.extra.SHOW_ADVANCED", true);//necessario ?
+        intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
         if (only_local)
             intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-        mActivity.startActivityForResult(intent, REQUEST_CODE_READ_FILE);
+        try {
+            mActivity.startActivityForResult(intent, REQUEST_CODE_READ_FILE);
+        } catch (ActivityNotFoundException e) {
+            Snackbar.make(mActivity.findViewById(android.R.id.content), mActivity.getString(R.string.msg_missing_file_manager), Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     public boolean createFileSAF(String filename) {//scopedstorage

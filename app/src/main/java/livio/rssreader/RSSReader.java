@@ -67,6 +67,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.speech.tts.UtteranceProgressListener;
 
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -77,10 +78,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.text.Html;
@@ -115,12 +116,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
-import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import livio.rssreader.backend.CardContent;
 import livio.rssreader.backend.FeedsDB;
@@ -140,7 +137,10 @@ import static livio.rssreader.SelectColors.setNightMode;
 import static livio.rssreader.backend.TTSEngine.utteranceId_last;
 import static livio.rssreader.backend.TTSEngine.utteranceId_oneshot;
 import static tools.ColorBase.isDarkColor;
+import static tools.ColorBase.is_dark_theme;
 import static tools.FileManager.EXTENDED_BACKUP_MIMETYPE_ONEDRIVE;
+import static workers.RSSReaderWorker.doPeriodicWork;
+import static workers.RSSReaderWorker.uniqueWorkerName;
 
 
 public final class RSSReader extends AppCompatActivity implements FileHandler, AudioManager.OnAudioFocusChangeListener {
@@ -191,8 +191,6 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
     private final static String tag = "RSSReader";
 
-    public final static String uniqueWorkerName = "RSSReaderService";
-
     public static final String RSS_ACCEPT_MIME = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.5";
     public static final String RSS_USER_AGENT = "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; unknown) Firefox/62.0";//dummu user agent to get expected response from most remote servers
     ////////////////////////////////////////////
@@ -233,7 +231,13 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
     @Override
     public void onCreate(Bundle savedInstanceState) {
         prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
-        setNightMode(prefs);//shall be executed before super.onCreate()
+        if (Build.VERSION.SDK_INT_FULL <= Build.VERSION_CODES_FULL.BAKLAVA ||
+                prefs.getBoolean(PREF_THEME_AUTO, true) ||
+                is_dark_theme(prefs.getString(PREF_THEME, "light"))) {//zzexpanded: workaround for "expanded" dark mode
+            setNightMode(prefs);//old solution for API levels upto BAKLAVA or for auto theme or for dark theme
+        } else {
+            setTheme(R.style.Theme_Light_ExpandedOption);//light theme for API levels beyond BAKLAVA
+        }
         super.onCreate(savedInstanceState);
         if (BuildConfig.DEBUG)
             Log.d(tag, "onCreate");
@@ -327,7 +331,11 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("RSSReaderService"));//register message receiver, must be before first doPeriodicWork()
-        doPeriodicWork();//workmanager
+
+        if (savedInstanceState == null) {//first launch only
+            int refresh_timer = Integer.parseInt(prefs.getString(RSSReader.PREF_REFRESH_TIMER, "3600"));
+            doPeriodicWork(this, refresh_timer, ExistingPeriodicWorkPolicy.REPLACE);//workmanager
+        }
 
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -362,8 +370,11 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         if (mTts != null) {
             mTts.stop();
             mTts.shutdown();
+            mTts = null;
         }
-
+        RecyclerView cardlist = findViewById(R.id.cardList);
+        if (cardlist != null)
+            cardlist.setAdapter(null);
 
 //        mWebView.clearCache(true);    
 // clear cache to avoid uncontrolled growing        
@@ -413,16 +424,6 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             }
         }
     }
-
-    /*obsolete work-around of options menu hardware key (e.g. LG L3)  to avoid NullPointerException at com.android.internal.policy.impl.PhoneWindow.onKeyUpPanel
-    @Override
-    public boolean onKeyDown(int keycode, KeyEvent e) {
-        if (keycode == KeyEvent.KEYCODE_MENU) {
-            openOptionsMenu();
-            return true;
-        }
-        return super.onKeyDown(keycode, e);
-    }*/
 
     private MenuItem ttsplay;
     @Override
@@ -536,6 +537,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             }
             return true;
         } else if (itemId == R.id.menu_exit) {
+            closeOptionsMenu();//27-03-2026: added to avoid android.view.WindowLeaked: Activity javalc6.thesaurus.ThesaurusView has leaked window android.widget.PopupWindow$PopupDecorView
             finishAffinity();//nn
             return true;
         } else if (itemId == R.id.menu_help) {
@@ -566,7 +568,8 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
 
     private void refresh(boolean showrefresh) {
-        doPeriodicWork();//workmanager
+        int refresh_timer = Integer.parseInt(prefs.getString(RSSReader.PREF_REFRESH_TIMER, "3600"));
+        doPeriodicWork(this, refresh_timer, ExistingPeriodicWorkPolicy.REPLACE);//workmanager
         if (showrefresh) {
             SwipeRefreshLayout swipeRefresh = findViewById(R.id.swiperefresh);
             swipeRefresh.setRefreshing(true);
@@ -590,11 +593,12 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
         RecyclerView cardlist = findViewById(R.id.cardList);
         if (cardlist.getLayoutManager() == null) {
-// use a linear layout manager
-            final RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
-            cardlist.setLayoutManager(mLayoutManager);
-
+//18-03-2026: responsive layout to adapt different screen sizes
+//            cardlist.setLayoutManager(new LinearLayoutManager(this));
+            int spanCount = getResources().getInteger(R.integer.dashboard_columns);
+            cardlist.setLayoutManager(new GridLayoutManager(this, spanCount));
         }
+
         final FloatingActionButton fab = findViewById(R.id.mainfab);
         if (fab != null) {
             fab.setOnClickListener(v -> {
@@ -606,27 +610,31 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             });
         }
 
-        boolean isFileUptodate = false;//for future use
-
-        String feed_id = prefs.getString(PREF_FEED_ID, null);//lang
-        if (feed_id == null) {
-            String pref_lang = prefs.getString(PREF_FEEDS_LANGUAGE, getString(R.string.default_feed_language_code));
-            FeedsDB feedsDB = FeedsDB.getInstance();
-            feed_id = feedsDB.getDefaultFeedId(pref_lang);//lang
-        }
-        File feedFile = new File(getCacheDir(), feed_id.concat(".cache"));
-        if (feedFile.exists()) {
-            long interval = Long.parseLong(prefs.getString(PREF_REFRESH_TIMER, "3600")) * 1000L;
-            long age = System.currentTimeMillis() - feedFile.lastModified();
-            if (age < interval)
-                isFileUptodate = true;
-            try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(feedFile))) {
-                RSSFeed feed = (RSSFeed) is.readObject();
-                renderFeed(feed, cardlist); latest_feed_id = feed_id;
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace(); // do nothing
+        new Thread(() -> {// perform I/O on background level
+            String feed_id = prefs.getString(PREF_FEED_ID, null);//lang
+            if (feed_id == null) {
+                String pref_lang = prefs.getString(PREF_FEEDS_LANGUAGE, getString(R.string.default_feed_language_code));
+                feed_id = FeedsDB.getDefaultFeedId(pref_lang);//lang
             }
-        }
+            File feedFile = new File(getCacheDir(), feed_id.concat(".cache"));
+            if (feedFile.exists()) {
+                long interval = Long.parseLong(prefs.getString(PREF_REFRESH_TIMER, "3600")) * 1000L;
+                long age = System.currentTimeMillis() - feedFile.lastModified();
+                boolean isFileUptodate = age < interval;//for future use
+                try (ObjectInputStream is = new ObjectInputStream(new FileInputStream(feedFile))) {
+                    final RSSFeed feed = (RSSFeed) is.readObject();
+                    final String finalFeedId = feed_id;
+                    runOnUiThread(() -> {
+                        if (!isFinishing()) {
+                            renderFeed(feed, cardlist);
+                            latest_feed_id = finalFeedId;
+                        }
+                    });
+                } catch (ClassNotFoundException | IOException e) {
+                    Log.e(tag, "Error loading cache", e); // do nothing
+                }
+            }
+        }).start();
 
 //randomly, suggest user to do backup
         if (random_backup_hint.nextInt(20) == 0) {
@@ -796,20 +804,6 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             }
         }
     };
-
-    private void doPeriodicWork() {
-        int refresh_timer = Integer.parseInt(prefs.getString(RSSReader.PREF_REFRESH_TIMER, "3600"));
-        if (BuildConfig.DEBUG)
-            Log.d(tag, "doPeriodicWork: "+ refresh_timer);
-        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(RSSReaderWorker.class, refresh_timer, TimeUnit.SECONDS)//workmanager
-                .setConstraints(new Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build())
-                .addTag("RSSReader")
-                .build();
-        WorkManager.getInstance(this)
-                .enqueueUniquePeriodicWork(uniqueWorkerName,  ExistingPeriodicWorkPolicy.REPLACE, periodicWorkRequest);//workmanager
-    }
 
     @Override
     public String getMimeType() {
@@ -1030,7 +1024,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             txtView.setTextColor(defaultColor);
             txtView.setMovementMethod(LinkMovementMethod.getInstance());
 
-            return new AlertDialog.Builder(getActivity())
+            return new MaterialAlertDialogBuilder(getContext())
 //                    .setIcon(R.mipmap.ic_launcher)
                     .setTitle(getString(R.string.menu_publisher))
                     .setView(infoView)
@@ -1104,12 +1098,12 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         public void onBindViewHolder(CardViewHolder contactViewHolder, int i) {
             CardContent ci = cardList.get(i);
             contactViewHolder.vTitle.setText(ci.title);
-            contactViewHolder.vContent.setText(Html.fromHtml(ci.content));// inserito Html.fromHtml per gestire ventuali &apos; e altri
-//indagare gestione temi
+            contactViewHolder.vContent.setText(Html.fromHtml(ci.content));// Html.fromHtml needed to handle &apos; and similar
             contactViewHolder.vTitle.setTextColor(genericcolor);
-            contactViewHolder.vTitle.setBackgroundColor(background);
+//            contactViewHolder.vTitle.setBackgroundColor(background);
             contactViewHolder.vContent.setTextColor(textcolor);
-            contactViewHolder.vContent.setBackgroundColor(background);
+//            contactViewHolder.vContent.setBackgroundColor(background);
+            contactViewHolder.card.setCardBackgroundColor(background);
         }
 
         @NonNull
@@ -1164,11 +1158,13 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 
             final TextView vTitle;
             final TextView vContent;
+            final MaterialCardView card;
 
             CardViewHolder(View v) {
                 super(v);
                 vTitle = v.findViewById(R.id.title);
                 vContent = v.findViewById(R.id.content);
+                card = (MaterialCardView) v;
             }
         }
     }

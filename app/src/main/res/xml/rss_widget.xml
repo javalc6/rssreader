@@ -5,5 +5,6 @@
     android:resizeMode="horizontal"
     android:updatePeriodMillis="1800000"
     android:previewImage="@drawable/widget_preview_light"
+    android:previewLayout="@layout/widget_message"
     android:initialLayout="@layout/widget_message">
 </appwidget-provider>
