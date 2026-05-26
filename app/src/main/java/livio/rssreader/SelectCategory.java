@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import livio.rssreader.backend.FeedsDB;
 import livio.rssreader.backend.IconArrayAdapter;
 import livio.rssreader.backend.IconItem;
@@ -52,7 +55,7 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
 	final static String ID_CATEGORY = "livio.rssreader.category";
 
     UserDB udb;
-		
+
 	@SuppressLint("NewApi")
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +111,24 @@ public final class SelectCategory extends AppCompatActivity implements OnItemCli
                 editNameDialog.show(getSupportFragmentManager(), "new_cat_dialog");
             });
         }
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//19-02-2025: zzedge-2-edge
+            ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, windowInsets) -> {
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+//remove following 2 lines to overlap navigation bar
+                Insets insets_navigationbar = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
+                v.setPadding(insets_navigationbar.left, v.getPaddingTop(), insets_navigationbar.right, insets_navigationbar.bottom);
+
+                View appbar = v.findViewById(R.id.my_appbar);
+                appbar.setPadding(appbar.getPaddingLeft(), insets.top, appbar.getPaddingRight(), appbar.getPaddingBottom());
+/*
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+*/
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
+
     }
 
 	public void onItemClick(AdapterView<?> parent, View v, int position, long id) {

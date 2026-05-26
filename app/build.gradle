@@ -1,18 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk {
-        version = release(37) {
-            minorApiLevel = 0
-        }
-    }
+    compileSdk = 37
+    compileSdkMinor 0
 
     defaultConfig {
         applicationId "livio.rssreader"
         minSdkVersion 23
         targetSdkVersion 37
-        versionCode 113
-        versionName "1.13"
+        versionCode 114
+        versionName "1.14"
     }
 
     compileOptions {
@@ -32,7 +29,6 @@ android {
     buildFeatures {
         buildConfig = true
     }
-    compileSdkMinor 0
 }
 
 dependencies {
@@ -45,7 +41,7 @@ dependencies {
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.work:work-runtime:2.11.2'
 
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }

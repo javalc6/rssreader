@@ -51,14 +51,14 @@
             android:label="@string/prefs_theme_sub">
         </activity>
         <!-- Widget -->
-        <receiver android:name="livio.rssreader.RSSWidget" android:exported="true" android:label="@string/widget_name">
+        <receiver android:name=".RSSWidget" android:exported="true" android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/rss_widget" />
         </receiver>
         <!-- Widget dark -->
-        <receiver android:name="livio.rssreader.RSSWidgetDark" android:exported="true" android:label="@string/widget_name">
+        <receiver android:name=".RSSWidgetDark" android:exported="true" android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -66,7 +66,7 @@
         </receiver>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="livio.rssreader.FileProvider"
+            android:authorities="${applicationId}.FileProvider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data

@@ -1,6 +1,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application light theme. -->
-    <style name="Base.Theme.App" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.App" parent="Theme.Material3Expressive.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primarydark</item>
         <item name="colorAccent">@color/primary</item>
@@ -8,7 +8,7 @@
     </style>
 
     <!--zzexpand, light theme for API levels greater than BAKLAVA -->
-    <style name="Theme.Light.ExpandedOption" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Theme.Light.ExpandedOption" parent="Theme.Material3Expressive.Dark.NoActionBar">
         <item name="android:windowBackground">@android:color/white</item><!-- light theme -->
         <item name="colorSurface">@android:color/white</item><!-- light theme -->
         <item name="colorPrimary">@color/primary</item><!-- from Base.Theme.App -->
@@ -25,6 +25,7 @@
         <item name="android:forceDarkAllowed">false</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
         <item name="popupMenuStyle">@style/Widget.App.PopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.App.PopupMenu</item>
     </style>
 
     <!-- Application themes. -->
@@ -40,7 +41,7 @@
          -->
     </style>
 
-    <style name="MyDialogTheme" parent="@style/Theme.Material3.DayNight.Dialog.Alert">
+    <style name="MyDialogTheme" parent="@style/Theme.Material3Expressive.DayNight.Dialog.Alert">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primarydark</item>
         <item name="colorAccent">@color/primary</item>
@@ -48,11 +49,11 @@
     </style>
 
     <!--App customized section-->
-    <style name="Widget.App.Toolbar" parent="Widget.Material3.Toolbar">
+    <style name="Widget.App.Toolbar" parent="Widget.Material3Expressive.Toolbar">
         <item name="android:background">@color/primary</item>
     </style>
 
-    <style name="Widget.App.AppBarLayout" parent="Widget.Material3.AppBarLayout">
+    <style name="Widget.App.AppBarLayout" parent="Widget.Material3Expressive.AppBarLayout">
         <item name="android:background">@color/primary</item>
     </style>
 
@@ -61,7 +62,7 @@
     </style>
 
     <!--zzexpand, light theme for API levels greater than BAKLAVA -->
-    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.Material3Expressive.MaterialAlertDialog">
         <item name="colorOnSurface">@color/primarydark</item>
         <item name="alertDialogStyle">@style/MaterialAlertDialog.App</item>
         <item name="materialAlertDialogBodyTextStyle">@style/App.Dialog.Body</item>
@@ -81,7 +82,7 @@
         <item name="android:textColor">@color/gray80</item>
     </style>
     <style name="Widget.App.PopupMenu" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:popupBackground">@color/white</item>
+        <item name="android:popupBackground">?attr/colorSurface</item>
     </style>
 
 </resources>

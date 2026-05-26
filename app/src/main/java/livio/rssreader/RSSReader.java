@@ -78,6 +78,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.ActionBar;
@@ -85,8 +88,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -206,6 +212,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
     private static final String style_tpl = " A {color: #%06x;} body {background-color:#%06x;color:#%06x;margin-right:32px;word-wrap:break-word;} hr {background-color:#%06x;color:#%06x;height:1px;border:0px;} img {max-width:100%%;height:auto;} "; // nota il %% per evitare eccezioni con String.format()
 
     private TTSEngine mTts;
+    boolean themeLightExpandedOption = false;//25-05-2026: workaround to apply correct text color to popup menu items
 
     public static Locale getLocale(String lang_code) {
         if (lang_code.startsWith("en"))
@@ -237,6 +244,7 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
             setNightMode(prefs);//old solution for API levels upto BAKLAVA or for auto theme or for dark theme
         } else {
             setTheme(R.style.Theme_Light_ExpandedOption);//light theme for API levels beyond BAKLAVA
+            themeLightExpandedOption = true;
         }
         super.onCreate(savedInstanceState);
         if (BuildConfig.DEBUG)
@@ -348,6 +356,24 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
 //command: adb shell am start -W -a android.intent.action.VIEW -d "<replace with url to feed>"  -t "application/rss+xml"
             }
         }
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//19-02-2025: zzedge-2-edge
+            ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, windowInsets) -> {
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+//remove following 2 lines to overlap navigation bar
+                Insets insets_navigationbar = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
+                v.setPadding(insets_navigationbar.left, v.getPaddingTop(), insets_navigationbar.right, insets_navigationbar.bottom);
+
+                View appbar = v.findViewById(R.id.my_appbar);
+                appbar.setPadding(appbar.getPaddingLeft(), insets.top, appbar.getPaddingRight(), appbar.getPaddingBottom());
+/*
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+*/
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
+
     }
 
     @Override
@@ -434,9 +460,24 @@ public final class RSSReader extends AppCompatActivity implements FileHandler, A
         inflater.inflate(R.menu.menu, menu);
         ttsplay = menu.findItem(R.id.menu_play);
         ttsplay.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        if (themeLightExpandedOption)//25-05-2026: workaround to apply correct text color to popup menu items
+            setTextColorPopupMenu(menu, ContextCompat.getColor(this, R.color.black));
         return true;
-    }    
-    
+    }
+
+    public static void setTextColorPopupMenu(Menu menu, int targetColor) {
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            SpannableString spannableTitle = new SpannableString(item.getTitle());
+            spannableTitle.setSpan(
+                    new ForegroundColorSpan(targetColor),
+                    0,
+                    spannableTitle.length(),
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE
+            );
+            item.setTitle(spannableTitle);
+        }
+    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {

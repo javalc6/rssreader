@@ -24,6 +24,9 @@ import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -84,6 +87,24 @@ public final class PreferencesFragXML extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(!FormFactorUtils.isArc(this));
         }
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {//19-02-2025: zzedge-2-edge
+            ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (v, windowInsets) -> {
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+//remove following 2 lines to overlap navigation bar
+                Insets insets_navigationbar = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
+                v.setPadding(insets_navigationbar.left, v.getPaddingTop(), insets_navigationbar.right, insets_navigationbar.bottom);
+
+                View appbar = v.findViewById(R.id.my_appbar);
+                appbar.setPadding(appbar.getPaddingLeft(), insets.top, appbar.getPaddingRight(), appbar.getPaddingBottom());
+/*
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+*/
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
+
     }
 
     @Override

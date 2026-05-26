@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/toolbar" android:id="@+id/toolbar"/>
+    <include layout="@layout/appbar" android:id="@+id/my_appbar"/>
 
     <ListView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@id/my_appbar"
         android:id="@+id/catlist"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

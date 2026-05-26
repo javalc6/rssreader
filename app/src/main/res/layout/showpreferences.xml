@@ -4,7 +4,7 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <include layout="@layout/toolbar" android:id="@+id/toolbar"/>
+    <include layout="@layout/appbar" android:id="@+id/my_appbar"/>
 
     <FrameLayout
         android:id="@+id/settings"

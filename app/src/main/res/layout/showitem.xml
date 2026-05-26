@@ -5,11 +5,11 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical" >
 
-    <include layout="@layout/toolbar" android:id="@+id/toolbar"/>
+    <include layout="@layout/appbar" android:id="@+id/my_appbar"/>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/smartpager"
-        android:layout_below="@+id/toolbar"
+        android:layout_below="@+id/my_appbar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"  />
 

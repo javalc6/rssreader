@@ -1,13 +1,13 @@
 <resources>
     <!-- Base application dark theme. -->
-    <style name="Base.Theme.App" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.App" parent="Theme.Material3Expressive.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primarydarkmode</item>
         <item name="colorPrimaryVariant">@color/primarydarkmode</item>
         <item name="colorAccent">@color/primarydarkmode</item>
         <!--item name="android:windowOptOutEdgeToEdgeEnforcement" tools:ignore="NewApi">true</item><!- workaround per evitare l'applicazione di edge-to-edge -->
     </style>
 
-    <style name="MyDialogTheme" parent="@style/Theme.Material3.DayNight.Dialog.Alert">
+    <style name="MyDialogTheme" parent="@style/Theme.Material3Expressive.DayNight.Dialog.Alert">
         <item name="colorPrimary">@color/primarydarkmode</item>
         <item name="colorPrimaryVariant">@color/primarydarkmode</item>
         <item name="colorAccent">@color/primarydarkmode</item>
