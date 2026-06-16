@@ -53,6 +53,7 @@ import livio.rssreader.backend.FeedsDB;
 import livio.rssreader.backend.UserDB;
 import livio.rssreader.backend.RSSFeed;
 import livio.rssreader.backend.RSSFeedResult;
+import okhttp3.Request;
 import tools.LocalBroadcastManager;//added after deprecation of orignal class from Google
 import tools.WebFetch;
 import tools.WebResponse;
@@ -155,9 +156,8 @@ public final class RSSReaderWorker extends Worker {
             fetch.set_Accept(RSS_ACCEPT_MIME);
 //response code 304: some servers sent 304 in place of 200 OK, even if we didn't sent a conditional request
 //in case a server send 304, we handle it like a 200 OK, to improve user experience
-            HttpURLConnection conn = fetch.connect(feed_url); //http
-            conn.setReadTimeout(15000);//avoid infinite timeout
-            WebResponse mResponse = fetch.openStream(conn, ++requestId);
+            Request.Builder reqBuilder = fetch.prepareRequestBuilder(feed_url);
+            WebResponse mResponse = fetch.openStream(reqBuilder, ++requestId);
             if (requestId != mResponse.requestId) {
                 Log.i(tag,"doFeedTask: cancelling an old request");
                 return;
@@ -212,7 +212,6 @@ public final class RSSReaderWorker extends Worker {
                 }
             }
             fetch.closeStream();
-            conn.disconnect();
             //send Update message
         } catch (SocketException e) {
             Log.i(tag,"doFeedTask: "+e);

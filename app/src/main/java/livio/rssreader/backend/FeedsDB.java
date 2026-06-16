@@ -648,7 +648,7 @@ public final class FeedsDB {
                             {"GigaOM", "https://gigaom.com/feed/", "t64.en"},
                             {"Gizmodo", "https://gizmodo.com/vip.xml", "t65.en"},
                             {"Mac Rumors", "https://feeds.macrumors.com/MacRumors-All", "t67.en"},
-                            {"Macworld", "https://rss.macworld.com/macworld/feeds/main", "t68.en"},
+                            {"Macworld", "https://www.macworld.com/en-us/feed", "t68.en"},
                             {"Mashable", "https://feeds.mashable.com/Mashable", "t69.en"},
                             {"Slashgear", "https://www.slashgear.com/feed/", "t71.en"},
                             {"Techcrunch", "https://feeds.feedburner.com/TechCrunch", "t72.en"},
