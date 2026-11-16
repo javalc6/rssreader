@@ -7,10 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -26,10 +26,9 @@ import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDialogFragment
-import androidx.appcompat.widget.Toolbar
-import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import androidx.viewpager2.widget.ViewPager2
@@ -42,7 +41,6 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.Locale
 import kotlin.math.abs
-import androidx.core.view.size
 import androidx.core.net.toUri
 
 /*
@@ -61,8 +59,8 @@ class ShowHelp : AppCompatActivity() {
     /** Called to save instance state: put critical variables here!  */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        val position = smartPager!!.currentItem
-        outState.putInt(SAVE_currentItem_ID, position)
+        val position = smartPager?.currentItem
+        position?.let { outState.putInt(SAVE_currentItem_ID, position) }
         outState.putString(SAVE_helpfilename_ID, help_filename)
     }
 
@@ -114,10 +112,10 @@ class ShowHelp : AppCompatActivity() {
             help_filename = savedInstanceState.getString(SAVE_helpfilename_ID)
             readHelpFile(help_content)
         }
+
         //        Log.d(tag, "position:" + position);
-        val pagerView = findViewById<ViewPager2>(R.id.smartpager)
         smartPager = SmartPager(
-            pagerView, this, position,
+            findViewById(R.id.smartpager), this, position,
             findViewById(R.id.indicators)
         )
 
@@ -138,9 +136,9 @@ class ShowHelp : AppCompatActivity() {
 
                 val appbar = v!!.findViewById<View>(R.id.my_appbar)
                 appbar.setPadding(
-                    appbar.getPaddingLeft(),
+                    appbar.paddingLeft,
                     insets.top,
-                    appbar.getPaddingRight(),
+                    appbar.paddingRight,
                     appbar.paddingBottom
                 )
                 WindowInsetsCompat.CONSUMED
@@ -149,10 +147,10 @@ class ShowHelp : AppCompatActivity() {
     }
 
     /*
-        public void onNewIntent (Intent intent) {
-            Log.i(tag, "onNewIntent, intent: " + intent);
-        }
-    */
+    public void onNewIntent (Intent intent) {
+        Log.i(tag, "onNewIntent, intent: " + intent);
+    }
+*/
     override fun onTrimMemory(level: Int) {
 //TODO
 //liberare la memoria quando (level == TRIM_MEMORY_UI_HIDDEN)
@@ -173,7 +171,7 @@ class ShowHelp : AppCompatActivity() {
         if (itemId == android.R.id.home) {  //actionbar
             finish()
             return true
-        } else if (itemId == R.id.menu_about) { //                stopExtendedSpeech();
+        } else if (itemId == R.id.menu_about) { //stopExtendedSpeech();
             About_DF().show(supportFragmentManager, "about")
             return true
         }
@@ -183,7 +181,7 @@ class ShowHelp : AppCompatActivity() {
     class About_DF : AppCompatDialogFragment() {
         @SuppressLint("InflateParams")
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val inflater = requireActivity().getLayoutInflater()
+            val inflater = requireActivity().layoutInflater
             // Inflate the about message contents
             val messageView = inflater.inflate(R.layout.about, null, false)
             return MaterialAlertDialogBuilder(requireActivity())
@@ -195,8 +193,7 @@ class ShowHelp : AppCompatActivity() {
     }
 
     public override fun onDestroy() {
-        if (smartPager != null) smartPager!!.clearWebViews(true)
-        //        	smartPager.getHomeView().clearCache(true);
+        smartPager?.clearWebViews(true)
         super.onDestroy()
     }
 
@@ -211,18 +208,18 @@ class ShowHelp : AppCompatActivity() {
             reader = BufferedReader( //try to open help file with locale
                 InputStreamReader(
                     assets.open(
-                        BASE_DIRECTORY_HELP + help_filename + "." + Locale.getDefault()
+                        "$BASE_DIRECTORY_HELP$help_filename." + Locale.getDefault()
                             .language + ".hlp"
                     )
                 )
             )
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             try {
                 reader = BufferedReader( //try to open help file in default language
                     InputStreamReader(assets.open("$BASE_DIRECTORY_HELP$help_filename.hlp"))
                 )
             } catch (ex: IOException) {
-                Log.d(tag, "IOException: $e")
+                Log.d(tag, "IOException: $ex")
                 //                help_content.add("IOException");
             }
         } finally {
@@ -244,24 +241,20 @@ class ShowHelp : AppCompatActivity() {
     }
 
     private fun getPos(word: String): Int {
-        if (!word.isEmpty()) {
+        if (word.isNotEmpty()) {
             val match = "<h3>$word</h3>"
-            var pos = 0
-            for (item in help_content) {
+            for ((pos, item) in help_content.withIndex()) {
                 if (item.startsWith(match)) return pos
-                pos++
             }
         }
         return -1
     }
 
     private fun getPosAnchor(word: String): Int { //positioning based on anchor (new method)
-        if (!word.isEmpty()) {
+        if (word.isNotEmpty()) {
             val match = "<a name=\"$word\"></a>"
-            var pos = 0
-            for (item in help_content) {
+            for ((pos, item) in help_content.withIndex()) {
                 if (item.contains(match)) return pos
-                pos++
             }
         }
         return -1
@@ -317,21 +310,20 @@ class ShowHelp : AppCompatActivity() {
     }
 
     // http://developer.android.com/reference/android/support/v4/view/PagerAdapter.html
+    @SuppressLint("ClickableViewAccessibility")
     internal inner class SmartPager(
         val viewPager: ViewPager2,
         ctx: Context,
         position: Int,
-        indicators: LinearLayout?
+        indicators: LinearLayout
     ) : RecyclerView.Adapter<RecyclerView.ViewHolder?>() {
         val context: Context
-        val n_items: Int
-        val indicators: LinearLayout?
+        val n_items: Int = help_content.size
         val dark: Boolean //zzdark
 
         init {
-            n_items = help_content.size
             viewPager.setAdapter(this)
-            val res = getResources()
+            val res = resources
             show_nav_buttons(position)
             if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)) { //zzdark
                 val nightModeFlags =
@@ -339,41 +331,7 @@ class ShowHelp : AppCompatActivity() {
                 //        Log.d(tag, "nightModeFlags="+nightModeFlags);
                 dark = nightModeFlags == Configuration.UI_MODE_NIGHT_YES
             } else dark = false
-            this.indicators = indicators
-            if (indicators != null) if (n_items > 1) { //activates position indicators only if the number of elements is low but greater than 1
-                viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                    override fun onPageSelected(pos: Int) {
-                        super.onPageSelected(pos)
-                        //                            Log.d("onPageSelected", "pos:"+pos);
-// note: the loop starts from 1, because in position 0 there is filler1 which must be skipped
-                        for (i in 1..<indicators.size) {
-                            val view = indicators.getChildAt(i)
-                            view.isSelected = (i - 1) == pos //(i-1) is due to the fact that in position 0 there is filler1 which must be skipped
-                        }
-                        show_nav_buttons(pos)
-                    }
-                })
-                val defaultSizeInDp = 12
-                val dimens = ((res.displayMetrics.density * defaultSizeInDp).toInt())
-                val filler1 = View(ctx) //filler
-                filler1.setLayoutParams((LinearLayout.LayoutParams(dimens, dimens, 1f)))
-                indicators.addView(filler1)
-                for (i in 0..<n_items) {
-                    //get width and height of 'indicators' and then calculate the various parameters to position the dots
-                    val view = View(ctx)
-                    val lp = LinearLayout.LayoutParams(dimens, dimens)
-                    lp.setMargins(if (i == 0) dimens / 2 else dimens, 0, 0, 0)
-                    view.setLayoutParams(lp)
-                    view.setBackgroundResource(R.drawable.indicator_circle)
-                    view.isSelected = i == position
-                    indicators.addView(view)
-                }
-                val filler2 = View(ctx) //filler
-                filler2.setLayoutParams((LinearLayout.LayoutParams(dimens, dimens, 1f)))
-                indicators.addView(filler2)
-            } else {
-                indicators.visibility = View.GONE
-            }
+            show_indicators(indicators, ctx, position)
             context = ctx
             viewPager.setCurrentItem(position, false)
         }
@@ -385,7 +343,7 @@ class ShowHelp : AppCompatActivity() {
             val wv = WebView(context)
             if (dark) wv.setBackgroundColor(getColor(R.color.gray75)) //zzdark
 
-            wv.setWebViewClient(object : WebViewClient() {
+            wv.webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, url: String): Boolean {
                     return overrideUrlLoading(url)
                 }
@@ -394,10 +352,10 @@ class ShowHelp : AppCompatActivity() {
                     view: WebView?,
                     request: WebResourceRequest
                 ): Boolean {
+                    //                     if (!request.hasGesture()) return false;<--attenzione ad abilitarla, può dare problemi
                     return overrideUrlLoading(request.url.toString())
                 }
             }
-            )
 
             wv.layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -424,8 +382,6 @@ class ShowHelp : AppCompatActivity() {
                 val background = getColor(R.color.gray75) //zzdark
                 val textcolor = Color.WHITE //zzdark
                 val linkcolor = Color.YELLOW //zzdark
-                val dark_style =
-                    "body{background-color:#%06x;color:#%06x;}A{color:#%06x;}"
                 darkstyle = String.format(
                     dark_style,
                     background and 0xFFFFFF,
@@ -433,14 +389,12 @@ class ShowHelp : AppCompatActivity() {
                     linkcolor and 0xFFFFFF
                 ) //zzdark
             }
-            val help_style =
-                "#main{display:flex;}#section1{order:1;margin:10px}#section2{order:2;}@media screen and (max-width: 560px) {#main{flex-wrap:wrap;}} img{max-width:100%;height:auto; display:block;margin-left:auto;margin-right:auto} A{text-decoration:none}"
             val html =
                 "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style>$darkstyle$help_style</style></head><body>$help</body></html>" //zzdark
             wv.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null)
         }
 
-        override fun onAttachedToRecyclerView(recyclerView: RecyclerView) { //17-10-2021: ViewPager2
+        override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
 // workaround for issue https://issuetracker.google.com/issues/123006042
 // workaround is a simplified version of https://github.com/android/views-widgets-samples/blob/master/ViewPager2/app/src/main/java/androidx/viewpager2/integration/testapp/NestedScrollableHost.kt
             recyclerView.addOnItemTouchListener(object : OnItemTouchListener {
@@ -456,7 +410,7 @@ class ShowHelp : AppCompatActivity() {
                         MotionEvent.ACTION_DOWN -> {
                             lastX = e.x.toInt()
                             lastY = e.y.toInt()
-                            touchSlop = ViewConfiguration.get(context).getScaledEdgeSlop()
+                            touchSlop = ViewConfiguration.get(context).scaledEdgeSlop
                             waitingFirst = true
                             disallowInterceptTouch = false
                         }
@@ -497,10 +451,8 @@ class ShowHelp : AppCompatActivity() {
 
         fun clearWebViews(includeDiskFiles: Boolean) {
             try {
-                val rv = (viewPager.getChildAt(0) as RecyclerView?)
-                if (rv != null) {
-                    val vh = rv.findViewHolderForAdapterPosition(0) as ViewHolder?
-                    if (vh != null) {
+                (viewPager.getChildAt(0) as? RecyclerView)?.let { rv ->
+                    (rv.findViewHolderForAdapterPosition(0) as? ViewHolder)?.let { vh ->
                         vh.webView.clearCache(includeDiskFiles)
                         Log.d(tag, "successful clearWebViews")
                     }
@@ -511,11 +463,82 @@ class ShowHelp : AppCompatActivity() {
             }
         }
 
-        fun show_nav_buttons(position: Int) {
-            if (position > 0) backbutton?.setVisibility(View.VISIBLE)
-            else backbutton?.setVisibility(View.INVISIBLE)
-            if (position < n_items - 1) fwdbutton?.setVisibility(View.VISIBLE)
-            else fwdbutton?.setVisibility(View.INVISIBLE)
+        private fun show_indicators(indicators: LinearLayout, ctx: Context, position: Int) {
+            if (n_items > 1) {
+                indicators.visibility = View.VISIBLE
+                indicators.gravity = Gravity.CENTER
+                if (dark) {
+                    indicators.setBackgroundColor(getColor(R.color.gray75))
+                } else {
+                    indicators.setBackgroundColor(Color.WHITE)
+                }
+
+                val density = resources.displayMetrics.density
+                val activeWidthPx = (20 * density).toInt()
+                val inactiveWidthPx = (8 * density).toInt()
+                val heightPx = (8 * density).toInt()
+                val marginPx = (4 * density).toInt()
+
+                indicators.removeAllViews()
+                for (i in 0..<n_items) {
+                    val view = View(ctx)
+                    val isSelected = i == position
+                    val w = if (isSelected) activeWidthPx else inactiveWidthPx
+                    val lp = LinearLayout.LayoutParams(w, heightPx)
+                    lp.setMargins(marginPx, 0, marginPx, 0)
+                    view.layoutParams = lp
+                    view.setBackgroundResource(
+                        if (isSelected) R.drawable.indicator_dot_active else R.drawable.indicator_dot_inactive
+                    )
+                    indicators.addView(view)
+                }
+
+                indicators.setOnTouchListener { v, event ->
+                    if (event.action == MotionEvent.ACTION_UP) {
+                        val touchX = event.x
+                        var closestIndex = 0
+                        var minDistance = Float.MAX_VALUE
+                        for (i in 0..<indicators.childCount) {
+                            val child = indicators.getChildAt(i)
+                            val childCenterX = child.left + child.width / 2f
+                            val dist = abs(touchX - childCenterX)
+                            if (dist < minDistance) {
+                                minDistance = dist
+                                closestIndex = i
+                            }
+                        }
+                        viewPager.setCurrentItem(closestIndex, true)
+                        v.performClick()
+                    }
+                    true
+                }
+
+                viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                    override fun onPageSelected(pos: Int) {
+                        super.onPageSelected(pos)
+                        for (i in 0..<indicators.childCount) {
+                            val view = indicators.getChildAt(i)
+                            val isSelected = i == pos
+                            val lp = view.layoutParams as LinearLayout.LayoutParams
+                            lp.width = if (isSelected) activeWidthPx else inactiveWidthPx
+                            view.layoutParams = lp
+                            view.setBackgroundResource(
+                                if (isSelected) R.drawable.indicator_dot_active else R.drawable.indicator_dot_inactive
+                            )
+                        }
+                        show_nav_buttons(pos)
+                    }
+                })
+            } else {
+                indicators.visibility = View.GONE
+            }
+        }
+
+        private fun show_nav_buttons(position: Int) {
+            if (position > 0) backbutton?.visibility = View.VISIBLE
+            else backbutton?.visibility = View.INVISIBLE
+            if (position < n_items - 1) fwdbutton?.visibility = View.VISIBLE
+            else fwdbutton?.visibility = View.INVISIBLE
         }
 
         fun overrideUrlLoading(url: String): Boolean {
@@ -564,9 +587,15 @@ class ShowHelp : AppCompatActivity() {
         private const val tag = "ShowHelp"
         private const val BASE_DIRECTORY_HELP = "help/"
 
-        const val HELP_SCHEME: String = "help:" //support for help screens (proof of concept)
+        const val HELP_SCHEME: String =
+            "help:" //zzhelp, support for help screens (proof of concept)
 
         private const val SAVE_currentItem_ID = "currentitem"
         private const val SAVE_helpfilename_ID = "filename"
+
+        private const val dark_style =
+            "body{background-color:#%06x;color:#%06x;}A{color:#%06x;}" //zzdark
+        private const val help_style =
+            "#main{display:flex;}#section1{order:1;margin:10px}#section2{order:2;}@media screen and (max-width: 560px) {#main{flex-wrap:wrap;}} img{max-width:100%;height:auto; display:block;margin-left:auto;margin-right:auto} A{text-decoration:none}"
     }
 }

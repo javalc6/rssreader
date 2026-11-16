@@ -12,7 +12,6 @@ import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.graphics.drawable.ColorDrawable
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
 import android.net.ConnectivityManager
@@ -23,7 +22,6 @@ import android.os.Handler
 import android.speech.tts.UtteranceProgressListener
 import android.text.Editable
 import android.text.Html
-import android.text.Html.TagHandler
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.format.DateUtils
@@ -43,14 +41,12 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkManager.Companion.getInstance
 import com.google.android.material.card.MaterialCardView
@@ -190,7 +186,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
 
         mTts = TTSEngine(this, object : UtteranceProgressListener() {
             override fun onDone(utteranceId: String?) {
-                Log.i(tag, "onDone:" + utteranceId)
+                Log.i(tag, "onDone:$utteranceId")
                 if (TTSEngine.utteranceId_last == utteranceId || TTSEngine.utteranceId_oneshot == utteranceId) {
                     val am = getSystemService(AUDIO_SERVICE) as AudioManager
                     val result = am.abandonAudioFocus(this@RSSReader) // ignore result
@@ -199,7 +195,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
             }
 
             override fun onError(utteranceId: String?) {
-                Log.i(tag, "onError:" + utteranceId)
+                Log.i(tag, "onError:$utteranceId")
                 if (TTSEngine.utteranceId_last == utteranceId || TTSEngine.utteranceId_oneshot == utteranceId) {
                     val am = getSystemService(AUDIO_SERVICE) as AudioManager
                     val result = am.abandonAudioFocus(this@RSSReader) // ignore result
@@ -238,7 +234,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
         }
         if (savedInstanceState == null) { //started from scratch ?
 
-            swipeRefresh.setRefreshing(true) //show refresh icon at first launch
+            swipeRefresh.isRefreshing = true //show refresh icon at first launch
             val pref_version = prefs!!.getString(PREF_CLIENT_VERSION, null)
             if ((pref_version == null) || pref_version != BuildConfig.VERSION_NAME) {
                 prefs?.edit {
@@ -265,7 +261,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
         if (Intent.ACTION_VIEW == action) {
             val intent_data = intent.data
             if (intent_data != null) {
-                if (BuildConfig.DEBUG) Log.d(tag, "intent uri: " + intent_data)
+                if (BuildConfig.DEBUG) Log.d(tag, "intent uri: $intent_data")
                 //TODO: process feed via intent
 //command: adb shell am start -W -a android.intent.action.VIEW -d "<replace with url to feed>"  -t "application/rss+xml"
             }
@@ -281,16 +277,16 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
                     windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
                 v?.setPadding(
                     insets_navigationbar.left,
-                    v.getPaddingTop(),
+                    v.paddingTop,
                     insets_navigationbar.right,
                     insets_navigationbar.bottom
                 )
 
                 val appbar = v!!.findViewById<View>(R.id.my_appbar)
                 appbar.setPadding(
-                    appbar.getPaddingLeft(),
+                    appbar.paddingLeft,
                     insets.top,
-                    appbar.getPaddingRight(),
+                    appbar.paddingRight,
                     appbar.paddingBottom
                 )
                 WindowInsetsCompat.CONSUMED
@@ -320,7 +316,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
             mTts = null
         }
         val cardlist = findViewById<RecyclerView?>(R.id.cardList)
-        if (cardlist != null) cardlist.setAdapter(null)
+        cardlist?.setAdapter(null)
 
         //        mWebView.clearCache(true);    
 // clear cache to avoid uncontrolled growing        
@@ -343,13 +339,13 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
 
     private fun deleteFiles(limit: Long) {
         val dir = cacheDir
-        if (dir != null && dir.isDirectory()) {
+        if (dir != null && dir.isDirectory) {
             val feed_id = prefs!!.getString(PREF_FEED_ID, null)
-            val feedFileName = if (feed_id != null) (feed_id + ".cache") else null
+            val feedFileName = if (feed_id != null) ("$feed_id.cache") else null
 
             for (child in dir.listFiles()!!) {
-                if (child.isFile() && child.lastModified() < limit) {
-                    if ((feedFileName == null) || (feedFileName != child.getName())) {
+                if (child.isFile && child.lastModified() < limit) {
+                    if ((feedFileName == null) || (feedFileName != child.name)) {
                         child.delete()
                         //                        Log.i(tag, child.getName() + " deleted!");
                     }
@@ -360,9 +356,9 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
 
     private fun deleteAllFiles() { //delete any cache file!
         val dir = cacheDir
-        if (dir != null && dir.isDirectory()) {
+        if (dir != null && dir.isDirectory) {
             for (child in dir.listFiles()!!) {
-                if (child.isFile()) {
+                if (child.isFile) {
                     child.delete()
                     //                    Log.i(tag, child.getName() + " deleted!");
                 }
@@ -385,7 +381,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         if (BuildConfig.DEBUG) Log.d(tag, "onPrepareOptionsMenu")
         val play = menu.findItem(R.id.menu_play) //play
-        if (play != null) play.setIcon(R.drawable.ic_play_arrow_white_36dp)
+        play?.setIcon(R.drawable.ic_play_arrow_white_36dp)
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -417,14 +413,14 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
             if (feed_id == null) {
                 feed_id = FeedsDB.getDefaultFeedId(pref_lang) //lang
             }
-            val feedFile = File(cacheDir, feed_id + ".cache")
+            val feedFile = File(cacheDir, "$feed_id.cache")
             if (feedFile.exists()) {
                 try {
                     ObjectInputStream(FileInputStream(feedFile)).use { `is` ->
                         val feed = `is`.readObject() as RSSFeed?
                         if ((feed != null) && mTts!!.checkTTS(feed.getLanguage(pref_lang))) {
                             val items = feed.allItems
-                            if (!items.isEmpty()) {
+                            if (items.isNotEmpty()) {
                                 val segments = arrayOfNulls<String>(items.size)
                                 var k = 0
                                 val smart_titles = prefs!!.getBoolean(PREF_SMART_TITLES, false)
@@ -551,19 +547,17 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
         if (cardlist.layoutManager == null) {
 //18-03-2026: responsive layout to adapt different screen sizes
 //            cardlist.setLayoutManager(new LinearLayoutManager(this));
-            val spanCount = getResources().getInteger(R.integer.dashboard_columns)
+            val spanCount = resources.getInteger(R.integer.dashboard_columns)
             cardlist.setLayoutManager(GridLayoutManager(this, spanCount))
         }
 
         val fab = findViewById<FloatingActionButton?>(R.id.mainfab)
-        if (fab != null) {
-            fab.setOnClickListener { v: View? ->
-                val activity = Intent(this@RSSReader, SelectCategory::class.java)
-                startActivityForResult(activity, REQUEST_SELECT_FEED)
+        fab?.setOnClickListener { v: View? ->
+            val activity = Intent(this@RSSReader, SelectCategory::class.java)
+            startActivityForResult(activity, REQUEST_SELECT_FEED)
 
-                val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swiperefresh)
-                swipeRefresh.isRefreshing = false
-            }
+            val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swiperefresh)
+            swipeRefresh.isRefreshing = false
         }
 
         Thread {
@@ -576,7 +570,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
                 )!!
                 feed_id = FeedsDB.getDefaultFeedId(pref_lang) //lang
             }
-            val feedFile = File(cacheDir, feed_id + ".cache")
+            val feedFile = File(cacheDir, "$feed_id.cache")
             if (feedFile.exists()) {
                 val interval = prefs!!.getString(PREF_REFRESH_TIMER, "3600")!!.toLong() * 1000L
                 val age = System.currentTimeMillis() - feedFile.lastModified()
@@ -605,7 +599,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
             var ts = prefs!!.getLong(PREF_BACKUP_TIME, -1)
             if (ts == -1L) { //backup never perfomed
                 val ft = UserDB.getInstance(this, prefs)
-                if (!ft.userFeeds.isEmpty()) { //data to save?
+                if (ft.userFeeds.isNotEmpty()) { //data to save?
                     ts = prefs!!.getLong(PREF_BACKUP_DIALOG, -1)
                     if (ts == -1L) { //first time ?
                         prefs?.edit {
@@ -658,7 +652,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
 
         //        cardlist.setHasFixedSize(true);
         val ca = cardlist.adapter as CardAdapter?
-        if (ca == null) cardlist.setAdapter(CardAdapter(cards, cardlist, this, getResources()))
+        if (ca == null) cardlist.setAdapter(CardAdapter(cards, cardlist, this, resources))
         else ca.replacesCards(cards)
     }
 
@@ -677,7 +671,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<String?>, grantResults: IntArray
+        permissions: Array<String>, grantResults: IntArray
     ) {
         if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             mBackupRestore.processRequestPermissionsResult(requestCode)
@@ -721,7 +715,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
             swipeRefresh.isRefreshing = false
             // Get extra data included in the Intent
             val what = intent.getIntExtra("what", 0)
-            if (BuildConfig.DEBUG) Log.d(tag, "onReceive: " + what)
+            if (BuildConfig.DEBUG) Log.d(tag, "onReceive: $what")
             when (what) {
                 RSSReaderWorker.MSG_UPDATE -> {
                     Log.i(tag, "RSSReaderWorker.MSG_UPDATE received")
@@ -761,7 +755,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
                     val arg1 = intent.getIntExtra("arg1", 0)
                     val arg2 = intent.getIntExtra("arg2", 0)
                     Log.i(tag, "RSSReaderWorker.MSG_ERROR received: $arg1")
-                    if (!isFinishing()) {
+                    if (!isFinishing) {
                         var color_id = R.color.orange_primary //defaul error color
                         when (arg1) {
                             DIALOG_RSS_ERROR_ID -> Snackbar.make(
@@ -840,7 +834,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
 // write origin of backup in preferences		
         val editor = prefs!!.edit()
         val c = Calendar.getInstance()
-        val timestamp = c.getTimeInMillis()
+        val timestamp = c.timeInMillis
         editor.putLong(PREF_BACKUP_TIME, timestamp)
         editor.putString(PREF_BACKUP_ORIGIN, "encodeBackup")
         editor.apply()
@@ -851,19 +845,19 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
         obj.put("timestamp", timestamp) // backup timestamp in milliseconds
         // userfeeds part
         val ft = UserDB.getInstance(this, prefs)
-        obj.put("userfeeds", JSONArray(ft.getUserFeeds()))
+        obj.put("userfeeds", JSONArray(ft.userFeeds))
         // usercats part
-        obj.put("usercats", JSONArray(ft.getUserCats()))
+        obj.put("usercats", JSONArray(ft.userCats))
         // deletednativefeeds part
-        obj.put("deletednativefeeds", JSONArray(ft.getDeletedNativeFeeds()))
+        obj.put("deletednativefeeds", JSONArray(ft.deletedNativeFeeds))
         // prefs part
         val pref = prefs!!.all
         val jprefs = JSONObject()
         if (pref != null) {
-            for (entry in pref.entries) if ((entry.key != "config_date") && (entry.key != PREF_CLIENT_VERSION) &&
-                (entry.value is String || entry.value is Boolean
-                        || entry.value is Int || entry.value is Long)
-            ) jprefs.put(entry.key, entry.value)
+            for ((key, value) in pref) if ((key != "config_date") && (key != PREF_CLIENT_VERSION) &&
+                (value is String || value is Boolean
+                        || value is Int || value is Long)
+            ) jprefs.put(key, value)
             obj.put("prefs", jprefs)
         }
         return obj.toString()
@@ -891,7 +885,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
                         aFeed[j] = feed.getString(j)
                     }
                     listUserFeeds.add(aFeed)
-                } else Log.e(tag, "decodeBackup: incorrect number of elements in " + feed)
+                } else Log.e(tag, "decodeBackup: incorrect number of elements in $feed")
             }
         }
         // usercats part
@@ -967,7 +961,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
 
     private fun stopTTS() { //speech
         if (BuildConfig.DEBUG) Log.d(tag, "stopTTS")
-        if (ttsplay != null) ttsplay!!.setIcon(R.drawable.ic_play_arrow_white_36dp) //play
+        ttsplay?.setIcon(R.drawable.ic_play_arrow_white_36dp) //play
 
         try {
             mTts?.stop()
@@ -981,7 +975,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
     }
 
     override fun onAudioFocusChange(focusChange: Int) { //af
-        if (BuildConfig.DEBUG) Log.d(tag, "onAudioFocusChange: " + focusChange)
+        if (BuildConfig.DEBUG) Log.d(tag, "onAudioFocusChange: $focusChange")
         when (focusChange) {
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {}
             AudioManager.AUDIOFOCUS_GAIN -> {}
@@ -1020,7 +1014,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
     class Publisher_DF  //df
         : AppCompatDialogFragment() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val inflater = requireActivity().getLayoutInflater()
+            val inflater = requireActivity().layoutInflater
             // Inflate the about message contents
             val infoView = inflater.inflate(R.layout.publisher, null, false)
             val txtView = infoView.findViewById<TextView>(R.id.publisher_info)
@@ -1042,13 +1036,13 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
     }
 
     private fun selectCategoryDialogImport() { //zzimport custom dialog to select target category to import OPML files
-        val categories = getResources().getStringArray(R.array.categories_list) //localized names
-        val catList = ArrayList<String?>(
+        val categories = resources.getStringArray(R.array.categories_list) //localized names
+        val catList = ArrayList<String>(
             Arrays.asList(*categories).subList(0, FeedsDB.categories.size)
         )
 
         val udb = UserDB.getInstance(this, prefs)
-        for (k in udb.getUserCats().indices)  //user categories
+        for (k in udb.userCats.indices)  //user categories
             catList.add(udb.getUserCat(k)[0])
 
         MaterialAlertDialogBuilder(this)
@@ -1057,7 +1051,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
                 android.R.string.cancel
             ) { dialog: DialogInterface?, which: Int -> dialog?.dismiss() }
             .setSingleChoiceItems(
-                catList.toTypedArray<String?>(),
+                catList.toTypedArray<String>(),
                 -1
             ) { dialog: DialogInterface?, which: Int ->
                 val listActivity = Intent(baseContext, ListFeeds::class.java)
@@ -1105,9 +1099,9 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
         }
 
         override fun onBindViewHolder(contactViewHolder: CardViewHolder, i: Int) {
-            val ci = cardList.get(i)
-            contactViewHolder.vTitle.setText(ci.title)
-            contactViewHolder.vContent.setText(Html.fromHtml(ci.content)) // Html.fromHtml needed to handle &apos; and similar
+            val ci = cardList[i]
+            contactViewHolder.vTitle.text = ci.title
+            contactViewHolder.vContent.text = Html.fromHtml(ci.content) // Html.fromHtml needed to handle &apos; and similar
             contactViewHolder.vTitle.setTextColor(genericcolor)
             //            contactViewHolder.vTitle.setBackgroundColor(background);
             contactViewHolder.vContent.setTextColor(textcolor)
@@ -1116,11 +1110,11 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
         }
 
         override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): CardViewHolder {
-            val itemView = LayoutInflater.from(viewGroup.getContext())
+            val itemView = LayoutInflater.from(viewGroup.context)
                 .inflate(R.layout.cardview, viewGroup, false)
             itemView.setOnClickListener(View.OnClickListener { v: View? ->
                 val position = cardview.getChildAdapterPosition(v!!)
-                Log.i(tag, "item [" + position + "] clicked")
+                Log.i(tag, "item [$position] clicked")
 
                 if (latest_feed_id == null) {
                     Log.i(tag, "feed_id = null !")
@@ -1136,8 +1130,8 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
                     ) == "wifi"
                 ) { //images can be downloaded only with wifi connectivity?
                     val cm = rssreader.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-                    val ni = cm.getActiveNetworkInfo()
-                    text_mode = (ni == null) || (ni.getType() != ConnectivityManager.TYPE_WIFI)
+                    val ni = cm.activeNetworkInfo
+                    text_mode = (ni == null) || (ni.type != ConnectivityManager.TYPE_WIFI)
                 } else text_mode = false
 
                 itemintent.putExtra("light_theme", !ColorBase.isDarkColor(background))
@@ -1184,12 +1178,11 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
         }
 
         class CardViewHolder internal constructor(v: View) : RecyclerView.ViewHolder(v) {
-            val vTitle: TextView
+            val vTitle: TextView = v.findViewById(R.id.title)
             val vContent: TextView
             val card: MaterialCardView
 
             init {
-                vTitle = v.findViewById(R.id.title)
                 vContent = v.findViewById(R.id.content)
                 card = v as MaterialCardView
             }
@@ -1249,7 +1242,7 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
         @JvmField
         val RSS_USER_AGENT: String =
             "Mozilla/5.0 (Linux; Android " + Build.VERSION.RELEASE + "; unknown) Firefox/62.0" //dummu user agent to get expected response from most remote servers
-        private val zzBackup_age = 7L * 24L * 3600L * 1000L
+        private const val zzBackup_age = 7L * 24L * 3600L * 1000L
 
         private var latest_feed_id: String? = null
         var message_publisher: String? = "unknown" //publisher
@@ -1275,14 +1268,14 @@ class RSSReader : AppCompatActivity(), FileHandler, OnAudioFocusChangeListener {
         fun setTextColorPopupMenu(menu: Menu, targetColor: Int) {
             for (i in 0..<menu.size) {
                 val item = menu[i]
-                val spannableTitle = SpannableString(item.getTitle())
+                val spannableTitle = SpannableString(item.title)
                 spannableTitle.setSpan(
                     ForegroundColorSpan(targetColor),
                     0,
                     spannableTitle.length,
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE
                 )
-                item.setTitle(spannableTitle)
+                item.title = spannableTitle
             }
         }
 

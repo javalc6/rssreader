@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.DialogFragment
@@ -86,9 +85,9 @@ class PreferencesFragXML : AppCompatActivity() {
 
                 val appbar = v!!.findViewById<View>(R.id.my_appbar)
                 appbar.setPadding(
-                    appbar.getPaddingLeft(),
+                    appbar.paddingLeft,
                     insets.top,
-                    appbar.getPaddingRight(),
+                    appbar.paddingRight,
                     appbar.paddingBottom
                 )
                 WindowInsetsCompat.CONSUMED
@@ -112,7 +111,7 @@ class PreferencesFragXML : AppCompatActivity() {
             setPreferencesFromResource(R.xml.preferences, rootKey)
 
             prefs = preferenceScreen.getSharedPreferences()
-            prefs!!.registerOnSharedPreferenceChangeListener(this)
+            prefs?.registerOnSharedPreferenceChangeListener(this)
 
             setFontSizeSummary() //twin
         }
@@ -192,7 +191,7 @@ class PreferencesFragXML : AppCompatActivity() {
 
         override fun onDestroy() {
             super.onDestroy()
-            if (prefs != null) prefs?.unregisterOnSharedPreferenceChangeListener(this)
+            prefs?.unregisterOnSharedPreferenceChangeListener(this)
         }
 
         companion object {

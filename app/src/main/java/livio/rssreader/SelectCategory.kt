@@ -16,10 +16,8 @@ import android.widget.ListView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.FragmentResultListener
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -68,7 +66,7 @@ class SelectCategory : AppCompatActivity(), OnItemClickListener, OnItemLongClick
         val actionBar = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(!FormFactorUtils.isArc(this))
         val catList = ArrayList<IconItem?>()
-        val categories = getResources().getStringArray(R.array.categories_list) //localized names
+        val categories = resources.getStringArray(R.array.categories_list) //localized names
         for (k in FeedsDB.categories.indices) catList.add(
             IconItem(
                 categories[k]!!,
@@ -90,30 +88,28 @@ class SelectCategory : AppCompatActivity(), OnItemClickListener, OnItemLongClick
 
 
         // Set the ListView adapter
-        lv.setAdapter(adapter)
+        lv.adapter = adapter
         lv.onItemClickListener = this
-        lv.setOnItemLongClickListener(this)
+        lv.onItemLongClickListener = this
         val fab = findViewById<FloatingActionButton?>(R.id.addfab)
-        if (fab != null) {
-            fab.setOnClickListener { v: View? ->
-                supportFragmentManager.setFragmentResultListener(
-                    "category_key",
-                    this
-                ) { requestKey: String?, bundle: Bundle? ->
-/*
-        Log.d(tag, "category title:"+category[0]);
-        Log.d(tag, "category description:"+category[1]);
-        Log.d(tag, "category id:"+category[2]);
-*/
-// category[3] and category[4] are reserved for future uses, for example to define the icon associated with the user category
-                    val position =
-                        udb?.updateCategory(bundle?.getStringArray("category")!!, this)
-                    recreate()
-                }
-                val editNameDialog =
-                    NewCategoryDialog.newInstance(arrayOfNulls<String>(UserDB.CAT_SIZE)) //new category
-                editNameDialog.show(supportFragmentManager, "new_cat_dialog")
+        fab?.setOnClickListener { v: View? ->
+            supportFragmentManager.setFragmentResultListener(
+                "category_key",
+                this
+            ) { requestKey: String?, bundle: Bundle? ->
+    /*
+            Log.d(tag, "category title:"+category[0]);
+            Log.d(tag, "category description:"+category[1]);
+            Log.d(tag, "category id:"+category[2]);
+    */
+    // category[3] and category[4] are reserved for future uses, for example to define the icon associated with the user category
+                val position =
+                    udb?.updateCategory(bundle?.getStringArray("category")!!, this)
+                recreate()
             }
+            val editNameDialog =
+                NewCategoryDialog.newInstance(arrayOfNulls(UserDB.CAT_SIZE)) //new category
+            editNameDialog.show(supportFragmentManager, "new_cat_dialog")
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) { //19-02-2025: zzedge-2-edge
@@ -133,9 +129,9 @@ class SelectCategory : AppCompatActivity(), OnItemClickListener, OnItemLongClick
 
                 val appbar = v!!.findViewById<View>(R.id.my_appbar)
                 appbar.setPadding(
-                    appbar.getPaddingLeft(),
+                    appbar.paddingLeft,
                     insets.top,
-                    appbar.getPaddingRight(),
+                    appbar.paddingRight,
                     appbar.paddingBottom
                 )
                 WindowInsetsCompat.CONSUMED
@@ -200,7 +196,7 @@ class SelectCategory : AppCompatActivity(), OnItemClickListener, OnItemLongClick
 
         menuInflater.inflate(R.menu.select_cat_menu, menu)
         menu.findItem(R.id.menu_lang).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-        if (!udb!!.userCats.isEmpty()) {
+        if (udb!!.userCats.isNotEmpty()) {
             val del = menu.findItem(R.id.menu_delcat)
             del.isVisible = true
             del.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
@@ -227,7 +223,7 @@ class SelectCategory : AppCompatActivity(), OnItemClickListener, OnItemLongClick
                 val aitem = iaa.getItem(i) ?: break
                 if (aitem.isChecked) {
                     iaa.remove(aitem)
-                    Log.d("******", "delcat=" + i)
+                    Log.d("******", "delcat=$i")
                     udb?.deleteCat(i)
                     n_items++
                 } else i++
@@ -248,8 +244,8 @@ class SelectCategory : AppCompatActivity(), OnItemClickListener, OnItemLongClick
 
     private fun selectLanguageDialog() { //custom dialog with all languages from resources
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val languages = getResources().getStringArray(R.array.entries_list_preference)
-        val langcodes = getResources().getStringArray(R.array.entryvalues_list_preference)
+        val languages = resources.getStringArray(R.array.entries_list_preference)
+        val langcodes = resources.getStringArray(R.array.entryvalues_list_preference)
         val pref_lang: String = prefs.getString(
             RSSReader.PREF_FEEDS_LANGUAGE,
             getString(R.string.default_feed_language_code)

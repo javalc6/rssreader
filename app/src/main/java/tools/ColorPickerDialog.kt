@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatDialog
+import livio.rssreader.BuildConfig
 import livio.rssreader.R
 
 /*
@@ -95,20 +96,20 @@ class ColorPickerDialog(
             mMode = mode
             mPaint = Paint(Paint.ANTI_ALIAS_FLAG)
             mPaintStroke = Paint(Paint.ANTI_ALIAS_FLAG)
-            mPaintStroke.setStyle(Paint.Style.STROKE)
+            mPaintStroke.style = Paint.Style.STROKE
         }
 
         override fun onDraw(canvas: Canvas) {
             if (debug) Log.d(Companion.tag, "onDraw")
             mPaintStroke.strokeWidth = (mMarginSize + 1).toFloat()
-            mPaintStroke.setColor(ColorBase.half_color(mCurrentColor))
+            mPaintStroke.color = ColorBase.half_color(mCurrentColor)
             for (i in 0..<N) for (j in 0..<N) {
                 val index = i + j * N
                 if (index < mColors.size) { //sub-optimal solution
                     val x = i * gridL + offsetX
                     val y = j * gridL + offsetY
 
-                    mPaint.setColor(mColors[i + j * N])
+                    mPaint.color = mColors[i + j * N]
 
                     when (mMode) {
                         CIRCLE_CIRCLE -> {
@@ -172,7 +173,7 @@ class ColorPickerDialog(
         }
 
         override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+//            super.onMeasure(widthMeasureSpec, heightMeasureSpec) -- not needed
 
             var w = MeasureSpec.getSize(widthMeasureSpec) //getMeasuredWidth();
             var h = MeasureSpec.getSize(heightMeasureSpec) //getMeasuredHeight();
@@ -185,7 +186,7 @@ class ColorPickerDialog(
                 mSwatchLength = res.getDimensionPixelSize(R.dimen.color_swatch_small)
                 mMarginSize = res.getDimensionPixelSize(R.dimen.color_swatch_margins_small)
             }
-            if (debug) Log.d(Companion.tag, "onMeasure, w:" + w + ", h:" + h)
+            if (debug) Log.d(Companion.tag, "onMeasure, w:$w, h:$h")
             val extraheight =
                 2 * mMarginSize //aggiungiamo 2 mMarginSize in verticale (sopra e sotto la palette)
             if (w > h - extraheight) {
@@ -219,7 +220,7 @@ class ColorPickerDialog(
             if (event.action == MotionEvent.ACTION_DOWN) {
                 val x = event.x
                 val y = event.y
-                if (debug) Log.d(Companion.tag, "onTouchEvent, x:" + x + ", y:" + y)
+                if (debug) Log.d(Companion.tag, "onTouchEvent, x:$x, y:$y")
                 if ((x >= offsetX) && (y >= offsetY)) {
                     val transX = (x.toInt() - offsetX) / gridL
                     val transY = (y.toInt() - offsetY) / gridL
@@ -242,7 +243,7 @@ class ColorPickerDialog(
         private const val SQUARE_SQUARE = 0
         const val CIRCLE_CIRCLE: Int = 1
 
-        private const val debug = true
+        private val debug = BuildConfig.DEBUG
         private const val tag = "ColorPickerDialog"
     }
 }

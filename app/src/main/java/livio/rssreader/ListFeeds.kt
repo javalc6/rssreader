@@ -12,12 +12,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
-import android.widget.AdapterView.OnItemClickListener
-import android.widget.AdapterView.OnItemLongClickListener
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.util.Predicate
 import androidx.fragment.app.ListFragment
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -35,7 +32,6 @@ import tools.SimpleFileManager
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.Arrays
 import javax.xml.parsers.ParserConfigurationException
 import androidx.core.content.edit
 
@@ -119,7 +115,7 @@ class ListFeeds : AppCompatActivity(), EditNameDialogListener {
 
             setListAdapter(ItemArrayAdapter(act, itemList, this, feed_id, catIdx == 0))
             val lv = getListView()
-            lv.setTextFilterEnabled(true)
+            lv.isTextFilterEnabled = true
 
             lv.setOnItemClickListener { parent: AdapterView<*>?, v: View?, position: Int, id: Long ->  //select a feed
                 prefs?.edit {
@@ -154,15 +150,13 @@ class ListFeeds : AppCompatActivity(), EditNameDialogListener {
             super.onViewStateRestored(savedInstanceState)
             val act: Activity? = activity
             val fab = act!!.findViewById<FloatingActionButton?>(R.id.addfab)
-            if (fab != null) {
-                fab.setOnClickListener { v: View? ->
-                    val editNameDialog =
-                        NewFeedDialog.newInstance(arrayOfNulls<String>(UserDB.FEED_SIZE)) // new feed
-                    editNameDialog.show(
-                        (act as ListFeeds).getSupportFragmentManager(),
-                        "new_feed_dialog"
-                    )
-                }
+            fab?.setOnClickListener { v: View? ->
+                val editNameDialog =
+                    NewFeedDialog.newInstance(arrayOfNulls(UserDB.FEED_SIZE)) // new feed
+                editNameDialog.show(
+                    (act as ListFeeds).supportFragmentManager,
+                    "new_feed_dialog"
+                )
             }
         }
 
@@ -265,13 +259,13 @@ class ListFeeds : AppCompatActivity(), EditNameDialogListener {
                         feed[1] = url
                         feed[2] = null
                         addFeed(cat!!, feed)
-                        iaa?.add(Item(feed[0], false))
+                        iaa.add(Item(feed[0], false))
                         if (++count >= MAX_NUM_OPML_IMPORT) break
                     } else Log.d(Companion.tag, "duplicate url: $url")
                 }
                 if (count > 0) {
                     udb?.synctoFile(activity)
-                    iaa?.notifyDataSetChanged()
+                    iaa.notifyDataSetChanged()
                 }
                 return true
             } catch (e: IOException) {
@@ -303,7 +297,7 @@ class ListFeeds : AppCompatActivity(), EditNameDialogListener {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val ff = supportFragmentManager.findFragmentById(R.id.feeds) as FeedsFragment?
         if (ff != null) {
-            val visible: Boolean = !currentUserFeeds!!.isEmpty()
+            val visible: Boolean = currentUserFeeds!!.isNotEmpty()
             menu.findItem(R.id.menu_select_all).isVisible = visible
             menu.findItem(R.id.menu_move_feed).isVisible = visible
         }
@@ -393,8 +387,8 @@ class ListFeeds : AppCompatActivity(), EditNameDialogListener {
         val iaa: ItemArrayAdapter = checkNotNull(ff.listAdapter as ItemArrayAdapter?)
         if (isAnyCheckedItems(iaa)) {
             val categories =
-                getResources().getStringArray(R.array.categories_list) //localized names
-            val catList = ArrayList<String?>(
+                resources.getStringArray(R.array.categories_list) //localized names
+            val catList = ArrayList<String>(
                 listOf(*categories).subList(0, FeedsDB.categories.size)
             )
 
@@ -407,7 +401,7 @@ class ListFeeds : AppCompatActivity(), EditNameDialogListener {
                     android.R.string.cancel
                 ) { dialog: DialogInterface?, which: Int -> dialog?.dismiss() }
                 .setSingleChoiceItems(
-                    catList.toTypedArray<String?>(),
+                    catList.toTypedArray<String>(),
                     -1
                 ) { dialog: DialogInterface?, which: Int ->
                     Log.d(tag, "which=$which")

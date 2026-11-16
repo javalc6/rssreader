@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.speech.tts.UtteranceProgressListener
@@ -27,7 +26,6 @@ import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -188,9 +186,9 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
 
                 val appbar = v!!.findViewById<View>(R.id.my_appbar)
                 appbar.setPadding(
-                    appbar.getPaddingLeft(),
+                    appbar.paddingLeft,
                     insets.top,
-                    appbar.getPaddingRight(),
+                    appbar.paddingRight,
                     appbar.paddingBottom
                 )
                 WindowInsetsCompat.CONSUMED
@@ -216,13 +214,13 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
             mTts = null
         }
 
-        if (smartPager != null) smartPager?.clearWebViews(true)
+        smartPager?.clearWebViews(true)
         //        	smartPager.getHomeView().clearCache(true);
         super.onDestroy()
     }
 
     private fun stopTTS() { //speech
-        if (ttsplay != null) ttsplay?.setIcon(R.drawable.ic_play_arrow_white_36dp) //play
+        ttsplay?.setIcon(R.drawable.ic_play_arrow_white_36dp) //play
 
         try {
             mTts?.stop()
@@ -266,16 +264,16 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
 
         if (pos == 0) { // |<
             val prev = menu.findItem(R.id.menu_prev)
-            if (prev != null) prev.setIcon(R.drawable.ic_first_page_white_36dp)
+            prev.setIcon(R.drawable.ic_first_page_white_36dp)
         } else if (pos == 1) { // <
             val prev = menu.findItem(R.id.menu_prev)
-            if (prev != null) prev.setIcon(R.drawable.ic_keyboard_arrow_left_white_36dp)
+            prev.setIcon(R.drawable.ic_keyboard_arrow_left_white_36dp)
         } else if (pos == n_items - 2) { // >
             val next = menu.findItem(R.id.menu_next)
-            if (next != null) next.setIcon(R.drawable.ic_keyboard_arrow_right_white_36dp)
+            next.setIcon(R.drawable.ic_keyboard_arrow_right_white_36dp)
         } else if (pos == n_items - 1) { // >|
             val next = menu.findItem(R.id.menu_next)
-            if (next != null) next.setIcon(R.drawable.ic_last_page_white_36dp)
+            next.setIcon(R.drawable.ic_last_page_white_36dp)
         }
         return super.onPrepareOptionsMenu(menu)
     }
@@ -317,9 +315,10 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
                             // Start playback.
                         }
 
-                        val segments: Array<String?> =
-                            RSSReader.cleanupContent(content, true).split("\n+".toRegex())
-                                .dropLastWhile { it.isEmpty() }.toTypedArray()
+                        val segments: Array<String> =
+                            RSSReader.cleanupContent(content, true).split(Regex("\n+"))
+                                .dropLastWhile(String::isEmpty)
+                                .toTypedArray()
                         if ((segments.isNotEmpty()) && mTts!!.speakSegments(segments)) item.setIcon(R.drawable.ic_stop_white_36dp) //play
                     }
                 }
@@ -332,7 +331,7 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
                         smartPager?.feed?.getItem(smartPager!!.itemCount - 1 - smartPager!!.currentItem) //ShowItem shows items in reversed order compared to RSSReader
                     if (article != null) {
                         val intent = Intent(Intent.ACTION_SEND)
-                        intent.setType("text/plain")
+                        intent.type = "text/plain"
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT) // FLAG_ACTIVITY_NEW_DOCUMENT sostituisce FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET
                         intent.putExtra(
                             Intent.EXTRA_SUBJECT,
@@ -341,7 +340,7 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
                         intent.putExtra(
                             Intent.EXTRA_TEXT,
                             RSSReader.cleanupContent(
-                                article.getDescription() + "\n\n" + article.getLink(),
+                                article.getDescription() + "\n\n" + article.link,
                                 false
                             )
                         )
@@ -423,10 +422,10 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
 
         init {
             val settings = getSettings()
-            settings.setJavaScriptEnabled(true)
-            settings.setDatabaseEnabled(false) // work-around for SQLiteFullException: database or disk is full
+            settings.javaScriptEnabled = true
+            settings.databaseEnabled = false // work-around for SQLiteFullException: database or disk is full
             settings.loadsImagesAutomatically = !text_mode
-            setWebViewClient(object : WebViewClient() {
+            webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, url: String): Boolean {
                     return overrideUrlLoading(url) //twin
                 }
@@ -435,7 +434,7 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
                     view: WebView?,
                     request: WebResourceRequest
                 ): Boolean {
-                    return overrideUrlLoading(request.getUrl().toString()) //twin
+                    return overrideUrlLoading(request.url.toString()) //twin
                 }
 
                 override fun onReceivedError(
@@ -445,7 +444,7 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
                 ) { //API >= 23
                     if (request.isForMainFrame) {
                         val errorMsg =
-                            "<b>" + getString(R.string.msg_error) + " " + error.getDescription() + "</b><br/><br/>" + getString(
+                            "<b>" + getString(R.string.msg_error) + " " + error.description + "</b><br/><br/>" + getString(
                                 R.string.msg_connection_problem
                             )
                         view.loadDataWithBaseURL(
@@ -458,7 +457,7 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
                         )
                     }
                 }
-            })
+            }
             setBackgroundColor(background) // required
             if (savedInstanceState != null) {
                 loadDataWithBaseURL(
@@ -513,13 +512,12 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
         val context: Context
         val n_items: Int
         var feed: RSSFeed? = null
-        val text_mode: Boolean
+        val text_mode: Boolean = payload!!.getBoolean("text_mode", false)
         val background: Int
 
         init {
-            text_mode = payload!!.getBoolean("text_mode", false)
-            val feed_id = payload.getString("feed_id")
-            val feedFile = File(cacheDir, feed_id + ".cache")
+            val feed_id = payload!!.getString("feed_id")
+            val feedFile = File(cacheDir, "$feed_id.cache")
             try {
                 ObjectInputStream(FileInputStream(feedFile)).use { `is` ->
                     feed = `is`.readObject() as RSSFeed?
@@ -569,7 +567,7 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
                         MotionEvent.ACTION_DOWN -> {
                             lastX = e.x.toInt()
                             lastY = e.y.toInt()
-                            touchSlop = ViewConfiguration.get(context).getScaledEdgeSlop()
+                            touchSlop = ViewConfiguration.get(context).scaledEdgeSlop
                             waitingFirst = true
                             disallowInterceptTouch = false
                         }
@@ -608,11 +606,11 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
 //            Log.d("setCurrentItem", "pos:"+item);
             val pos = item
             if ((pos >= 0) && (pos < smartPager!!.itemCount - 1)) {
-                fwdbutton?.setAlpha(1f)
+                fwdbutton?.alpha = 1f
                 fwdbutton?.animate()!!.alpha(0f).setDuration(6000).start()
             }
             if (pos > 0) {
-                backbutton?.setAlpha(1f)
+                backbutton?.alpha = 1f
                 backbutton?.animate()!!.alpha(0f).setDuration(6000).start()
             }
             viewPager.setCurrentItem(item, smoothScroll)
@@ -664,7 +662,7 @@ class ShowItem : AppCompatActivity(), OnAudioFocusChangeListener {
             if (item != null) {
                 val sb = StringBuilder(item.getPubDate(context))
                 val link = item.link
-                if (!link.isEmpty()) {
+                if (link.isNotEmpty()) {
                     sb.append(" <a href=\"").append(item.link).append("\">")
                         .append(getString(R.string.full_story)).append("</a>")
                 }

@@ -27,7 +27,6 @@ import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import tools.ColorBase
 import tools.ColorPickerDialog
-import tools.ColorPickerDialog.OnColorChangedListener
 import androidx.core.content.edit
 
 /*
@@ -58,14 +57,14 @@ class SelectColors : AppCompatActivity(), OnItemClickListener {
         setContentView(R.layout.select_colors)
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
-        val theme: Int = get_theme_idx(prefs!!, getResources())
-        val theme_names = getResources().getStringArray(R.array.prefs_theme_names)
+        val theme: Int = get_theme_idx(prefs!!, resources)
+        val theme_names = resources.getStringArray(R.array.prefs_theme_names)
         val mThemes = findViewById<Button>(R.id.themes)
         mThemes.tag = theme
 
         val theme_auto = findViewById<SwitchCompat>(R.id.theme_auto) //zzautotheme
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) { //zzautotheme
-            theme_auto.setVisibility(View.GONE) //theme auto is not available before Android O
+            theme_auto.visibility = View.GONE //theme auto is not available before Android O
         } else {
             theme_auto.setChecked(prefs!!.getBoolean(RSSReader.PREF_THEME_AUTO, true))
             theme_auto.setOnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
@@ -83,7 +82,7 @@ class SelectColors : AppCompatActivity(), OnItemClickListener {
             )
         ) { //zzautotheme
             mThemes.setText(R.string.auto)
-            mThemes.setEnabled(false)
+            mThemes.isEnabled = false
         } else {
             mThemes.text = theme_names[theme]
             mThemes.setOnClickListener { v: View? ->
@@ -99,7 +98,7 @@ class SelectColors : AppCompatActivity(), OnItemClickListener {
                                 putString(RSSReader.PREF_THEME, ColorBase.themes[item])
                             }
                             val colors: IntArray =
-                                getThemeColors(prefs!!, getResources()) //dt
+                                getThemeColors(prefs!!, resources) //dt
                             ci0?.setColor(colors[1])
                             ci1?.setColor(colors[2])
                             ci2?.setColor(colors[3])
@@ -118,7 +117,7 @@ class SelectColors : AppCompatActivity(), OnItemClickListener {
         }
 
         val catList: ArrayList<ColorItem?> = ArrayList()
-        val colors: IntArray = getThemeColors(prefs!!, getResources()) //dt
+        val colors: IntArray = getThemeColors(prefs!!, resources) //dt
         catList.add(ColorItem(getString(R.string.textColor), colors[1]).also {
             ci0 = it
         }) // pos = 0
@@ -142,9 +141,9 @@ class SelectColors : AppCompatActivity(), OnItemClickListener {
         reset_colors.setOnClickListener { v: View? ->
 // Perform action on clicks
 //                Log.d(tag, "id:" + mThemes.getSelectedItemId());
-            val ctheme = mThemes.getTag() as Int
+            val ctheme = mThemes.tag as Int
             resetTheme(ctheme) //reset colors to default value
-            val colors1: IntArray = getThemeColors(prefs!!, getResources()) //dt
+            val colors1: IntArray = getThemeColors(prefs!!, resources) //dt
             ci0?.setColor(colors1[1])
             ci1?.setColor(colors1[2])
             ci2?.setColor(colors1[3])
@@ -157,7 +156,7 @@ class SelectColors : AppCompatActivity(), OnItemClickListener {
             val prefs = PreferenceManager.getDefaultSharedPreferences(parent.context)
                 ?: // main activity died
                 return
-            val theme_idx: Int = get_theme_idx(prefs, getResources())
+            val theme_idx: Int = get_theme_idx(prefs, resources)
 
             //    	Log.d(tag, "theme:"+theme_idx);//dt theme_idx < 2 ==> light theme
             val color: Int
@@ -214,7 +213,7 @@ class SelectColors : AppCompatActivity(), OnItemClickListener {
             val colordlg = ColorPickerDialog(
                 this,
                 color,
-                getResources().getString(title),
+                resources.getString(title),
                 colors,
                 ColorPickerDialog.CIRCLE_CIRCLE
             ) { color1: Int ->
@@ -244,7 +243,7 @@ class SelectColors : AppCompatActivity(), OnItemClickListener {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.getItemId() == android.R.id.home) {
+        if (item.itemId == android.R.id.home) {
             finish()
             return true
         }
