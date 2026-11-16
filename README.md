@@ -66,5 +66,5 @@ Repository
 ==========
 source code: https://github.com/javalc6/rssreader \
 user guide: https://thesaurus.altervista.org/newsreader-help \
-apk file: https://thesaurus.altervista.org/apk/pRSSReader.apk
+apk file: https://f-droid.org/packages/livio.rssreader/
 
