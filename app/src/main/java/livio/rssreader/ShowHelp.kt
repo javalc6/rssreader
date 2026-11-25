@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
@@ -23,11 +24,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDialogFragment
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
@@ -42,19 +39,25 @@ import java.net.URLDecoder
 import java.util.Locale
 import kotlin.math.abs
 import androidx.core.net.toUri
+import androidx.preference.PreferenceManager
+import livio.rssreader.RSSReader.Companion.PREF_THEME
+import proto.BaseActivity
+import tools.ColorBase
 
 /*
 The activity ShowHelp processes the parameter 'help' when called as intent, this parameter contains the filename of the help file and optionally the section marked by /
 
 For the internal navigation use scheme help:
  */
-class ShowHelp : AppCompatActivity() {
+class ShowHelp : BaseActivity() {
     private var smartPager: SmartPager? = null
     private var backbutton: ImageButton? = null
     private var fwdbutton: ImageButton? = null
 
     private var help_filename: String? = null
     private val help_content = ArrayList<String>()
+
+    val prefs: SharedPreferences by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
 
     /** Called to save instance state: put critical variables here!  */
     override fun onSaveInstanceState(outState: Bundle) {
@@ -64,13 +67,26 @@ class ShowHelp : AppCompatActivity() {
         outState.putString(SAVE_helpfilename_ID, help_filename)
     }
 
+    override fun getAppBarId(): Int {
+        return R.id.my_appbar
+    }
+
+    override fun isLightTheme(): Boolean {
+        return !ColorBase.is_dark_theme(prefs.getString(PREF_THEME, "light") ?: "light")
+    }
+
     @SuppressLint("NewApi")
     public override fun onCreate(savedInstanceState: Bundle?) {
+        if (Build.VERSION.SDK_INT_FULL > Build.VERSION_CODES_FULL.BAKLAVA && !prefs.getBoolean(
+                RSSReader.PREF_THEME_AUTO,
+                true
+            ) && !ColorBase.is_dark_theme(prefs.getString(PREF_THEME, "light"))
+        ) { //zzexpanded: workaround for "expanded" dark mode
+            setTheme(R.style.Theme_Light_ExpandedOption) //light theme for API levels beyond BAKLAVA
+        }
+
         super.onCreate(savedInstanceState)
         Log.i(tag, "onCreate")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) { //zzedge-2-edge
-            this.enableEdgeToEdge() //shall be executed before setContentView()
-        }
 
         setContentView(R.layout.showhelp)
 
@@ -119,31 +135,6 @@ class ShowHelp : AppCompatActivity() {
             findViewById(R.id.indicators)
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) { //19-02-2025: zzedge-2-edge
-            ViewCompat.setOnApplyWindowInsetsListener(
-                window.decorView
-            ) { v: View?, windowInsets: WindowInsetsCompat? ->
-                val insets = windowInsets!!.getInsets(WindowInsetsCompat.Type.systemBars())
-                //remove following 2 lines to overlap navigation bar
-                val insets_navigationbar =
-                    windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
-                v?.setPadding(
-                    insets_navigationbar.left,
-                    v.paddingTop,
-                    insets_navigationbar.right,
-                    insets_navigationbar.bottom
-                )
-
-                val appbar = v!!.findViewById<View>(R.id.my_appbar)
-                appbar.setPadding(
-                    appbar.paddingLeft,
-                    insets.top,
-                    appbar.paddingRight,
-                    appbar.paddingBottom
-                )
-                WindowInsetsCompat.CONSUMED
-            }
-        }
     }
 
     /*

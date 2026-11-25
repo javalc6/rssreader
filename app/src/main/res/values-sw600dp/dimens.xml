@@ -4,4 +4,8 @@
     <dimen name="cardCornerRadius">8dp</dimen>
     <dimen name="dialogPadding">16dp</dimen>
     <dimen name="fab_margin">24dp</dimen>
+
+    <!--  color picker -->
+    <dimen name="color_swatch_size">48dp</dimen>
+    <dimen name="color_swatch_margin">16dp</dimen>
 </resources>

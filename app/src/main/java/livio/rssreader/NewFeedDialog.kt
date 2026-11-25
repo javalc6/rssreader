@@ -3,7 +3,6 @@ package livio.rssreader
 import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.DialogInterface.OnShowListener
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -59,7 +58,7 @@ class NewFeedDialog : AppCompatDialogFragment() {
                             feed!![0] = mRSSTitle.text.toString() //title
                             feed[1] = mRssUrl.text.toString() //url
                             val listener =
-                                if (getTargetFragment() == null) act as EditNameDialogListener else getTargetFragment() as EditNameDialogListener? //return results back to caller
+                                if (targetFragment == null) act as EditNameDialogListener else targetFragment as EditNameDialogListener? //return results back to caller
                             listener?.onFinishEditDialog(feed)
                             this.dismiss()
                         } else {

@@ -47,10 +47,6 @@
             app:key="theme"
             app:title="@string/prefs_theme"
             app:summary="@string/prefs_theme_sub">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetPackage="livio.rssreader"
-                android:targetClass="livio.rssreader.SelectColors" />
         </Preference>
         <tools.SeekBarPreference
             app:key="fontsize"

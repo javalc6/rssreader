@@ -7,7 +7,7 @@
 
     <include layout="@layout/toolbar" android:id="@+id/toolbar"/>
 
-    <fragment class="livio.rssreader.ListFeeds$FeedsFragment"
+    <androidx.fragment.app.FragmentContainerView class="livio.rssreader.ListFeeds$FeedsFragment"
         android:id="@+id/feeds"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

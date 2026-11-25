@@ -4,7 +4,6 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primarydark</item>
         <item name="colorAccent">@color/primary</item>
-        <!--item name="android:windowOptOutEdgeToEdgeEnforcement" tools:ignore="NewApi">true</item><!- workaround per evitare l'applicazione di edge-to-edge -->
     </style>
 
     <!--zzexpand, light theme for API levels greater than BAKLAVA -->
@@ -35,16 +34,27 @@
         <item name="appBarLayoutStyle">@style/Widget.App.AppBarLayout</item>
         <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
         <item name="android:statusBarColor">@color/primarydark</item>
-        <!-- Transparent system bars for edge-to-edge.
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-         -->
     </style>
 
     <style name="MyDialogTheme" parent="@style/Theme.Material3Expressive.DayNight.Dialog.Alert">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primarydark</item>
         <item name="colorAccent">@color/primary</item>
+        <item name="dialogCornerRadius">@dimen/dialogCornerRadius</item>
+    </style>
+
+    <style name="MyDialogTheme.Light" parent="@style/Theme.Material3Expressive.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primarydark</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="dialogCornerRadius">@dimen/dialogCornerRadius</item>
+    </style>
+
+    <style name="MyDialogTheme.Dark" parent="@style/Theme.Material3Expressive.Dark.Dialog.Alert">
+        <item name="colorPrimary">@color/primarydarkmode</item>
+        <item name="colorPrimaryVariant">@color/primarydarkmode</item>
+        <item name="colorAccent">@color/primarydarkmode</item>
+        <item name="android:colorBackground">@color/gray75</item>
         <item name="dialogCornerRadius">@dimen/dialogCornerRadius</item>
     </style>
 

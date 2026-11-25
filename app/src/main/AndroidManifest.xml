@@ -45,11 +45,6 @@
                   android:label="@string/show_label"/>
         <activity android:name=".ShowHelp" android:exported="false" android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
                   android:label="@string/show_help_label"/>
-        <activity
-            android:name=".SelectColors" android:exported="false" android:configChanges="screenSize|screenLayout|orientation"
-            android:theme="@style/MyDialogTheme"
-            android:label="@string/prefs_theme_sub">
-        </activity>
         <!-- Widget -->
         <receiver android:name=".RSSWidget" android:exported="true" android:label="@string/widget_name">
             <intent-filter>

@@ -17,9 +17,10 @@
 
     <ImageView
         android:id="@+id/item_color"
-        android:layout_margin="12dp"
-        android:background="@color/white"
         android:layout_width="36dp"
-        android:layout_height="36dp"/>
+        android:layout_height="36dp"
+        android:layout_margin="12dp"
+        android:background="@drawable/circle"
+        android:contentDescription="@null" />
 
 </LinearLayout>

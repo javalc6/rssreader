@@ -2,7 +2,6 @@ package livio.rssreader
 
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.DialogInterface.OnShowListener
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText

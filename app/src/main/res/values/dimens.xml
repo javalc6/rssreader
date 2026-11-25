@@ -7,10 +7,8 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="thumbnail_width">40dp</dimen>
     <dimen name="thumbnail_padding">4dp</dimen>
-    
-<!--  color picker -->    
-    <dimen name="color_swatch_large">64dp</dimen>
-    <dimen name="color_swatch_small">48dp</dimen>
-    <dimen name="color_swatch_margins_large">8dp</dimen>
-    <dimen name="color_swatch_margins_small">4dp</dimen>
+
+    <!--  color picker -->
+    <dimen name="color_swatch_size">36dp</dimen>
+    <dimen name="color_swatch_margin">8dp</dimen>
 </resources>
