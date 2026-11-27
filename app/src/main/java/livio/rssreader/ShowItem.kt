@@ -79,7 +79,9 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
     /** Called to save instance state: put critical variables here!  */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt(SAVE_currentItem_ID, smartPager!!.currentItem)
+        smartPager?.let {
+            outState.putInt(SAVE_currentItem_ID, it.currentItem)
+        }
         outState.putString(SAVE_language_ID, language)
     }
 
@@ -107,8 +109,8 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
                 pagerView, savedInstanceState, this,
                 startingIntent.getBundleExtra(RSSReader.ID_ITEM)
             )
-        } catch (e: IOException) {
-            Log.d(tag, "IOException reading feedFile in SmartPager", e)
+        } catch (e: Exception) {
+            Log.d(tag, "Exception initializing SmartPager", e)
             finish() //exit!
             return
         }
@@ -161,12 +163,12 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
         val position: Int
         if (savedInstanceState == null) {
             val default_language = startingIntent.getStringExtra("default_language")
-            language = smartPager!!.feed!!.getLanguage(default_language)
+            language = smartPager?.feed?.getLanguage(default_language)
             //            Log.d(tag, "language:" + language);
-            position = smartPager!!.itemCount - 1 - startingIntent.getIntExtra(
-                "position",
-                0
-            ) //ShowItem shows items in reversed order compared to RSSReader
+            val count = smartPager?.itemCount ?: 0
+            position = if (count > 0) {
+                count - 1 - startingIntent.getIntExtra("position", 0)
+            } else 0 //ShowItem shows items in reversed order compared to RSSReader
         } else {
             position = savedInstanceState.getInt(SAVE_currentItem_ID)
             language = savedInstanceState.getString(SAVE_language_ID)
@@ -234,13 +236,13 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        if (smartPager == null) return super.onPrepareOptionsMenu(menu)
+        val pager = smartPager ?: return super.onPrepareOptionsMenu(menu)
 
         val play = menu.findItem(R.id.menu_play) //play
         if (play != null) play.setIcon(R.drawable.ic_play_arrow_white_36dp)
 
-        val n_items = smartPager!!.itemCount
-        val pos = smartPager!!.currentItem
+        val n_items = pager.itemCount
+        val pos = pager.currentItem
 
         if (pos == 0) { // |<
             val prev = menu.findItem(R.id.menu_prev)
@@ -273,16 +275,19 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
             fwdpage()
             return true
         } else if (itemId == R.id.menu_play) {
-            if (mTts!!.isSpeaking) {
+            val tts = mTts ?: return true
+            if (tts.isSpeaking) {
                 stopTTS()
                 return true
             }
-            if (smartPager!!.feed != null) {
+            val pager = smartPager
+            val feed = pager?.feed
+            if (feed != null) {
                 val article =
-                    smartPager?.feed?.getItem(smartPager!!.itemCount - 1 - smartPager!!.currentItem) //ShowItem shows items in reversed order compared to RSSReader
+                    feed.getItem(pager.itemCount - 1 - pager.currentItem) //ShowItem shows items in reversed order compared to RSSReader
                 if (article != null) {
                     val content = article.getDescription()
-                    if ((content != null) && mTts!!.checkTTS(language)) {
+                    if ((content != null) && tts.checkTTS(language)) {
                         val am = getSystemService(AUDIO_SERVICE) as AudioManager
                         // Request audio focus for playback
                         val result = am.requestAudioFocus(
@@ -299,16 +304,18 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
                             RSSReader.cleanupContent(content, true).split(Regex("\n+"))
                                 .dropLastWhile(String::isEmpty)
                                 .toTypedArray()
-                        if ((segments.isNotEmpty()) && mTts!!.speakSegments(segments)) item.setIcon(R.drawable.ic_stop_white_36dp) //play
+                        if ((segments.isNotEmpty()) && tts.speakSegments(segments)) item.setIcon(R.drawable.ic_stop_white_36dp) //play
                     }
                 }
             }
             return true
         } else if (itemId == R.id.menu_share) {
             try {
-                if (smartPager!!.feed != null) {
+                val pager = smartPager
+                val feed = pager?.feed
+                if (feed != null) {
                     val article =
-                        smartPager?.feed?.getItem(smartPager!!.itemCount - 1 - smartPager!!.currentItem) //ShowItem shows items in reversed order compared to RSSReader
+                        feed.getItem(pager.itemCount - 1 - pager.currentItem) //ShowItem shows items in reversed order compared to RSSReader
                     if (article != null) {
                         val intent = Intent(Intent.ACTION_SEND)
                         intent.type = "text/plain"
@@ -357,14 +364,15 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
     }
 
     private fun movepage(up: Boolean) {
-        val pos = smartPager!!.currentItem
+        val pager = smartPager ?: return
+        val pos = pager.currentItem
         if (up) {
-            if (pos < smartPager!!.itemCount - 1) {
-                smartPager?.setCurrentItem(pos + 1, true) // scroll
+            if (pos < pager.itemCount - 1) {
+                pager.setCurrentItem(pos + 1, true) // scroll
             }
         } else {
             if (pos > 0) {
-                smartPager?.setCurrentItem(pos - 1, true) // scroll
+                pager.setCurrentItem(pos - 1, true) // scroll
             }
         }
         invalidateOptionsMenu()
@@ -440,11 +448,14 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
             }
             setBackgroundColor(background) // required
             if (savedInstanceState != null) {
-                loadDataWithBaseURL(
-                    savedInstanceState.getString(SAVE_msg_ID)!!,
-                    "text/html",
-                    "utf-8"
-                )
+                val msg = savedInstanceState.getString(SAVE_msg_ID)
+                if (msg != null) {
+                    loadDataWithBaseURL(
+                        msg,
+                        "text/html",
+                        "utf-8"
+                    )
+                }
             }
         }
 
@@ -492,11 +503,15 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
         val context: Context
         val n_items: Int
         var feed: RSSFeed? = null
-        val text_mode: Boolean = payload!!.getBoolean("text_mode", false)
+        val text_mode: Boolean = payload?.getBoolean("text_mode", false) ?: false
         val background: Int
 
         init {
-            val feed_id = payload!!.getString("feed_id")
+            if (payload == null) {
+                throw IOException("SmartPager constructor failed due to null payload")
+            }
+            val feed_id = payload.getString("feed_id")
+                ?: throw IOException("SmartPager constructor failed due to null feed_id")
             val feedFile = File(cacheDir, "$feed_id.cache")
             try {
                 ObjectInputStream(FileInputStream(feedFile)).use { `is` ->
@@ -506,8 +521,8 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
                 Log.d(tag, "ClassNotFoundException reading feedFile in SmartPager")
             }
 
-            background = payload.getInt("background")
-            n_items = if (feed != null) feed!!.size() else 0
+            background = payload.getInt("background", 0)
+            n_items = feed?.size() ?: 0
             if (n_items == 0)  //no point in proceeding if there is nothing to display, problem due to possible critical races
                 throw IOException("SmartPager constructor failed due to n_items = 0")
             viewPager.setAdapter(this)
@@ -516,7 +531,7 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
                     super.onPageSelected(pos)
                     //                    Log.d("onPageSelected", "pos:"+pos);
                     val rssitem =
-                        feed!!.getItem(n_items - 1 - pos) //ShowItem shows items in reversed order compared to RSSReader
+                        feed?.getItem(n_items - 1 - pos) //ShowItem shows items in reversed order compared to RSSReader
                     val t = supportActionBar
                     if ((t != null) && (rssitem != null)) {
                         t.title = Html.fromHtml(rssitem.getTitle(false))
@@ -585,13 +600,14 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
         fun setCurrentItem(item: Int, smoothScroll: Boolean) {
 //            Log.d("setCurrentItem", "pos:"+item);
             val pos = item
-            if ((pos >= 0) && (pos < smartPager!!.itemCount - 1)) {
+            val count = itemCount
+            if ((pos >= 0) && (pos < count - 1)) {
                 fwdbutton?.alpha = 1f
-                fwdbutton?.animate()!!.alpha(0f).setDuration(6000).start()
+                fwdbutton?.animate()?.alpha(0f)?.setDuration(6000)?.start()
             }
             if (pos > 0) {
                 backbutton?.alpha = 1f
-                backbutton?.animate()!!.alpha(0f).setDuration(6000).start()
+                backbutton?.animate()?.alpha(0f)?.setDuration(6000)?.start()
             }
             viewPager.setCurrentItem(item, smoothScroll)
         }
@@ -619,8 +635,8 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
             val wvp = WebViewPlus(
                 null,
                 context,
-                payload!!.getInt("background"),
-                payload.getString("html_style"),
+                payload?.getInt("background") ?: background,
+                payload?.getString("html_style"),
                 text_mode
             )
             wvp.layoutParams = ViewGroup.LayoutParams(
@@ -638,7 +654,7 @@ class ShowItem : BaseActivity(), OnAudioFocusChangeListener {
             val wv =
                 (holder as ViewHolder).webViewPlus
             val item =
-                feed!!.getItem(n_items - 1 - position) //ShowItem shows items in reversed order compared to RSSReader
+                feed?.getItem(n_items - 1 - position) //ShowItem shows items in reversed order compared to RSSReader
             if (item != null) {
                 val sb = StringBuilder(item.getPubDate(context))
                 val link = item.link
